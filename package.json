@@ -1,6 +1,6 @@
 {
-  "name": "pantherswap-frontend-dex",
-  "description": "PantherSwap Dex Interface",
+  "name": "stablecoin-dex",
+  "description": "stable coin dex",
   "homepage": ".",
   "private": true,
   "dependencies": {

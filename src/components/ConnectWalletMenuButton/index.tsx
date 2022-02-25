@@ -2,9 +2,21 @@ import React from 'react'
 import { useWeb3React } from '@web3-react/core'
 import { Button, ButtonProps, ConnectorId, useWalletModal } from '@pantherswap-libs/uikit'
 import { injected, walletconnect } from 'connectors'
-
+import styled from 'styled-components'
+// import * as CSS from 'csstype';
 
 const ConnectWalletMenuButton: React.FC<ButtonProps> = props => {
+
+  const buttonStyle = {
+    width: '150px',
+  }
+
+const EllipsisButtonText = styled.div`
+  width: 150px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 150px;
+`
   
   const { account, activate, deactivate } = useWeb3React()
 
@@ -15,7 +27,11 @@ const ConnectWalletMenuButton: React.FC<ButtonProps> = props => {
     return activate(injected)
   }
 
-  const { onPresentConnectModal } = useWalletModal(handleLogin, deactivate, account as string)  
+  const { onPresentConnectModal } = useWalletModal(
+    handleLogin, 
+    deactivate, 
+    account as string
+  );  
 
   const { onPresentAccountModal } = useWalletModal(
     () => null,
@@ -26,12 +42,12 @@ const ConnectWalletMenuButton: React.FC<ButtonProps> = props => {
   return (
     <div>
       {!account ?
-        (<Button onClick={onPresentConnectModal} {...props}>
-          Connect
+        (<Button style={buttonStyle} size="sm" onClick={onPresentConnectModal} {...props}>
+          <EllipsisButtonText>Connect</EllipsisButtonText>
         </Button>) 
         : 
-        (<Button variant="secondary" onClick={onPresentAccountModal} {...props}>
-          {account}
+        (<Button style={buttonStyle} size="sm" variant="secondary" onClick={onPresentAccountModal} {...props}>          
+          <EllipsisButtonText>{account}</EllipsisButtonText>
         </Button>)
       }    
     </div>

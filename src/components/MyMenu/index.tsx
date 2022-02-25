@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { Heading } from '@pantherswap-libs/uikit'
 import ConnectWalletMenuButton from 'components/ConnectWalletMenuButton'
+// import * as CSS from 'csstype';
 
 const TopBar = styled.div`
   width: 100%;
@@ -19,7 +20,7 @@ const HeadingArea = styled.div`
   -ms-transform: translateY(-50%);
   transform: translateY(-50%);
 `
-const ConnectButtonArea = styled.div`  
+const ConnectButtonArea = styled.div`
   float: right;
   margin: 0;
   position: absolute;
@@ -29,7 +30,7 @@ const ConnectButtonArea = styled.div`
   transform: translateY(-50%);
 `
 
-const MyMenu: React.FC = (props) => {
+const MyMenu: React.FC = () => {
   
   return (
     <TopBar>
