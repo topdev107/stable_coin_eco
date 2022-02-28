@@ -13,6 +13,14 @@
     {
       "name": "WBNB Token",
       "symbol": "WBNB",
+      "address": "0xae13d989dac2f0debff460ac112a837c89baa7cd",
+      "chainId": 97,
+      "decimals": 18,
+      "logoURI": "/images/coins/BUSD.png"
+    },
+    {
+      "name": "WBNB Token",
+      "symbol": "WBNB",
       "address": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
       "chainId": 56,
       "decimals": 18
@@ -24,30 +32,6 @@
       "chainId": 97,
       "decimals": 18,
       "logoURI": "/images/coins/BTC.png"
-    },
-    {
-      "name": "Tether USD",
-      "symbol": "USDT",
-      "address": "0x7ef95a0fee0dd31b22626fa2e10ee6a223f8a684",
-      "chainId": 97,
-      "decimals": 18,
-      "logoURI": "/images/coins/USDT-icon.png"
-    },
-    {
-      "name": "USDC",
-      "symbol": "USDC",
-      "address": "0x64544969ed7EBf5f083679233325356EbE738930",
-      "chainId": 97,
-      "decimals": 18,
-      "logoURI": "/images/coins/USDC-icon.png"
-    },
-    {
-      "name": "Dai Token",
-      "symbol": "DAI",
-      "address": "0x8a9424745056Eb399FD19a0EC26A14316684e274",
-      "chainId": 97,
-      "decimals": 18,
-      "logoURI": "/images/coins/DAI-icon.png"
     },
     {
       "name": "Bakery Token",

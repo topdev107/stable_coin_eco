@@ -15,7 +15,7 @@ const Nav = ({ activeIndex = 0 }: { activeIndex?: number }) => (
         <TranslatedText translationId={8}>Swap</TranslatedText>
       </ButtonMenuItem>
       <ButtonMenuItem id="pool-nav-link" to="/pool" as={Link}>
-        <TranslatedText translationId={74}>Liquidity</TranslatedText>
+        <TranslatedText translationId={74}>Pool</TranslatedText>
       </ButtonMenuItem>
       <ButtonMenuItem
         id="pool-nav-link"
@@ -24,7 +24,7 @@ const Nav = ({ activeIndex = 0 }: { activeIndex?: number }) => (
         target="_blank"
         rel="noreferrer noopener"
       >
-        Bridge
+        Staking
       </ButtonMenuItem>
     </ButtonMenu>
   </StyledNav>

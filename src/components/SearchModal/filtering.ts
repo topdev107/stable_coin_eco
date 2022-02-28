@@ -7,7 +7,7 @@ export function filterTokens(tokens: Token[], search: string): Token[] {
   const searchingAddress = isAddress(search)
 
   if (searchingAddress) {
-    return tokens.filter((token) => token.address === searchingAddress)
+    return tokens.filter((token) => token.address === searchingAddress)    
   }
 
   const lowerSearchParts = search

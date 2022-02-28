@@ -158,7 +158,7 @@ export function CurrencySearch({
         <SearchInput
           type="text"
           id="token-search-input"
-          placeholder={t('tokenSearchPlaceholder')}
+          placeholder="Search name"
           value={searchQuery}
           ref={inputRef as RefObject<HTMLInputElement>}
           onChange={handleInput}
@@ -180,9 +180,17 @@ export function CurrencySearch({
       <div style={{ flex: '1' }}>
         <AutoSizer disableWidth>
           {({ height }) => (
+            // <CurrencyList
+            //   height={height}
+            //   showETH={showETH}
+            //   currencies={filteredSortedTokens}
+            //   onCurrencySelect={handleCurrencySelect}
+            //   otherCurrency={otherSelectedCurrency}
+            //   selectedCurrency={selectedCurrency}
+            //   fixedListRef={fixedList}
             <CurrencyList
               height={height}
-              showETH={showETH}
+              showETH={false}
               currencies={filteredSortedTokens}
               onCurrencySelect={handleCurrencySelect}
               otherCurrency={otherSelectedCurrency}
