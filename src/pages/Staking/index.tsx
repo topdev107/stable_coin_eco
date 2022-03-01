@@ -26,7 +26,7 @@ import { useAllTokens } from '../../hooks/Tokens'
 const { body: Body } = TYPE
 
 
-export default function Pool() {
+export default function Staking() {
   const allTokens = useAllTokens()
   const theme = useContext(ThemeContext)
   const { account } = useActiveWeb3React()
@@ -62,8 +62,7 @@ export default function Pool() {
 
   return (
     <>
-      <CardNav activeIndex={1} />
-      
+      <CardNav activeIndex={2} />
       {
         Object.values(allTokens).map((onetoken) => {
           return (

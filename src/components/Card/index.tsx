@@ -17,6 +17,12 @@ export const LightCard = styled(Card)`
   background-color: ${({ theme }) => theme.colors.invertedContrast};
 `
 
+export const DarkblueOutlineCard = styled(Card)`
+  border: 1px solid ${({ theme }) => theme.colors.primaryDark};
+  background-color: ${({ theme }) => theme.colors.invertedContrast};
+  margin: 5px;
+`
+
 export const GreyCard = styled(Card)`
   background-color: ${({ theme }) => theme.colors.tertiary};
 `

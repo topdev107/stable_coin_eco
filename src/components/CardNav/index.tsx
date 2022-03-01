@@ -17,15 +17,9 @@ const Nav = ({ activeIndex = 0 }: { activeIndex?: number }) => (
       <ButtonMenuItem id="pool-nav-link" to="/pool" as={Link}>
         <TranslatedText translationId={74}>Pool</TranslatedText>
       </ButtonMenuItem>
-      <ButtonMenuItem
-        id="pool-nav-link"
-        as="a"
-        href="https://www.binance.org/en/bridge?utm_source=PantherSwap"
-        target="_blank"
-        rel="noreferrer noopener"
-      >
+      <ButtonMenuItem id="staking-nav-link" to="/staking" as={Link}>
         Staking
-      </ButtonMenuItem>
+      </ButtonMenuItem>      
     </ButtonMenu>
   </StyledNav>
 )

@@ -2,7 +2,6 @@ import { Currency, ETHER, Token } from '@pantherswap-libs/sdk'
 import React, { KeyboardEvent, RefObject, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Text, CloseIcon } from '@pantherswap-libs/uikit'
 import { useSelector } from 'react-redux'
-import { useTranslation } from 'react-i18next'
 import { FixedSizeList } from 'react-window'
 import { ThemeContext } from 'styled-components'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -47,7 +46,6 @@ export function CurrencySearch({
   isOpen,
   onChangeList,
 }: CurrencySearchProps) {
-  const { t } = useTranslation()
   const { chainId } = useActiveWeb3React()
   const theme = useContext(ThemeContext)
 
@@ -60,10 +58,6 @@ export function CurrencySearch({
   const isAddressSearch = isAddress(searchQuery)
   const searchToken = useToken(searchQuery)
 
-  const showETH: boolean = useMemo(() => {
-    const s = searchQuery.toLowerCase().trim()
-    return s === '' || s === 'e' || s === 'et' || s === 'eth'
-  }, [searchQuery])
 
   const tokenComparator = useTokenComparator(invertSearchOrder)
 
