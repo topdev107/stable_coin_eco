@@ -47,6 +47,7 @@ const verticalCenterContainerStyle = {
   alignItems: 'center'
 }
 
+
 const PoolItem = ({ token, ...rest }: any) => {
   const theme = useContext(ThemeContext)
 
@@ -137,6 +138,7 @@ const PoolItem = ({ token, ...rest }: any) => {
             </Col>
           </Row>
         </PaddingDiv>
+
         <SeperaterLine />
         <PaddingDiv padding="0px">
           <Row>
@@ -202,7 +204,7 @@ const PoolItem = ({ token, ...rest }: any) => {
           </Row>
           {
             stakeOpened? (
-              <StakeView/>
+              <StakeView token={token} staked/>
             ) : (
               <></>
             )

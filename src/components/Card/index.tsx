@@ -9,6 +9,7 @@ const Card = styled.div<any>`
   padding: ${({ padding }) => padding};
   border: ${({ border }) => border};
   border-radius: ${({ borderRadius }) => borderRadius};
+  height: ${({height}) => height};
 `
 export default Card
 

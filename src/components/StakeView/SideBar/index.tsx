@@ -33,13 +33,13 @@ const SideBar = ({ token, ...rest }: any) => {
   }
 
   return (
-    <Row className='pb-3'>
-        <Col md={9}>
+    <Row>
+        <Col md={9} xs={6}>
             <div style={FixedHeightStyle}><Text fontSize='12px' className='text-right w-100'>Claim</Text></div>
             <div style={FixedHeightStyle}><Text fontSize='12px' className='text-right w-100'>Stake</Text></div>
             <div style={FixedHeightStyle}><Text fontSize='12px' className='text-right w-100'>Unstake</Text></div>
         </Col>
-        <Col md={3}>
+        <Col md={3} xs={6}>
             <div style={VerticalBarStyle}/>
             <div style={VerticalBarStyle}/>
             <div style={VerticalBarStyle}/>
