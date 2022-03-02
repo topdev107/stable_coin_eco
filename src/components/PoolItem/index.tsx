@@ -204,7 +204,7 @@ const PoolItem = ({ token, ...rest }: any) => {
           </Row>
           {
             stakeOpened? (
-              <StakeView token={token} staked/>
+              <StakeView token={token}/>
             ) : (
               <></>
             )
