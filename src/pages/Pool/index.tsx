@@ -1,7 +1,7 @@
 import React, { useContext, useMemo, useCallback } from 'react'
-import { ThemeContext } from 'styled-components'
+import styled, { ThemeContext } from 'styled-components'
 import { Pair } from '@pantherswap-libs/sdk'
-import { Button, CardBody, Text } from '@pantherswap-libs/uikit'
+import { Button, CardBody, LogoIcon, Text } from '@pantherswap-libs/uikit'
 import { Link } from 'react-router-dom'
 import CardNav from 'components/CardNav'
 import Question from 'components/QuestionHelper'
@@ -11,6 +11,7 @@ import { StyledInternalLink, TYPE } from 'components/Shared'
 import { LightCard, DarkblueOutlineCard } from 'components/Card'
 import { RowBetween } from 'components/Row'
 import { AutoColumn } from 'components/Column'
+import { Row, Col } from 'react-bootstrap'
 
 import { useActiveWeb3React } from 'hooks'
 import { usePairs } from 'data/Reserves'
@@ -20,8 +21,10 @@ import TranslatedText from 'components/TranslatedText'
 import { TranslateString } from 'utils/translateTextHelpers'
 import PageHeader from 'components/PageHeader'
 import PoolItem from 'components/PoolItem'
+import { right } from '@popperjs/core'
 import AppBody from '../AppBody'
 import { useAllTokens } from '../../hooks/Tokens'
+
 
 const { body: Body } = TYPE
 
@@ -60,17 +63,46 @@ export default function Pool() {
 
   const allV2PairsWithLiquidity = v2Pairs.map(([, pair]) => pair).filter((v2Pair): v2Pair is Pair => Boolean(v2Pair))
 
+  const MaxWidthDiv = styled.div`
+    width: 100%;
+    max-width: 900px;
+  `
+  const borderRadius7 = {
+    borderRadius: '5px',
+    border: '1px solid #ff720d'
+  }
+
+  const verticalCenterContainerStyle = {
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center'
+  }
+
   return (
     <>
       <CardNav activeIndex={1} />
-      
-      {
-        Object.values(allTokens).map((onetoken) => {
-          return (
-            <PoolItem token={onetoken}/>       
-          )
-        })
-      }      
+      <MaxWidthDiv>
+        <Button variant='secondary' style={borderRadius7} endIcon={<LogoIcon/>} className="ml-1">
+          Withdraw MIM
+        </Button>
+        <LightCard className="mt-2 ml-1">
+          <Row style={verticalCenterContainerStyle}>
+            <Col md={9}>
+              <Text>Pools Earning: <LogoIcon/> 0.0PTP</Text> 
+            </Col>
+            <Col md={3}>
+              <Button variant='secondary' size='sm' style={borderRadius7} >Claim PTP</Button>   
+            </Col>
+          </Row>                      
+        </LightCard>
+        {
+          Object.values(allTokens).map((onetoken) => {
+            return (
+              <PoolItem token={onetoken}/>       
+            )
+          })
+        }     
+      </MaxWidthDiv> 
     </>
   )
 }
