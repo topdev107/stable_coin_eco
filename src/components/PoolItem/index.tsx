@@ -3,6 +3,9 @@ import styled, { ThemeContext } from 'styled-components'
 import { Text, Button, ChevronDownIcon, CloseIcon } from '@pantherswap-libs/uikit'
 import { Token } from '@pantherswap-libs/sdk'
 import { Row, Col } from 'react-bootstrap'
+import Modal from '../Modal'
+import DepositModal from '../DepositConfirmModal'
+import WithdrawModal from '../WithdrawConfirmModal'
 import Question from '../QuestionHelper'
 import { DarkblueOutlineCard } from '../Card'
 import CurrencyLogo from '../CurrencyLogo'
@@ -53,11 +56,21 @@ const PoolItem = ({ token, ...rest }: any) => {
 
   const [stakeOpened, setStakeOpened] = useState<boolean>(false);
 
+  const [depositModal, setDepositModal] = useState<boolean>(false);
+  const [withdrawModal, setWithdrawModal] = useState<boolean>(false);
+
   const open = useCallback(() => setStakeOpened(true), [setStakeOpened])
   const close = useCallback(() => setStakeOpened(false), [setStakeOpened])
 
-  return (
+  const openDepositModal = useCallback (() => setDepositModal(true), [setDepositModal]);
+  const closeDepositModal = useCallback (() => setDepositModal(false), [setDepositModal]);
+  const openWithdrawModal = useCallback (() => setWithdrawModal(true), [setWithdrawModal]);
+  const closeWithdrawModal = useCallback (() => setWithdrawModal(false), [setWithdrawModal]);
 
+  return (
+    <>    
+    <DepositModal isOpen={depositModal} token={token} onDismiss={closeDepositModal}/>
+    <WithdrawModal isOpen={withdrawModal} token={token} onDismiss={closeWithdrawModal}/> 
     <DarkblueOutlineCard padding="0px">
       <Body color={theme.colors.textDisabled} textAlign="center">
         <PaddingDiv padding="0px">
@@ -130,8 +143,8 @@ const PoolItem = ({ token, ...rest }: any) => {
               <CenterContainer  style={verticalCenterContainerStyle}>
                 <CenterVerticalContainer>
                   <Row>     
-                    <Button size='sm' style={borderRadius7} variant='secondary'>Deposit</Button>
-                    <Button size='sm' style={borderRadius7} variant='secondary' className="ml-2">Withdraw</Button>                                 
+                    <Button size='sm' style={borderRadius7} variant='secondary' onClick={openDepositModal}>Deposit</Button>
+                    <Button size='sm' style={borderRadius7} variant='secondary' className="ml-2" onClick={openWithdrawModal}>Withdraw</Button>                                 
                   </Row>
                 </CenterVerticalContainer>
               </CenterContainer>
@@ -212,6 +225,7 @@ const PoolItem = ({ token, ...rest }: any) => {
         </PaddingDiv>
       </Body>
     </DarkblueOutlineCard>    
+    </>
   )
 }
 
