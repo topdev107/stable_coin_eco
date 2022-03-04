@@ -135,7 +135,7 @@ export default function WithdrawConfirmModal({
         </RowBetween>
         <Row className='mt-4'>
           <Col className='pl-3 pr-1'>
-            <Button variant='secondary' style={{borderRadius: '5px'}} fullWidth>Cancel</Button>
+            <Button variant='secondary' style={{borderRadius: '5px'}} fullWidth onClick={handleClose}>Cancel</Button>
           </Col>
           <Col className='pl-1 pr-3'>
             <Button variant='primary' style={{borderRadius: '5px'}} fullWidth>Deposit</Button>
