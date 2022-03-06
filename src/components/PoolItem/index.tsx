@@ -1,16 +1,18 @@
-import React, { useContext, useState, useCallback } from 'react'
-import styled, { ThemeContext } from 'styled-components'
-import { Text, Button, ChevronDownIcon, CloseIcon } from '@pantherswap-libs/uikit'
 import { Token } from '@pantherswap-libs/sdk'
-import { Row, Col } from 'react-bootstrap'
-import Modal from '../Modal'
-import DepositModal from '../DepositConfirmModal'
-import WithdrawModal from '../WithdrawConfirmModal'
-import Question from '../QuestionHelper'
+import { Button, ChevronDownIcon, CloseIcon, Text } from '@pantherswap-libs/uikit'
+import React, { useCallback, useContext, useState } from 'react'
+import { Col, Row } from 'react-bootstrap'
+import styled, { ThemeContext } from 'styled-components'
+import { getPoolContract } from 'utils'
+import { DEFAULT_DEADLINE_FROM_NOW } from '../../constants'
+import { useActiveWeb3React } from '../../hooks'
 import { DarkblueOutlineCard } from '../Card'
 import CurrencyLogo from '../CurrencyLogo'
+import DepositModal from '../DepositConfirmModal'
+import Question from '../QuestionHelper'
 import { TYPE } from '../Shared'
 import StakeView from "../StakeView"
+import WithdrawModal from '../WithdrawConfirmModal'
 
 
 const { body: Body } = TYPE
@@ -51,7 +53,7 @@ const verticalCenterContainerStyle = {
 }
 
 
-const PoolItem = ({ token, ...rest }: any) => {
+const PoolItem = ({ key, token, ...rest }: any) => {
   const theme = useContext(ThemeContext)
 
   const [stakeOpened, setStakeOpened] = useState<boolean>(false);
@@ -62,14 +64,36 @@ const PoolItem = ({ token, ...rest }: any) => {
   const open = useCallback(() => setStakeOpened(true), [setStakeOpened])
   const close = useCallback(() => setStakeOpened(false), [setStakeOpened])
 
-  const openDepositModal = useCallback (() => setDepositModal(true), [setDepositModal]);
+  const openDepositModal = useCallback (
+    (e, k) => {
+      if (k === key) {
+        setDepositModal(true)
+      }
+    }, [setDepositModal, key]);
   const closeDepositModal = useCallback (() => setDepositModal(false), [setDepositModal]);
   const openWithdrawModal = useCallback (() => setWithdrawModal(true), [setWithdrawModal]);
   const closeWithdrawModal = useCallback (() => setWithdrawModal(false), [setWithdrawModal]);
+  
+  const { account, chainId, library } = useActiveWeb3React()
 
+  const handleDeposit = useCallback (    
+    async (amount: string, tkn: Token) => {
+      if (!chainId || !library || !account) return
+      const poolContract = getPoolContract(chainId, library, account)
+      const deadline = (Date.now() + DEFAULT_DEADLINE_FROM_NOW) * 1000
+      await poolContract.methods.deposit(tkn, amount, account, deadline).call().then(console.log)
+    }, [account, chainId, library]    
+  )
+  
   return (
     <>    
-    <DepositModal isOpen={depositModal} token={token} onDismiss={closeDepositModal}/>
+    <DepositModal
+      key={key}
+      isOpen={depositModal}
+      token={token} 
+      onDismiss={closeDepositModal}
+      onDeposit={handleDeposit}     
+    />
     <WithdrawModal isOpen={withdrawModal} token={token} onDismiss={closeWithdrawModal}/> 
     <DarkblueOutlineCard padding="0px">
       <Body color={theme.colors.textDisabled} textAlign="center">
@@ -143,7 +167,7 @@ const PoolItem = ({ token, ...rest }: any) => {
               <CenterContainer  style={verticalCenterContainerStyle}>
                 <CenterVerticalContainer>
                   <Row>     
-                    <Button size='sm' style={borderRadius7} variant='secondary' onClick={openDepositModal}>Deposit</Button>
+                    <Button size='sm' style={borderRadius7} variant='secondary' onClick={(e) => openDepositModal(e, key)}>Deposit</Button>
                     <Button size='sm' style={borderRadius7} variant='secondary' className="ml-2" onClick={openWithdrawModal}>Withdraw</Button>                                 
                   </Row>
                 </CenterVerticalContainer>

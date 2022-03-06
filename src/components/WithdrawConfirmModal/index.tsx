@@ -76,7 +76,7 @@ export default function WithdrawConfirmModal({
   )
 
   return (
-    <Modal isOpen={isOpen} onDismiss={handleClose}>
+    <Modal isOpen={isOpen} onDismiss={handleClose}  minHeight={50} maxHeight={90}>
       <StyleableDiv width='100%' padding='30px 30px'>
         <CenterContainer>
           <Text className="mr-3" fontSize='20px'>Confirm Withdraw</Text>

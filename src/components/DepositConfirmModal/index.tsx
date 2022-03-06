@@ -5,8 +5,9 @@ import styled, { ThemeContext } from 'styled-components'
 import { Text, Button, ChevronDownIcon, CloseIcon } from '@pantherswap-libs/uikit'
 import { Row, Col, Form } from 'react-bootstrap'
 import { Field } from 'state/swap/actions'
-import { useDefaultsFromURLSearch, useDerivedSwapInfo, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
+import { tryParseAmount, useDefaultsFromURLSearch, useDerivedSwapInfo, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useCurrencyBalance } from '../../state/wallet/hooks'
 import { useActiveWeb3React } from '../../hooks'
 import CurrencyLogo from '../CurrencyLogo'
@@ -14,14 +15,16 @@ import AmountInputPanel from '../AmountInputPanel'
 import Question, {QuestionColorHelper} from '../QuestionHelper'
 import Modal from '../Modal'
 import { RowBetween } from '../Row'
+import { POOL_ADDRESS } from '../../constants'
 
 interface DepositConfirmModalProps {
   isOpen: boolean
   token: Token
   onDismiss: () => void
   // onApprove: (token: Token) => void
-  // onDeposit: (amount: number, token: Token) => void
+  onDeposit: (amount: string, token: Token) => void
 }
+
 
 const StyleableDiv = styled.div<any>`
   width: ${({ width }) => width};
@@ -45,19 +48,24 @@ const CenterVerticalContainer = styled.div<any>`
 export default function DepositConfirmModal({
   isOpen,
   token,
-  onDismiss
+  onDismiss,
+  onDeposit
 }: DepositConfirmModalProps) {
+  const { typedValue } = useSwapState()
 
+  const [approvalA, approveACallback] = useApproveCallback(tryParseAmount(typedValue, token), POOL_ADDRESS)
+
+  
   const { v2Trade, currencyBalances, parsedAmount, currencies, inputError: swapInputError } = useDerivedSwapInfo()
   const { onSwitchTokens, onCurrencySelection, onUserInput, onChangeRecipient } = useSwapActionHandlers()  
   const { account } = useActiveWeb3React()
   const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, token ?? undefined)
 
-  const { typedValue } = useSwapState()
+  
 
   const handleTypeInput = useCallback(
-    (value: string) => {
-      onUserInput(Field.INPUT, value)
+    (val: string) => {
+      onUserInput(Field.INPUT, val)
     },
     [onUserInput]
   )
@@ -75,8 +83,14 @@ export default function DepositConfirmModal({
     }, [onUserInput, onDismiss]
   )
 
+  const handleDeposit = useCallback (
+    (e, value: string, tk: Token) => {
+      onDeposit(value, tk)
+    }, [onDeposit]
+  )
+
   return (
-    <Modal isOpen={isOpen} onDismiss={handleClose} >
+    <Modal isOpen={isOpen} onDismiss={handleClose} minHeight={50} maxHeight={90}>
       <StyleableDiv width='100%' padding='30px 30px'>
         <CenterContainer>
           <Text className="mr-3" fontSize='20px'>Confirm Deposit</Text>
@@ -136,10 +150,14 @@ export default function DepositConfirmModal({
         <Row className='mt-4'>
           <Col className='pl-3 pr-1'>
             <Button variant='secondary' style={{borderRadius: '5px'}} fullWidth onClick={handleClose}>Cancel</Button>
-          </Col>
+          </Col>          
           <Col className='pl-1 pr-3'>
-            <Button variant='primary' style={{borderRadius: '5px'}} fullWidth>Deposit</Button>
-          </Col>
+            {
+              (approvalA === ApprovalState.UNKNOWN || approvalA === ApprovalState.PENDING || approvalA === ApprovalState.NOT_APPROVED) ?
+              <Button variant='primary' style={{borderRadius: '5px'}} fullWidth onClick={approveACallback}>Approve</Button> : 
+              <Button variant='primary' style={{borderRadius: '5px'}} fullWidth onClick={(e) => handleDeposit(e, typedValue, token)}>Deposit</Button>              
+            }            
+          </Col>          
         </Row>
       </StyleableDiv>
     </Modal>

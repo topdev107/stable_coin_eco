@@ -5,7 +5,8 @@ import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { BigNumber } from '@ethersproject/bignumber'
 import { abi as IUniswapV2Router02ABI } from '@uniswap/v2-periphery/build/IUniswapV2Router02.json'
 import { ChainId, JSBI, Percent, Token, CurrencyAmount, Currency, ETHER } from '@pantherswap-libs/sdk'
-import { ROUTER_ADDRESS } from '../constants'
+import PoolABI from '../constants/abis/Pool.json'
+import { ROUTER_ADDRESS, POOL_ADDRESS } from '../constants'
 import { TokenAddressMap } from '../state/lists/hooks'
 
 // returns the checksummed address if the address is valid, otherwise returns false
@@ -85,6 +86,12 @@ export function getContract(address: string, ABI: any, library: Web3Provider, ac
   }
 
   return new Contract(address, ABI, getProviderOrSigner(library, account) as any)
+}
+
+// account is optional
+// _: number: chainId (testnet: 97)
+export function getPoolContract(_: number, library: Web3Provider, account?: string) : Contract {
+  return getContract(POOL_ADDRESS, PoolABI, library, account)
 }
 
 // account is optional

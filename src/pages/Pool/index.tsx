@@ -98,7 +98,7 @@ export default function Pool() {
         {
           Object.values(allTokens).map((onetoken) => {
             return (
-              <PoolItem token={onetoken}/>       
+              <PoolItem key={onetoken.address.toString()} token={onetoken}/>       
             )
           })
         }     
