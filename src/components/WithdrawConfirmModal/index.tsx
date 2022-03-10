@@ -1,18 +1,19 @@
 
-import { CurrencyAmount, Currency, JSBI, Token, Trade } from '@pantherswap-libs/sdk'
-import React, { useCallback, useEffect, useState } from 'react'
-import styled, { ThemeContext } from 'styled-components'
-import { Text, Button, ChevronDownIcon, CloseIcon } from '@pantherswap-libs/uikit'
-import { Row, Col, Form } from 'react-bootstrap'
+import { Token } from '@pantherswap-libs/sdk'
+import { Button, Text } from '@pantherswap-libs/uikit'
+import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import React, { useCallback, useState } from 'react'
+import { Col, Row } from 'react-bootstrap'
 import { Field } from 'state/swap/actions'
-import { useDefaultsFromURLSearch, useDerivedSwapInfo, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
-import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { useCurrencyBalance } from '../../state/wallet/hooks'
+import { tryParseAmount, useDerivedSwapInfo, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
+import styled from 'styled-components'
+import { POOL_ADDRESS } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
-import CurrencyLogo from '../CurrencyLogo'
+import { useCurrencyBalance } from '../../state/wallet/hooks'
 import AmountInputPanel from '../AmountInputPanel'
-import Question, {QuestionColorHelper} from '../QuestionHelper'
+import CurrencyLogo from '../CurrencyLogo'
 import Modal from '../Modal'
+import { QuestionColorHelper } from '../QuestionHelper'
 import { RowBetween } from '../Row'
 
 interface WithdrawConfirmModalProps {
@@ -20,8 +21,9 @@ interface WithdrawConfirmModalProps {
   token: Token
   onDismiss: () => void
   // onApprove: (token: Token) => void
-  // onDeposit: (amount: number, token: Token) => void
+  // onDeposit: (amount: string, token: Token) => void
 }
+
 
 const StyleableDiv = styled.div<any>`
   width: ${({ width }) => width};
@@ -48,35 +50,37 @@ export default function WithdrawConfirmModal({
   onDismiss
 }: WithdrawConfirmModalProps) {
 
-  const { v2Trade, currencyBalances, parsedAmount, currencies, inputError: swapInputError } = useDerivedSwapInfo()
-  const { onSwitchTokens, onCurrencySelection, onUserInput, onChangeRecipient } = useSwapActionHandlers()  
+  const [inputedValue, setInputedValue] = useState('')
+
+  const [approvalA, approveACallback] = useApproveCallback(tryParseAmount(inputedValue, token), POOL_ADDRESS)
+
   const { account } = useActiveWeb3React()
   const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, token ?? undefined)
 
-  const { typedValue } = useSwapState()
-
   const handleTypeInput = useCallback(
-    (value: string) => {
-      onUserInput(Field.INPUT, value)
+    (val: string) => {
+      setInputedValue(val)
     },
-    [onUserInput]
+    [setInputedValue]
   )
 
   const handleMaxInput = useCallback(() => {
     if (selectedCurrencyBalance) {
-      onUserInput(Field.INPUT, selectedCurrencyBalance.toExact())
+      setInputedValue(selectedCurrencyBalance.toExact())
     }
-  }, [selectedCurrencyBalance, onUserInput])
-
+  }, [selectedCurrencyBalance, setInputedValue])
+  
   const handleClose = useCallback (
     () => {
-      onUserInput(Field.INPUT, '')
+      setInputedValue('')
       onDismiss()
-    }, [onUserInput, onDismiss]
+    }, [setInputedValue, onDismiss]
   )
 
+  
+
   return (
-    <Modal isOpen={isOpen} onDismiss={handleClose}  minHeight={50} maxHeight={90}>
+    <Modal isOpen={isOpen} onDismiss={handleClose} minHeight={50} maxHeight={90}>
       <StyleableDiv width='100%' padding='30px 30px'>
         <CenterContainer>
           <Text className="mr-3" fontSize='20px'>Confirm Withdraw</Text>
@@ -89,9 +93,8 @@ export default function WithdrawConfirmModal({
         </RowBetween>
         <Row className='mt-1'>
           <Col>
-            <AmountInputPanel
-              label='Deposited: 0.0'
-              value={typedValue}
+            <AmountInputPanel            
+              value={inputedValue}
               showMaxButton
               currency={token}
               onUserInput={handleTypeInput}
@@ -136,12 +139,16 @@ export default function WithdrawConfirmModal({
         <Row className='mt-4'>
           <Col className='pl-3 pr-1'>
             <Button variant='secondary' style={{borderRadius: '5px'}} fullWidth onClick={handleClose}>Cancel</Button>
-          </Col>
+          </Col>          
           <Col className='pl-1 pr-3'>
-            <Button variant='primary' style={{borderRadius: '5px'}} fullWidth>Deposit</Button>
-          </Col>
+            {
+              (approvalA === ApprovalState.UNKNOWN || approvalA === ApprovalState.PENDING || approvalA === ApprovalState.NOT_APPROVED) ?
+              <Button variant='primary' style={{borderRadius: '5px'}} fullWidth onClick={approveACallback}>Approve</Button> : 
+              <Button variant='primary' style={{borderRadius: '5px'}} fullWidth >Withdraw</Button>        
+            }             
+          </Col>          
         </Row>
       </StyleableDiv>
     </Modal>
-  )
+  )  
 }

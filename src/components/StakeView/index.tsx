@@ -1,13 +1,10 @@
-import React, { useContext, useState, useCallback } from 'react'
+import { Button, Text } from '@pantherswap-libs/uikit'
+import React, { useContext, useState } from 'react'
+import { Col, Form, Row } from 'react-bootstrap'
 import styled, { ThemeContext } from 'styled-components'
-import { Text, Button, ChevronDownIcon, CloseIcon, Radio } from '@pantherswap-libs/uikit'
-import { Token } from '@pantherswap-libs/sdk'
-import { Row, Col, Form } from 'react-bootstrap'
-import Question, {QuestionColorHelper} from '../QuestionHelper'
-import { BlueCard, DarkblueOutlineCard, GreyCard, YellowCard } from '../Card'
-import CurrencyLogo from '../CurrencyLogo'
+import { GreyCard } from '../Card'
+import Question, { QuestionColorHelper } from '../QuestionHelper'
 import { TYPE } from '../Shared'
-import SideBar from './SideBar'
 
 const { body: Body } = TYPE
 
@@ -46,7 +43,7 @@ const RadioColorOrangeStyle = {
   accentColor: '#ff720d'
 }
 
-const StakeView = ({ token, staked, ...rest }: any) => {
+export default function StakeView ({ token, staked, ...rest }: any) {
   const theme = useContext(ThemeContext)
 
   const [radio, setRadio] = useState("stake"); // claim, stake, unstake
@@ -173,6 +170,4 @@ const StakeView = ({ token, staked, ...rest }: any) => {
     </Body>
   )
 }
-
-export default StakeView;
 

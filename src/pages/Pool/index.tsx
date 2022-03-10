@@ -1,29 +1,27 @@
-import React, { useContext, useMemo, useCallback } from 'react'
-import styled, { ThemeContext } from 'styled-components'
-import { Pair } from '@pantherswap-libs/sdk'
-import { Button, CardBody, LogoIcon, Text } from '@pantherswap-libs/uikit'
-import { Link } from 'react-router-dom'
+import { Pair, Token } from '@pantherswap-libs/sdk'
+import { Button, LogoIcon, Text } from '@pantherswap-libs/uikit'
+import { LightCard } from 'components/Card'
 import CardNav from 'components/CardNav'
-import Question from 'components/QuestionHelper'
-import FullPositionCard from 'components/PositionCard'
-import { useTokenBalancesWithLoadingIndicator } from 'state/wallet/hooks'
-import { StyledInternalLink, TYPE } from 'components/Shared'
-import { LightCard, DarkblueOutlineCard } from 'components/Card'
-import { RowBetween } from 'components/Row'
-import { AutoColumn } from 'components/Column'
-import { Row, Col } from 'react-bootstrap'
-
-import { useActiveWeb3React } from 'hooks'
-import { usePairs } from 'data/Reserves'
-import { toV2LiquidityToken, useTrackedTokenPairs } from 'state/user/hooks'
-import { Dots } from 'components/swap/styleds'
-import TranslatedText from 'components/TranslatedText'
-import { TranslateString } from 'utils/translateTextHelpers'
-import PageHeader from 'components/PageHeader'
 import PoolItem from 'components/PoolItem'
-import { right } from '@popperjs/core'
-import AppBody from '../AppBody'
+import { TYPE } from 'components/Shared'
+import { usePairs } from 'data/Reserves'
+import { useActiveWeb3React } from 'hooks'
+
+import React, { useContext, useMemo, useCallback, useState, useEffect } from 'react'
+import { Col, Row } from 'react-bootstrap'
+import { toV2LiquidityToken, useTrackedTokenPairs } from 'state/user/hooks'
+import { useTokenBalancesWithLoadingIndicator } from 'state/wallet/hooks'
+import styled, { ThemeContext } from 'styled-components'
+
+import { useDispatch } from 'react-redux'
+import { getPoolContract } from 'utils'
+import { DEFAULT_DEADLINE_FROM_NOW } from '../../constants'
 import { useAllTokens } from '../../hooks/Tokens'
+import DepositModal from '../../components/DepositConfirmModal'
+
+import { AppDispatch } from '../../state/index'
+import { addOrUpdatePoolItem } from '../../state/pool/reducer'
+import { setTokenAddress } from '../../state/pool/reducer1'
 
 
 const { body: Body } = TYPE
@@ -32,7 +30,8 @@ const { body: Body } = TYPE
 export default function Pool() {
   const allTokens = useAllTokens()
   const theme = useContext(ThemeContext)
-  const { account } = useActiveWeb3React()
+  
+  const { account, chainId, library } = useActiveWeb3React()  
 
   // fetch the user's balances of all tracked V2 LP tokens
   const trackedTokenPairs = useTrackedTokenPairs()
@@ -63,6 +62,32 @@ export default function Pool() {
 
   const allV2PairsWithLiquidity = v2Pairs.map(([, pair]) => pair).filter((v2Pair): v2Pair is Pair => Boolean(v2Pair))
 
+  const [selectedToken, setSelectedToken] = useState<Token | undefined>();
+  const [depositModal, setDepositModal] = useState<boolean>(false);
+  const [withdrawModal, setWithdrawModal] = useState<boolean>(false);
+
+  const openDepositModal = token => () => {      
+    setDepositModal(true)
+    setSelectedToken(token)
+  }
+
+  // const openDepositModal = useCallback (() => setDepositModal(true), [setDepositModal]);
+  const closeDepositModal = useCallback (() => setDepositModal(false), [setDepositModal]);
+  const openWithdrawModal = useCallback (() => setWithdrawModal(true), [setWithdrawModal]);
+  const closeWithdrawModal = useCallback (() => setWithdrawModal(false), [setWithdrawModal]);
+
+  const handleDeposit = useCallback (    
+    async (amount: string, tkn: Token | undefined) => {
+      if (!chainId || !library || !account || !tkn) return
+      const poolContract = getPoolContract(chainId, library, account)
+      const deadline = (Date.now() + DEFAULT_DEADLINE_FROM_NOW) * 1000
+      await poolContract.deposit(tkn.address, amount, account, deadline).then((response) => {
+        console.log(response)
+        console.log('deposit completed')
+      })
+    }, [account, chainId, library]    
+  ) 
+
   const MaxWidthDiv = styled.div`
     width: 100%;
     max-width: 900px;
@@ -78,8 +103,15 @@ export default function Pool() {
     alignItems: 'center'
   }
 
-  return (
+  return (    
     <>
+      <DepositModal
+        isOpen={depositModal}     
+        token={selectedToken}
+        onDismiss={closeDepositModal}
+        onDeposit={handleDeposit}     
+      />
+
       <CardNav activeIndex={1} />
       <MaxWidthDiv>
         <Button variant='secondary' style={borderRadius7} endIcon={<LogoIcon/>} className="ml-1">
@@ -93,14 +125,17 @@ export default function Pool() {
             <Col md={3}>
               <Button variant='secondary' size='sm' style={borderRadius7} >Claim PTP</Button>   
             </Col>
-          </Row>                      
+          </Row>       
         </LightCard>
         {
-          Object.values(allTokens).map((onetoken) => {
+          Object.values(allTokens).map((onetoken, index) => {
             return (
-              <PoolItem key={onetoken.address.toString()} token={onetoken}/>       
+              <PoolItem 
+                token={onetoken}
+                openDepositModal={openDepositModal(onetoken)}
+                />   
             )
-          })
+          })          
         }     
       </MaxWidthDiv> 
     </>
