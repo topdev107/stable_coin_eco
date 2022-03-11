@@ -4,7 +4,13 @@ export const ROUTER_ADDRESS = '0x24f7C33ae5f77e2A9ECeed7EA858B4ca2fa1B7eC' // ma
 // export const ROUTER_ADDRESS = '0x8C2CaBc62Cd026f39B816C10134035D41E5878b6' // bsc testnet
 
 export const POOL_ADDRESS = '0xc9Df1E068Db265F563D0b995709F988552D0b062' // bsc testnet
+export const CHAIN_LINK_PRICE_PROVIDER_ADDRESS = "0xF4B2159f1BbcAFf54f4215ff9336a67A47421AcF" // bsc testnet
+export const ASSET_DAI_ADDRESS = '0x5534d2B73C34a73e463F25315831d366AFB90baD' // bsc testnet
+export const ASSET_USDC_ADDRESS = '0x4a0d7Ec1884902729d9699543A9DB31A23833724' // bsc testnet
+export const ASSET_USDT_ADDRESS = '0xd2647cb3101eccF76c4C08296EFaC747C0b0f675' // bsc testnet
+export const ASSET_BUSD_ADDRESS = '0x86D513Ad9e941603BBA5d5C4bAD63a67ed4dD341' // bsc testnet
 
+export const T_FEE = 0.0001 // 0.01%
 
 // a list of tokens by chain
 type ChainTokenList = {

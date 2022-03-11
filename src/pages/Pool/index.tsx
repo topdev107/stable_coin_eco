@@ -1,92 +1,141 @@
-import { Pair, Token } from '@pantherswap-libs/sdk'
+import { Token } from '@pantherswap-libs/sdk'
 import { Button, LogoIcon, Text } from '@pantherswap-libs/uikit'
 import { LightCard } from 'components/Card'
 import CardNav from 'components/CardNav'
 import PoolItem from 'components/PoolItem'
-import { TYPE } from 'components/Shared'
-import { usePairs } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
-
-import React, { useContext, useMemo, useCallback, useState, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
-import { toV2LiquidityToken, useTrackedTokenPairs } from 'state/user/hooks'
-import { useTokenBalancesWithLoadingIndicator } from 'state/wallet/hooks'
-import styled, { ThemeContext } from 'styled-components'
-
-import { useDispatch } from 'react-redux'
-import { getPoolContract } from 'utils'
-import { DEFAULT_DEADLINE_FROM_NOW } from '../../constants'
-import { useAllTokens } from '../../hooks/Tokens'
+import styled from 'styled-components'
+import { getAssetContract, getPoolContract, getPriceProviderContract, PoolItemBaseData } from 'utils'
 import DepositModal from '../../components/DepositConfirmModal'
-
-import { AppDispatch } from '../../state/index'
-import { addOrUpdatePoolItem } from '../../state/pool/reducer'
-import { setTokenAddress } from '../../state/pool/reducer1'
-
-
-const { body: Body } = TYPE
-
+import TransactionConfirmationModal, { TransactionErrorContent } from '../../components/TransactionConfirmationModal'
+import { ASSET_BUSD_ADDRESS, ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_ADDRESS, DEFAULT_DEADLINE_FROM_NOW } from '../../constants'
+import { useAllTokens } from '../../hooks/Tokens'
+import { useUserSlippageTolerance } from '../../state/user/hooks'
 
 export default function Pool() {
   const allTokens = useAllTokens()
-  const theme = useContext(ThemeContext)
-  
-  const { account, chainId, library } = useActiveWeb3React()  
 
-  // fetch the user's balances of all tracked V2 LP tokens
-  const trackedTokenPairs = useTrackedTokenPairs()
-  const tokenPairsWithLiquidityTokens = useMemo(
-    () => trackedTokenPairs.map((tokens) => ({ liquidityToken: toV2LiquidityToken(tokens), tokens })),
-    [trackedTokenPairs]
-  )
-  const liquidityTokens = useMemo(() => tokenPairsWithLiquidityTokens.map((tpwlt) => tpwlt.liquidityToken), [
-    tokenPairsWithLiquidityTokens,
-  ])
-  const [v2PairsBalances, fetchingV2PairBalances] = useTokenBalancesWithLoadingIndicator(
-    account ?? undefined,
-    liquidityTokens
-  )
+  const { account, chainId, library } = useActiveWeb3React()
 
-  // fetch the reserves for all V2 pools in which the user has a balance
-  const liquidityTokensWithBalances = useMemo(
-    () =>
-      tokenPairsWithLiquidityTokens.filter(({ liquidityToken }) =>
-        v2PairsBalances[liquidityToken.address]?.greaterThan('0')
-      ),
-    [tokenPairsWithLiquidityTokens, v2PairsBalances]
-  )
-
-  const v2Pairs = usePairs(liquidityTokensWithBalances.map(({ tokens }) => tokens))
-  const v2IsLoading =
-    fetchingV2PairBalances || v2Pairs?.length < liquidityTokensWithBalances.length || v2Pairs?.some((V2Pair) => !V2Pair)
-
-  const allV2PairsWithLiquidity = v2Pairs.map(([, pair]) => pair).filter((v2Pair): v2Pair is Pair => Boolean(v2Pair))
-
+  const [baseData, setBaseData] = useState<PoolItemBaseData[]>([])
   const [selectedToken, setSelectedToken] = useState<Token | undefined>();
-  const [depositModal, setDepositModal] = useState<boolean>(false);
-  const [withdrawModal, setWithdrawModal] = useState<boolean>(false);
+  const [selectedData, setSelectedData] = useState<PoolItemBaseData | undefined>()
+  const [isDepositModalOpen, setIsDepositModalOpen] = useState<boolean>(false);  
 
-  const openDepositModal = token => () => {      
-    setDepositModal(true)
-    setSelectedToken(token)
+  // modal and loading
+  const [showConfirm, setShowConfirm] = useState<boolean>(false)
+  const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false) // clicked confirm
+  const [errMessage, setErrMessage] = useState<string>('')
+
+  // txn values
+  const [allowedSlippage] = useUserSlippageTolerance() // custom from users
+  const [txHash, setTxHash] = useState<string>('')
+
+  const openDepositModal = (token: Token) => () => {
+    setIsDepositModalOpen(true)
+    setSelectedToken(token)    
+    const oneData = baseData.find((d) => d.address.toLowerCase() === token.address.toLowerCase())    
+    setSelectedData(oneData)
   }
 
-  // const openDepositModal = useCallback (() => setDepositModal(true), [setDepositModal]);
-  const closeDepositModal = useCallback (() => setDepositModal(false), [setDepositModal]);
-  const openWithdrawModal = useCallback (() => setWithdrawModal(true), [setWithdrawModal]);
-  const closeWithdrawModal = useCallback (() => setWithdrawModal(false), [setWithdrawModal]);
+  const closeDepositModal = useCallback(() => setIsDepositModalOpen(false), [setIsDepositModalOpen]);
 
-  const handleDeposit = useCallback (    
+  const handleDeposit = useCallback(
     async (amount: string, tkn: Token | undefined) => {
+      setShowConfirm(true)
+      setIsDepositModalOpen(false)
+      setAttemptingTxn(true)
       if (!chainId || !library || !account || !tkn) return
       const poolContract = getPoolContract(chainId, library, account)
       const deadline = (Date.now() + DEFAULT_DEADLINE_FROM_NOW) * 1000
-      await poolContract.deposit(tkn.address, amount, account, deadline).then((response) => {
-        console.log(response)
-        console.log('deposit completed')
-      })
-    }, [account, chainId, library]    
-  ) 
+      await poolContract.deposit(tkn.address, amount, account, deadline)
+        .then((response) => {
+          setAttemptingTxn(false)
+          console.log(response)
+          setTxHash(response.hash)
+        })
+        .catch((e) => {
+          setAttemptingTxn(false)
+          // we only care if the error is something _other_ than the user rejected the tx          
+          if (e?.code !== 4001) {
+            console.error(e)
+            setErrMessage(e.message)
+          } else {
+            setShowConfirm(false)
+          }
+        })
+    }, [account, chainId, library]
+  )  
+
+  useEffect(() => {    
+    if (!chainId || !library || !account) return
+    const getBaseData = async () => {
+      const baseDatas = await Promise.all(Object.values(allTokens).map((token) => {      
+        const tokenAddress =
+          token.symbol === 'DAI' ? ASSET_DAI_ADDRESS :
+            token.symbol === 'USDC' ? ASSET_USDC_ADDRESS :
+              token.symbol === 'USDT' ? ASSET_USDT_ADDRESS :
+                token.symbol === 'BUSD' ? ASSET_BUSD_ADDRESS : '0x'
+  
+        const assetContract = getAssetContract(chainId, tokenAddress, library, account)
+        const priceProviderContract = getPriceProviderContract(chainId, library, account)      
+  
+        return Promise.all([
+          assetContract.totalSupply(),
+          assetContract.balanceOf(account),
+          priceProviderContract.getAssetPrice(token.address)
+        ])
+          .then(response => {            
+            const totalSupply = parseInt(response[0]._hex, 16) / (10 ** 18)
+            const balanceOf = parseInt(response[1]._hex, 16) / (10 ** 18)
+            const poolShare = totalSupply === 0 ? 0 : balanceOf * 100 / totalSupply
+            const price = parseInt(response[2]._hex, 16) / (10 ** 8)
+            const bData: PoolItemBaseData = {            
+              'symbol': token.symbol,
+              'address': token.address,
+              'totalSupply': totalSupply,
+              'balanceOf': balanceOf,
+              'poolShare': poolShare,
+              'price': price
+            }
+            return bData
+          })
+          .catch((e) => {
+            console.error(e)
+            const bData: PoolItemBaseData = {
+              'symbol': token.symbol,
+              'address': token.address,
+              'totalSupply': 0,
+              'balanceOf': 0,
+              'poolShare': 0,
+              'price': 0
+            }
+            return bData
+          })
+      }))
+        .then(response => {          
+          return response
+        })
+        .catch((e) => {
+          console.log(e)
+          return []
+        })
+  
+      setBaseData(baseDatas)
+      console.log('baseData: ', baseDatas)
+    }
+    
+    getBaseData()
+  }, [account, chainId, library, allTokens])
+
+  const handleDismissConfirmation = useCallback(() => {
+    setShowConfirm(false)
+    setTxHash('')
+  }, [])
+
+  const pendingText = 'Waiting For Confirmation.'
 
   const MaxWidthDiv = styled.div`
     width: 100%;
@@ -103,41 +152,56 @@ export default function Pool() {
     alignItems: 'center'
   }
 
-  return (    
+  return (
     <>
       <DepositModal
-        isOpen={depositModal}     
-        token={selectedToken}
+        isOpen={isDepositModalOpen}
+        token={selectedToken}        
+        baseData={selectedData}
         onDismiss={closeDepositModal}
-        onDeposit={handleDeposit}     
+        onDeposit={handleDeposit}
+      />
+
+      <TransactionConfirmationModal
+        isOpen={showConfirm}
+        onDismiss={handleDismissConfirmation}
+        attemptingTxn={attemptingTxn}
+        hash={txHash}
+        content={() => (
+          <TransactionErrorContent
+            message={errMessage}
+            onDismiss={handleDismissConfirmation}
+          />
+        )}
+        pendingText={pendingText}
       />
 
       <CardNav activeIndex={1} />
       <MaxWidthDiv>
-        <Button variant='secondary' style={borderRadius7} endIcon={<LogoIcon/>} className="ml-1">
+        <Button variant='secondary' style={borderRadius7} endIcon={<LogoIcon />} className="ml-1">
           Withdraw MIM
         </Button>
         <LightCard className="mt-2 ml-1">
           <Row style={verticalCenterContainerStyle}>
             <Col md={9}>
-              <Text>Pools Earning: <LogoIcon/> 0.0PTP</Text> 
+              <Text>Pools Earning: <LogoIcon /> 0.0PTP</Text>
             </Col>
             <Col md={3}>
-              <Button variant='secondary' size='sm' style={borderRadius7} >Claim PTP</Button>   
+              <Button variant='secondary' size='sm' style={borderRadius7} >Claim PTP</Button>
             </Col>
-          </Row>       
+          </Row>
         </LightCard>
         {
           Object.values(allTokens).map((onetoken, index) => {
             return (
-              <PoolItem 
+              <PoolItem
                 token={onetoken}
                 openDepositModal={openDepositModal(onetoken)}
-                />   
+              />
             )
-          })          
-        }     
-      </MaxWidthDiv> 
+          })
+        }
+      </MaxWidthDiv>
     </>
   )
 }

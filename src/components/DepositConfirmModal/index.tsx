@@ -1,13 +1,11 @@
-
 import { Token } from '@pantherswap-libs/sdk'
 import { Button, Text } from '@pantherswap-libs/uikit'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
-import { Field } from 'state/swap/actions'
-import { tryParseAmount, useDerivedSwapInfo, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
-import styled from 'styled-components'
-import { POOL_ADDRESS } from '../../constants'
+import { tryParseAmount } from 'state/swap/hooks'
+import { getDecimalPartStr, getIntStr, getUnitedValue, getUsefulCount, nDecimals, PoolItemBaseData } from 'utils'
+import { POOL_ADDRESS, T_FEE } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrencyBalance } from '../../state/wallet/hooks'
 import AmountInputPanel from '../AmountInputPanel'
@@ -19,6 +17,7 @@ import { RowBetween } from '../Row'
 interface DepositConfirmModalProps {
   isOpen: boolean
   token: Token | undefined
+  baseData: PoolItemBaseData | undefined
   onDismiss: () => void
   // onApprove: (token: Token) => void
   onDeposit: (amount: string, token: Token | undefined) => void
@@ -31,58 +30,104 @@ const CenterContainerStyle = {
 }
 
 const CenterVerticalContainerStyle = {
-    height: '100%',
-    display: 'flex',
-    alignItems: 'center'
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center'
 }
 
 export default function DepositConfirmModal({
   isOpen,
   token,
+  baseData,
   onDismiss,
-  onDeposit
+  onDeposit,
 }: DepositConfirmModalProps) {
 
   const [inputedValue, setInputedValue] = useState('')
 
   const [approvalA, approveACallback] = useApproveCallback(tryParseAmount(inputedValue, token), POOL_ADDRESS)
 
-  const { account } = useActiveWeb3React()
+  const { account, chainId, library } = useActiveWeb3React()
   const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, token ?? undefined)
+
+  const [avaliable, setAvailable] = useState(false)
+  const [fee, setFee] = useState<number>(0)
+
+  const [usefulCountFee, setUsefulCountFee] = useState<number>(0)
+
+  useEffect(() => {
+    const usefulcnt = getUsefulCount(T_FEE)
+    setUsefulCountFee(+usefulcnt)
+  }, [])
 
   const handleTypeInput = useCallback(
     (val: string) => {
       setInputedValue(val)
-    },
-    [setInputedValue]
-  )
+      if (token !== undefined) {
+        const valDecimalStr = getDecimalPartStr(+val)
+        const valDecimalLen = valDecimalStr.length
+        const fe = (+val) * T_FEE
+        const intStr = getIntStr(fe)
+        const decStr = getDecimalPartStr(fe)
+        const usefulCount = usefulCountFee + valDecimalLen // val=12.131 -> 7 (3+4)
 
+        let feeDecimalPartStr = ''
+        for (let i = 0; i < usefulCount; i++) {
+          feeDecimalPartStr += decStr.charAt(i)
+        }
+        const feeStr = intStr.concat('.').concat(feeDecimalPartStr)
+        setFee(+feeStr)
+      }
+    },
+    [setInputedValue, token, usefulCountFee]
+  )
 
   const handleMaxInput = useCallback(() => {
     if (selectedCurrencyBalance) {
       setInputedValue(selectedCurrencyBalance.toExact())
     }
   }, [selectedCurrencyBalance, setInputedValue])
-  
-  const handleClose = useCallback (
+
+  const handleClose = useCallback(
     () => {
       setInputedValue('')
       onDismiss()
     }, [setInputedValue, onDismiss]
   )
 
-  const handleDeposit = useCallback (
+  useEffect(() => {
+    if (isOpen === true) {
+      setInputedValue('')
+      setFee(0)
+    }
+  }, [setInputedValue, isOpen])
+
+  useEffect(() => {
+    if (selectedCurrencyBalance) {
+      const maxDesposiableAmount = +selectedCurrencyBalance.toExact()
+      const inputedAmount = +inputedValue
+      if (inputedAmount > 0 && inputedAmount <= maxDesposiableAmount) {
+        setAvailable(true)
+      } else {
+        setAvailable(false)
+      }
+    } else {
+      setAvailable(false)
+    }
+  }, [selectedCurrencyBalance, inputedValue])
+
+  const handleDeposit = useCallback(
     (e, value: string, tk: Token | undefined) => {
       if (tk !== undefined) {
-        const amount = (+value)*10**(tk?.decimals)
+        const amount = getUnitedValue(value, tk?.decimals)        
         onDeposit(amount.toString(), tk)
       }
     }, [onDeposit]
   )
 
   return (
-    <Modal isOpen={isOpen} onDismiss={handleClose} minHeight={50} maxHeight={90}>      
-      <div style={{width: '100%', padding: '30px 30px'}}>
+    <Modal isOpen={isOpen} onDismiss={handleClose} minHeight={50} maxHeight={90}>
+      <div style={{ width: '100%', padding: '30px 30px' }}>
 
         <div style={CenterContainerStyle}>
           <Text className="mr-3" fontSize='20px'>Confirm Deposit</Text>
@@ -91,7 +136,7 @@ export default function DepositConfirmModal({
         </div>
 
         <RowBetween className="mt-4">
-          <Text fontSize="13px" color='#888888'>Deposited: 0.0 {token?.symbol}</Text>
+          <Text fontSize="13px" color='#888888'>{`Deposited: ${nDecimals(3, baseData?.balanceOf)} ${token?.symbol}`}</Text>
           <Text fontSize='13px' color='#888888'>Balance: {selectedCurrencyBalance?.toSignificant(6)} {token?.symbol}</Text>
         </RowBetween>
         <Row className='mt-1'>
@@ -101,13 +146,13 @@ export default function DepositConfirmModal({
               showMaxButton
               currency={token}
               onUserInput={handleTypeInput}
-              onMax={handleMaxInput}                     
+              onMax={handleMaxInput}
             />
           </Col>
         </Row>
         <RowBetween className='mt-3'>
           <Text fontSize="13px">Token Price</Text>
-          <Text fontSize="13px">$1.001</Text>
+          <Text fontSize="13px">{`$${baseData?.price}`}</Text>
         </RowBetween>
         <RowBetween>
           <div style={CenterVerticalContainerStyle} >
@@ -117,7 +162,7 @@ export default function DepositConfirmModal({
               color='white'
             />
           </div>
-          <Text fontSize="13px">0.0 {token?.symbol}</Text>
+          <Text fontSize="13px">{`${fee} ${token?.symbol}`}</Text>
         </RowBetween>
         <RowBetween className='mt-2'>
           <div style={CenterVerticalContainerStyle} >
@@ -125,33 +170,35 @@ export default function DepositConfirmModal({
             <QuestionColorHelper
               text='Liquidity owned by you after adding liquidity.'
               color='white'
-            />            
+            />
           </div>
-          <Text fontSize="13px">0.0 {token?.symbol}</Text>
+          <Text fontSize="13px">{`${nDecimals(3, baseData?.balanceOf)} ${token?.symbol}`}</Text>
         </RowBetween>
         <RowBetween>
-          <div style={CenterVerticalContainerStyle} > 
+          <div style={CenterVerticalContainerStyle} >
             <Text fontSize="13px">Pool Share</Text>
             <QuestionColorHelper
               text='The share of the token pool you will own after adding the liquidity.'
               color='white'
             />
           </div>
-          <Text fontSize="13px">0.0%</Text>
+          <Text fontSize="13px">{`${baseData?.poolShare}%`}</Text>
         </RowBetween>
         <Row className='mt-4'>
           <Col className='pl-3 pr-1'>
-            <Button variant='secondary' style={{borderRadius: '5px'}} fullWidth onClick={handleClose}>Cancel</Button>
-          </Col>          
+            <Button variant='secondary' style={{ borderRadius: '5px' }} fullWidth onClick={handleClose}>Cancel</Button>
+          </Col>
           <Col className='pl-1 pr-3'>
             {
-              (approvalA === ApprovalState.UNKNOWN || approvalA === ApprovalState.PENDING || approvalA === ApprovalState.NOT_APPROVED) ?
-              <Button variant='primary' style={{borderRadius: '5px'}} fullWidth onClick={approveACallback}>Approve</Button> : 
-              <Button variant='primary' style={{borderRadius: '5px'}} fullWidth onClick={(e) => handleDeposit(e, inputedValue, token)}>Deposit</Button>        
-            }             
-          </Col>          
+              avaliable ?
+                ((approvalA === ApprovalState.UNKNOWN || approvalA === ApprovalState.PENDING || approvalA === ApprovalState.NOT_APPROVED) ?
+                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={approveACallback}>Approve</Button> :
+                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleDeposit(e, inputedValue, token)}>Deposit</Button>) :
+                <Button variant='primary' style={{ borderRadius: '5px' }} disabled fullWidth onClick={(e) => handleDeposit(e, inputedValue, token)}>Deposit</Button>
+            }
+          </Col>
         </Row>
       </div>
     </Modal>
-  )  
+  )
 }
