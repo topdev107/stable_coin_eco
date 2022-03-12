@@ -7,6 +7,7 @@ import { abi as IUniswapV2Router02ABI } from '@uniswap/v2-periphery/build/IUnisw
 import { ChainId, JSBI, Percent, Token, CurrencyAmount, Currency, ETHER } from '@pantherswap-libs/sdk'
 import PoolABI from '../constants/abis/Pool.json'
 import AssetABI from '../constants/abis/Asset.json'
+import ERC20ABI from '../constants/abis/erc20.json'
 import PriceProviderABI from '../constants/abis/ChainlinkProxyPriceProvider.json'
 import { ROUTER_ADDRESS, POOL_ADDRESS, CHAIN_LINK_PRICE_PROVIDER_ADDRESS } from '../constants'
 import { TokenAddressMap } from '../state/lists/hooks'
@@ -96,6 +97,10 @@ export function getPoolContract(_: number, library: Web3Provider, account?: stri
   return getContract(POOL_ADDRESS, PoolABI, library, account)
 }
 
+export function getERC20Contract(_: number, address: string, library: Web3Provider, account?: string): Contract {
+  return getContract(address, ERC20ABI, library, account)
+}
+
 export function getPriceProviderContract(_: number, library: Web3Provider, account?: string): Contract {
   return getContract(CHAIN_LINK_PRICE_PROVIDER_ADDRESS, PriceProviderABI, library, account)
 }
@@ -167,4 +172,5 @@ export interface PoolItemBaseData {
   balanceOf: number
   poolShare: number
   price: number
+  volume24: number
 }

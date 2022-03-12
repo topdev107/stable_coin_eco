@@ -51,8 +51,9 @@ export default function WithdrawConfirmModal({
 }: WithdrawConfirmModalProps) {
 
   const [inputedValue, setInputedValue] = useState('')
+  const { typedValue } = useSwapState()
 
-  const [approvalA, approveACallback] = useApproveCallback(tryParseAmount(inputedValue, token), POOL_ADDRESS)
+  const [approvalA, approveACallback] = useApproveCallback(tryParseAmount(typedValue, token), POOL_ADDRESS)
 
   const { account } = useActiveWeb3React()
   const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, token ?? undefined)

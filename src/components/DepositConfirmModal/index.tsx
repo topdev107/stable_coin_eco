@@ -3,7 +3,9 @@ import { Button, Text } from '@pantherswap-libs/uikit'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
-import { tryParseAmount } from 'state/swap/hooks'
+import { useSelector } from 'react-redux'
+import { AppState } from 'state'
+import { tryParseAmount, useSwapState } from 'state/swap/hooks'
 import { getDecimalPartStr, getIntStr, getUnitedValue, getUsefulCount, nDecimals, PoolItemBaseData } from 'utils'
 import { POOL_ADDRESS, T_FEE } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
@@ -19,7 +21,7 @@ interface DepositConfirmModalProps {
   token: Token | undefined
   baseData: PoolItemBaseData | undefined
   onDismiss: () => void
-  // onApprove: (token: Token) => void
+  onApprove: (amount: string, token: Token | undefined) => void
   onDeposit: (amount: string, token: Token | undefined) => void
 }
 
@@ -40,6 +42,7 @@ export default function DepositConfirmModal({
   token,
   baseData,
   onDismiss,
+  onApprove,
   onDeposit,
 }: DepositConfirmModalProps) {
 
@@ -54,6 +57,8 @@ export default function DepositConfirmModal({
   const [fee, setFee] = useState<number>(0)
 
   const [usefulCountFee, setUsefulCountFee] = useState<number>(0)
+  
+  const savedTnxs = useSelector<AppState, AppState['tnxs']['tnxs']>((state) => state.tnxs.tnxs)
 
   useEffect(() => {
     const usefulcnt = getUsefulCount(T_FEE)
@@ -77,9 +82,10 @@ export default function DepositConfirmModal({
         }
         const feeStr = intStr.concat('.').concat(feeDecimalPartStr)
         setFee(+feeStr)
+        console.log('savedTnxs: ', savedTnxs)
       }
     },
-    [setInputedValue, token, usefulCountFee]
+    [setInputedValue, token, usefulCountFee, savedTnxs]
   )
 
   const handleMaxInput = useCallback(() => {
@@ -119,16 +125,24 @@ export default function DepositConfirmModal({
   const handleDeposit = useCallback(
     (e, value: string, tk: Token | undefined) => {
       if (tk !== undefined) {
-        const amount = getUnitedValue(value, tk?.decimals)        
+        const amount = getUnitedValue(value, tk?.decimals)
         onDeposit(amount.toString(), tk)
       }
     }, [onDeposit]
   )
 
+  const handleApprove = useCallback(
+    (e, value: string, tk: Token | undefined) => {
+      if (tk !== undefined) {
+        const amount = getUnitedValue(value, tk?.decimals)
+        onApprove(amount.toString(), tk)
+      }
+    }, [onApprove]
+  )
+
   return (
     <Modal isOpen={isOpen} onDismiss={handleClose} minHeight={50} maxHeight={90}>
       <div style={{ width: '100%', padding: '30px 30px' }}>
-
         <div style={CenterContainerStyle}>
           <Text className="mr-3" fontSize='20px'>Confirm Deposit</Text>
           <CurrencyLogo currency={token} size="25px" />
@@ -192,7 +206,8 @@ export default function DepositConfirmModal({
             {
               avaliable ?
                 ((approvalA === ApprovalState.UNKNOWN || approvalA === ApprovalState.PENDING || approvalA === ApprovalState.NOT_APPROVED) ?
-                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={approveACallback}>Approve</Button> :
+                  // <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={approveACallback}>Approve</Button> :
+                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleApprove(e, inputedValue, token)}>Approve</Button> :
                   <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleDeposit(e, inputedValue, token)}>Deposit</Button>) :
                 <Button variant='primary' style={{ borderRadius: '5px' }} disabled fullWidth onClick={(e) => handleDeposit(e, inputedValue, token)}>Deposit</Button>
             }
