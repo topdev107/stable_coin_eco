@@ -100,7 +100,11 @@ export default function PoolItem({
                       </div>
                       <div>
                         <CenterVerticalContainer>
-                          <Text ml={2} fontSize='12px'>93.31%</Text>
+                          {
+                            baseData === undefined || baseData.liability === 0 ?
+                              <Text ml={2} fontSize='12px'>0.0%</Text> :
+                              <Text ml={2} fontSize='12px'>{`${nDecimals(2, baseData.cash / baseData.liability * 100)}%`}</Text>
+                          }
                           <Question
                             text='The coverage ratio is the asset-to-liability ratio of a pool. It determines the swapping slippage, withdrawal and deposit fee in our protocol.'
                           />
@@ -119,7 +123,7 @@ export default function PoolItem({
                         {
                           baseData === undefined ?
                             <Text>$0</Text> :
-                            <Text>{`$${nDecimals(2,baseData.totalSupply * baseData.price)}`}</Text>
+                            <Text>{`$${nDecimals(2, baseData.totalSupply * baseData.price)}`}</Text>
                         }
                         <Text color='#888888' fontSize='12px'>{`${baseData?.totalSupply}${token?.symbol}`}</Text>
                       </div>
@@ -132,8 +136,8 @@ export default function PoolItem({
                         {
                           baseData === undefined ?
                             <Text>$0</Text> :
-                            <Text>{`$${nDecimals(2,baseData.volume24 * baseData.price)}`}</Text>
-                        }                        
+                            <Text>{`$${nDecimals(2, baseData.volume24 * baseData.price)}`}</Text>
+                        }
                         <Text color='#888888' fontSize='12px'>{`${baseData?.volume24}${token?.symbol}`}</Text>
                       </div>
                     </CenterContainer>
@@ -145,7 +149,7 @@ export default function PoolItem({
                         {
                           baseData === undefined ?
                             <Text>$0</Text> :
-                            <Text>{`$${nDecimals(2,baseData.balanceOf * baseData.price)}`}</Text>
+                            <Text>{`$${nDecimals(2, baseData.balanceOf * baseData.price)}`}</Text>
                         }
                         <Text color='#888888' fontSize='12px'>{`${baseData?.balanceOf}${token?.symbol}`}</Text>
                       </div>
@@ -184,7 +188,7 @@ export default function PoolItem({
                   <div>
                     <CenterContainer>
                       <Text color='#888888' fontSize='10px' className="mr-1">Base APR</Text>
-                      <Text fontSize='11px'>7.8%</Text>
+                      <Text fontSize='11px'>0.0%</Text>
                       <Question
                         text={`Base APR of this pool for the users who have deposited and staked ${token?.symbol}`}
                       />
@@ -197,7 +201,7 @@ export default function PoolItem({
                   <div>
                     <CenterContainer>
                       <Text color='#888888' fontSize='10px' className="mr-1">Median Boosted APR</Text>
-                      <Text fontSize='11px'>29.4%</Text>
+                      <Text fontSize='11px'>0.0%</Text>
                       <Question
                         text={`The median boosted APR of this pool for the users who have staked ${token?.symbol} and hold vePTP. Half of the users get higher than the median APR. It does not include the Base APR.`}
                       />

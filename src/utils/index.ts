@@ -170,6 +170,8 @@ export interface PoolItemBaseData {
   address: string
   totalSupply: number
   balanceOf: number
+  cash: number
+  liability: number
   poolShare: number
   price: number
   volume24: number

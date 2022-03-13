@@ -26,7 +26,7 @@ export default function Pool() {
   const [baseData, setBaseData] = useState<PoolItemBaseData[]>([])
   const [selectedToken, setSelectedToken] = useState<Token | undefined>();
   const [selectedData, setSelectedData] = useState<PoolItemBaseData | undefined>()
-  const [isDepositModalOpen, setIsDepositModalOpen] = useState<boolean>(false);  
+  const [isDepositModalOpen, setIsDepositModalOpen] = useState<boolean>(false);
 
   // modal and loading
   const [showConfirm, setShowConfirm] = useState<boolean>(false)
@@ -37,33 +37,56 @@ export default function Pool() {
   const [allowedSlippage] = useUserSlippageTolerance() // custom from users
   const [txHash, setTxHash] = useState<string>('')
 
-  const {saveTnx} = useTnxHandler()
+  const { saveTnx } = useTnxHandler()
 
   const openDepositModal = (token: Token) => () => {
     setIsDepositModalOpen(true)
-    setSelectedToken(token)    
-    const oneData = baseData.find((d) => d.address.toLowerCase() === token.address.toLowerCase())    
+    setSelectedToken(token)
+    const oneData = baseData.find((d) => d.address.toLowerCase() === token.address.toLowerCase())
     setSelectedData(oneData)
   }
 
   const closeDepositModal = useCallback(() => setIsDepositModalOpen(false), [setIsDepositModalOpen]);
 
+  const volume24_url = 'http://localhost:5000/api/v1/tnxs/'
+
   const handleDeposit = useCallback(
-    async (amount: string, tkn: Token | undefined) => {      
+    async (amount: string, tkn: Token | undefined) => {
       if (!chainId || !library || !account || !tkn) return
       setShowConfirm(true)
       setIsDepositModalOpen(false)
       setAttemptingTxn(true)
       const poolContract = getPoolContract(chainId, library, account)
-      const deadline = (Date.now() + DEFAULT_DEADLINE_FROM_NOW) * 1000
+      const deadline = Date.now() + DEFAULT_DEADLINE_FROM_NOW * 1000      
+
       await poolContract.deposit(tkn.address, amount, account, deadline)
         .then((response) => {
           setAttemptingTxn(false)
           console.log(response)
           setTxHash(response.hash)
-          saveTnx(tkn.address, (+amount/(10**tkn.decimals)).toString(), Date.now())
-          console.log('saveTnx: ', tkn.address.concat(': ').concat(amount.toString()))                
-        })        
+          saveTnx(tkn.address, (+amount / (10 ** tkn.decimals)).toString(), Date.now())
+          console.log('saveTnx: ', tkn.address.concat(': ').concat(amount.toString()))
+          
+          const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token_address: tkn.address, amount: (+amount / (10 ** tkn.decimals)).toString(), timestamp: Date.now()})
+          };      
+          fetch(volume24_url.concat('add_tnx/'), requestOptions)
+            .then(res => res.json())
+            .then(data => {
+              fetch(volume24_url.concat('get_tnx_amount_24h/').concat(tkn.address))
+                .then(res1 => res1.json())
+                .then(data1 => {
+                  const idx = baseData.findIndex((d) => d.address.toLowerCase() === tkn.address.toLowerCase())
+                  const volume24h = baseData[idx].volume24
+                  baseData[idx].volume24 = data1.status === 'success' ? data1.volume24 : volume24h
+                })
+            })
+            .catch(e => {
+              console.log(e)
+            })
+        })
         .catch((e) => {
           setAttemptingTxn(false)
           // we only care if the error is something _other_ than the user rejected the tx          
@@ -74,11 +97,11 @@ export default function Pool() {
             setShowConfirm(false)
           }
         })
-    }, [account, chainId, library, saveTnx]
+    }, [account, chainId, library, baseData, saveTnx]
   )
-  
+
   const handleApprove = useCallback(
-    async (amount: string, tkn: Token | undefined) => {      
+    async (amount: string, tkn: Token | undefined) => {
       if (!chainId || !library || !account || !tkn) return
       setShowConfirm(true)
       setAttemptingTxn(true)
@@ -102,47 +125,51 @@ export default function Pool() {
     }, [account, chainId, library]
   )
 
-  const volume24_url = 'http://localhost:5000/api/v1/tnxs/get_tnx_amount_24h/'
-  
-  useEffect(() => {    
-  
+  useEffect(() => {
+
     if (!chainId || !library || !account) return
     const getBaseData = async () => {
-      const baseDatas = await Promise.all(Object.values(allTokens).map(async (token) => {      
+      const baseDatas = await Promise.all(Object.values(allTokens).map(async (token) => {
         const tokenAddress =
           token.symbol === 'DAI' ? ASSET_DAI_ADDRESS :
             token.symbol === 'USDC' ? ASSET_USDC_ADDRESS :
               token.symbol === 'USDT' ? ASSET_USDT_ADDRESS :
                 token.symbol === 'BUSD' ? ASSET_BUSD_ADDRESS : '0x'
-  
+
         const assetContract = getAssetContract(chainId, tokenAddress, library, account)
         const priceProviderContract = getPriceProviderContract(chainId, library, account)
-        const getVolume24h =  async () => {
-          const res = await fetch(volume24_url.concat(token.address))
+        const getVolume24h = async () => {
+          const res = await fetch(volume24_url.concat('get_tnx_amount_24h/').concat(token.address))          
           return res.json()
-        }         
+        }
 
         return Promise.all([
           assetContract.totalSupply(),
           assetContract.balanceOf(account),
+          assetContract.cash(),
+          assetContract.liability(),
           priceProviderContract.getAssetPrice(token.address),
           getVolume24h()
         ])
-          .then(response => {      
-            console.log('response: ', response)      
+          .then(response => {
+            console.log('response: ', response)
             const totalSupply = parseInt(response[0]._hex, 16) / (10 ** 18)
             const balanceOf = parseInt(response[1]._hex, 16) / (10 ** 18)
             const poolShare = totalSupply === 0 ? 0 : balanceOf * 100 / totalSupply
-            const price = parseInt(response[2]._hex, 16) / (10 ** 8)
-            const volume24h = response[3].status === 'success'? response[3].volume24: 0
-            const bData: PoolItemBaseData = {            
+            const cash = parseInt(response[2]._hex, 16) / (10 ** 18)
+            const liability = parseInt(response[3]._hex, 16) / (10 ** 18)
+            const price = parseInt(response[4]._hex, 16) / (10 ** 8)
+            const volume24h = response[5].status === 'success' ? response[5].volume24 : 0
+            const bData: PoolItemBaseData = {
               'symbol': token.symbol,
               'address': token.address,
               'totalSupply': totalSupply,
               'balanceOf': balanceOf,
+              'cash': cash,
+              'liability': liability,
               'poolShare': poolShare,
               'price': price,
-              'volume24':volume24h
+              'volume24': volume24h
             }
             return bData
           })
@@ -153,6 +180,8 @@ export default function Pool() {
               'address': token.address,
               'totalSupply': 0,
               'balanceOf': 0,
+              'cash': 0,
+              'liability': 0,
               'poolShare': 0,
               'price': 0,
               'volume24': 0
@@ -160,18 +189,18 @@ export default function Pool() {
             return bData
           })
       }))
-        .then(response => {          
+        .then(response => {
           return response
         })
         .catch((e) => {
           console.log(e)
           return []
         })
-  
+
       setBaseData(baseDatas)
       console.log('baseData: ', baseDatas)
     }
-    
+
     getBaseData()
   }, [account, chainId, library, allTokens])
 
@@ -201,11 +230,11 @@ export default function Pool() {
     <>
       <DepositModal
         isOpen={isDepositModalOpen}
-        token={selectedToken}        
+        token={selectedToken}
         baseData={selectedData}
         onDismiss={closeDepositModal}
         onApprove={handleApprove}
-        onDeposit={handleDeposit}        
+        onDeposit={handleDeposit}
       />
 
       <TransactionConfirmationModal
