@@ -174,5 +174,6 @@ export interface PoolItemBaseData {
   liability: number
   poolShare: number
   price: number
+  allowance: number
   volume24: number
 }

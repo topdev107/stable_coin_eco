@@ -55,12 +55,14 @@ interface PoolItemProps {
   token: Token | undefined
   baseData: PoolItemBaseData | undefined
   openDepositModal: () => void
+  onRefresh: () => void
 }
 
 export default function PoolItem({
   token,
   baseData,
-  openDepositModal
+  openDepositModal,
+  onRefresh
 }: PoolItemProps) {
   const theme = useContext(ThemeContext)
 
@@ -125,7 +127,7 @@ export default function PoolItem({
                             <Text>$0</Text> :
                             <Text>{`$${nDecimals(2, baseData.totalSupply * baseData.price)}`}</Text>
                         }
-                        <Text color='#888888' fontSize='12px'>{`${baseData?.totalSupply}${token?.symbol}`}</Text>
+                        <Text color='#888888' fontSize='12px'>{`${nDecimals(2, baseData?.totalSupply)}${token?.symbol}`}</Text>
                       </div>
                     </CenterContainer>
                   </Col>
@@ -138,7 +140,7 @@ export default function PoolItem({
                             <Text>$0</Text> :
                             <Text>{`$${nDecimals(2, baseData.volume24 * baseData.price)}`}</Text>
                         }
-                        <Text color='#888888' fontSize='12px'>{`${baseData?.volume24}${token?.symbol}`}</Text>
+                        <Text color='#888888' fontSize='12px'>{`${nDecimals(2, baseData?.volume24)}${token?.symbol}`}</Text>
                       </div>
                     </CenterContainer>
                   </Col>
@@ -151,7 +153,7 @@ export default function PoolItem({
                             <Text>$0</Text> :
                             <Text>{`$${nDecimals(2, baseData.balanceOf * baseData.price)}`}</Text>
                         }
-                        <Text color='#888888' fontSize='12px'>{`${baseData?.balanceOf}${token?.symbol}`}</Text>
+                        <Text color='#888888' fontSize='12px'>{`${nDecimals(2, baseData?.balanceOf)}${token?.symbol}`}</Text>
                       </div>
                     </CenterContainer>
                   </Col>
@@ -160,10 +162,19 @@ export default function PoolItem({
               <Col md={4} sm={12} className="mt-3 mb-2">
                 <CenterContainer style={verticalCenterContainerStyle}>
                   <CenterVerticalContainer>
-                    <Row>
-                      <Button size='sm' style={borderRadius7} variant='secondary' onClick={openDepositModal}>Deposit</Button>
-                      <Button size='sm' style={borderRadius7} variant='secondary' className="ml-2" >Withdraw</Button>
-                    </Row>
+                    {
+                      (account !== null && account !== undefined) ? (
+                        <Row>
+                          <Button size='sm' style={borderRadius7} variant='secondary' onClick={openDepositModal}>Deposit</Button>
+                          <Button size='sm' style={borderRadius7} variant='secondary' className="ml-2" >Withdraw</Button>
+                        </Row>
+                      ) : (
+                        <Row>
+                          <Button size='sm' style={borderRadius7} variant='secondary' disabled>Deposit</Button>
+                          <Button size='sm' style={borderRadius7} variant='secondary' className="ml-2" disabled>Withdraw</Button>
+                        </Row>
+                      )
+                    }
                   </CenterVerticalContainer>
                 </CenterContainer>
               </Col>
@@ -227,8 +238,9 @@ export default function PoolItem({
                   {
                     stakeOpened ?
                       <CloseIcon onClick={close} />
-                      :
-                      <Button size='sm' onClick={open}>Stake<ChevronDownIcon /></Button>
+                      : account !== null && account !== undefined ?                      
+                      <Button size='sm' onClick={open}>Stake<ChevronDownIcon /></Button> :
+                      <Button size='sm' disabled>Stake<ChevronDownIcon /></Button>
                   }
                 </CenterContainer>
               </Col>

@@ -1,12 +1,13 @@
-import { Token } from '@pantherswap-libs/sdk'
+import { CurrencyAmount, Currency, Token, TokenAmount } from '@pantherswap-libs/sdk'
 import { Button, Text } from '@pantherswap-libs/uikit'
+import { useTokenAllowance } from 'data/Allowances'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { tryParseAmount, useSwapState } from 'state/swap/hooks'
-import { getDecimalPartStr, getIntStr, getUnitedValue, getUsefulCount, nDecimals, PoolItemBaseData } from 'utils'
+import { getDecimalPartStr, getIntStr, getUnitedValue, getUsefulCount, nDecimals, PoolItemBaseData, getERC20Contract } from 'utils'
 import { POOL_ADDRESS, T_FEE } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrencyBalance } from '../../state/wallet/hooks'
@@ -23,6 +24,7 @@ interface DepositConfirmModalProps {
   onDismiss: () => void
   onApprove: (amount: string, token: Token | undefined) => void
   onDeposit: (amount: string, token: Token | undefined) => void
+  onRefresh: () => void
 }
 
 const CenterContainerStyle = {
@@ -44,20 +46,19 @@ export default function DepositConfirmModal({
   onDismiss,
   onApprove,
   onDeposit,
+  onRefresh
 }: DepositConfirmModalProps) {
 
-  const [inputedValue, setInputedValue] = useState('')
-
-  const [approvalA, approveACallback] = useApproveCallback(tryParseAmount(inputedValue, token), POOL_ADDRESS)
-
   const { account, chainId, library } = useActiveWeb3React()
+  const [inputedValue, setInputedValue] = useState('')
+  
   const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, token ?? undefined)
 
   const [avaliable, setAvailable] = useState(false)
   const [fee, setFee] = useState<number>(0)
 
   const [usefulCountFee, setUsefulCountFee] = useState<number>(0)
-  
+
   const savedTnxs = useSelector<AppState, AppState['tnxs']['tnxs']>((state) => state.tnxs.tnxs)
 
   useEffect(() => {
@@ -81,11 +82,10 @@ export default function DepositConfirmModal({
           feeDecimalPartStr += decStr.charAt(i)
         }
         const feeStr = intStr.concat('.').concat(feeDecimalPartStr)
-        setFee(+feeStr)
-        console.log('savedTnxs: ', savedTnxs)
+        setFee(+feeStr)        
       }
     },
-    [setInputedValue, token, usefulCountFee, savedTnxs]
+    [setInputedValue, token, usefulCountFee]
   )
 
   const handleMaxInput = useCallback(() => {
@@ -125,7 +125,8 @@ export default function DepositConfirmModal({
   const handleDeposit = useCallback(
     (e, value: string, tk: Token | undefined) => {
       if (tk !== undefined) {
-        const amount = getUnitedValue(value, tk?.decimals)
+        const val = nDecimals(6, value)
+        const amount = getUnitedValue(val.toString(), tk?.decimals)
         onDeposit(amount.toString(), tk)
       }
     }, [onDeposit]
@@ -150,7 +151,7 @@ export default function DepositConfirmModal({
         </div>
 
         <RowBetween className="mt-4">
-          <Text fontSize="13px" color='#888888'>{`Deposited: ${nDecimals(3, baseData?.balanceOf)} ${token?.symbol}`}</Text>
+          <Text fontSize="13px" color='#888888'>{`Deposited: ${nDecimals(6, baseData?.balanceOf)} ${token?.symbol}`}</Text>
           <Text fontSize='13px' color='#888888'>Balance: {selectedCurrencyBalance?.toSignificant(6)} {token?.symbol}</Text>
         </RowBetween>
         <Row className='mt-1'>
@@ -186,7 +187,7 @@ export default function DepositConfirmModal({
               color='white'
             />
           </div>
-          <Text fontSize="13px">{`${nDecimals(3, baseData?.balanceOf)} ${token?.symbol}`}</Text>
+          <Text fontSize="13px">{`${nDecimals(6, baseData?.balanceOf)} ${token?.symbol}`}</Text>
         </RowBetween>
         <RowBetween>
           <div style={CenterVerticalContainerStyle} >
@@ -204,12 +205,11 @@ export default function DepositConfirmModal({
           </Col>
           <Col className='pl-1 pr-3'>
             {
-              avaliable ?
-                ((approvalA === ApprovalState.UNKNOWN || approvalA === ApprovalState.PENDING || approvalA === ApprovalState.NOT_APPROVED) ?
-                  // <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={approveACallback}>Approve</Button> :
-                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleApprove(e, inputedValue, token)}>Approve</Button> :
-                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleDeposit(e, inputedValue, token)}>Deposit</Button>) :
-                <Button variant='primary' style={{ borderRadius: '5px' }} disabled fullWidth onClick={(e) => handleDeposit(e, inputedValue, token)}>Deposit</Button>
+              avaliable && baseData !== undefined ?
+                (baseData.allowance >= +inputedValue ?
+                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleDeposit(e, nDecimals(6, inputedValue).toString(), token)}>Deposit</Button> :
+                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleApprove(e, nDecimals(6, inputedValue).toString(), token)}>Approve</Button>) :
+                <Button variant='primary' style={{ borderRadius: '5px' }} disabled fullWidth>Deposit</Button>
             }
           </Col>
         </Row>

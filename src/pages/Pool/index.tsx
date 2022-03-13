@@ -27,6 +27,7 @@ export default function Pool() {
   const [selectedToken, setSelectedToken] = useState<Token | undefined>();
   const [selectedData, setSelectedData] = useState<PoolItemBaseData | undefined>()
   const [isDepositModalOpen, setIsDepositModalOpen] = useState<boolean>(false);
+  const [isNeedRefresh, setIsNeedRefresh] = useState<boolean>(true)
 
   // modal and loading
   const [showConfirm, setShowConfirm] = useState<boolean>(false)
@@ -57,21 +58,20 @@ export default function Pool() {
       setIsDepositModalOpen(false)
       setAttemptingTxn(true)
       const poolContract = getPoolContract(chainId, library, account)
-      const deadline = Date.now() + DEFAULT_DEADLINE_FROM_NOW * 1000      
+      const deadline = Date.now() + DEFAULT_DEADLINE_FROM_NOW * 1000
 
       await poolContract.deposit(tkn.address, amount, account, deadline)
         .then((response) => {
           setAttemptingTxn(false)
-          console.log(response)
+          console.log('deposit: ', response)
           setTxHash(response.hash)
-          saveTnx(tkn.address, (+amount / (10 ** tkn.decimals)).toString(), Date.now())
-          console.log('saveTnx: ', tkn.address.concat(': ').concat(amount.toString()))
-          
+          setIsNeedRefresh(true)
+
           const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token_address: tkn.address, amount: (+amount / (10 ** tkn.decimals)).toString(), timestamp: Date.now()})
-          };      
+            body: JSON.stringify({ token_address: tkn.address, amount: (+amount / (10 ** tkn.decimals)).toString(), timestamp: Date.now() })
+          };
           fetch(volume24_url.concat('add_tnx/'), requestOptions)
             .then(res => res.json())
             .then(data => {
@@ -81,6 +81,7 @@ export default function Pool() {
                   const idx = baseData.findIndex((d) => d.address.toLowerCase() === tkn.address.toLowerCase())
                   const volume24h = baseData[idx].volume24
                   baseData[idx].volume24 = data1.status === 'success' ? data1.volume24 : volume24h
+                  setIsNeedRefresh(true)
                 })
             })
             .catch(e => {
@@ -97,7 +98,17 @@ export default function Pool() {
             setShowConfirm(false)
           }
         })
-    }, [account, chainId, library, baseData, saveTnx]
+      // event Deposit(address indexed sender, address token, uint256 amount, uint256 liquidity, address indexed to);
+      poolContract.once('Deposit', (sender, token, depositAmount, liquidity, to) => {
+        console.log('== Deposit ==')
+        console.log('Sender: ', sender)
+        console.log('Token: ', token)
+        console.log('Amount: ', parseInt(depositAmount._hex, 16) / (10 ** 18))
+        console.log('Liquidity: ', parseInt(liquidity._hex, 16) / (10 ** 18))
+        console.log('To: ', to)        
+        setIsNeedRefresh(true)
+      })
+    }, [account, chainId, library, baseData]
   )
 
   const handleApprove = useCallback(
@@ -108,9 +119,10 @@ export default function Pool() {
       const erc20Contract = getERC20Contract(chainId, tkn.address, library, account)
       await erc20Contract.approve(POOL_ADDRESS, amount)
         .then((response) => {
-          setAttemptingTxn(false)
-          console.log(response)
+          console.log('approved: ', response)
+          // setAttemptingTxn(false)          
           setTxHash(response.hash)
+          setIsNeedRefresh(true)
         })
         .catch((e) => {
           setAttemptingTxn(false)
@@ -122,11 +134,27 @@ export default function Pool() {
             setShowConfirm(false)
           }
         })
+
+      erc20Contract
+        .once('Approval', (owner, spender, allowanceAmount) => {
+          console.log('== Approval ==')
+          console.log('owner: ', owner)
+          console.log('spender: ', spender)
+          console.log('amount: ', parseInt(allowanceAmount._hex, 16) / (10 ** 18))
+          setIsNeedRefresh(true)
+          setAttemptingTxn(false)             
+        })
     }, [account, chainId, library]
   )
 
-  useEffect(() => {
+  const handleRefresh = useCallback(
+    () => {
+      setIsNeedRefresh(true)
+    }, []
+  )
 
+  useEffect(() => {
+    if (!isNeedRefresh) return
     if (!chainId || !library || !account) return
     const getBaseData = async () => {
       const baseDatas = await Promise.all(Object.values(allTokens).map(async (token) => {
@@ -138,8 +166,9 @@ export default function Pool() {
 
         const assetContract = getAssetContract(chainId, tokenAddress, library, account)
         const priceProviderContract = getPriceProviderContract(chainId, library, account)
+        const erc20Contract = getERC20Contract(chainId, token.address, library, account)
         const getVolume24h = async () => {
-          const res = await fetch(volume24_url.concat('get_tnx_amount_24h/').concat(token.address))          
+          const res = await fetch(volume24_url.concat('get_tnx_amount_24h/').concat(token.address))
           return res.json()
         }
 
@@ -149,17 +178,18 @@ export default function Pool() {
           assetContract.cash(),
           assetContract.liability(),
           priceProviderContract.getAssetPrice(token.address),
+          erc20Contract.allowance(account, POOL_ADDRESS),
           getVolume24h()
         ])
           .then(response => {
-            console.log('response: ', response)
             const totalSupply = parseInt(response[0]._hex, 16) / (10 ** 18)
             const balanceOf = parseInt(response[1]._hex, 16) / (10 ** 18)
             const poolShare = totalSupply === 0 ? 0 : balanceOf * 100 / totalSupply
             const cash = parseInt(response[2]._hex, 16) / (10 ** 18)
             const liability = parseInt(response[3]._hex, 16) / (10 ** 18)
             const price = parseInt(response[4]._hex, 16) / (10 ** 8)
-            const volume24h = response[5].status === 'success' ? response[5].volume24 : 0
+            const allowance = parseInt(response[5]._hex, 16) / (10 ** 18)
+            const volume24h = response[6].status === 'success' ? response[6].volume24 : 0
             const bData: PoolItemBaseData = {
               'symbol': token.symbol,
               'address': token.address,
@@ -169,6 +199,7 @@ export default function Pool() {
               'liability': liability,
               'poolShare': poolShare,
               'price': price,
+              'allowance': allowance,
               'volume24': volume24h
             }
             return bData
@@ -184,6 +215,7 @@ export default function Pool() {
               'liability': 0,
               'poolShare': 0,
               'price': 0,
+              'allowance': 0,
               'volume24': 0
             }
             return bData
@@ -198,11 +230,17 @@ export default function Pool() {
         })
 
       setBaseData(baseDatas)
+      setIsNeedRefresh(false)
       console.log('baseData: ', baseDatas)
+
+      if (selectedToken !== undefined) {        
+        const oneData = baseData.find((d) => d.address.toLowerCase() === selectedToken.address.toLowerCase())
+        setSelectedData(oneData)
+      }
     }
 
     getBaseData()
-  }, [account, chainId, library, allTokens])
+  }, [account, chainId, library, allTokens, isNeedRefresh, baseData, selectedToken])
 
   const handleDismissConfirmation = useCallback(() => {
     setShowConfirm(false)
@@ -235,6 +273,7 @@ export default function Pool() {
         onDismiss={closeDepositModal}
         onApprove={handleApprove}
         onDeposit={handleDeposit}
+        onRefresh={handleRefresh}
       />
 
       <TransactionConfirmationModal
@@ -273,6 +312,7 @@ export default function Pool() {
                 token={onetoken}
                 baseData={baseData.find((d) => d.address.toLowerCase() === onetoken.address.toLowerCase())}
                 openDepositModal={openDepositModal(onetoken)}
+                onRefresh={handleRefresh}
               />
             )
           })
