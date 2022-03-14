@@ -175,5 +175,23 @@ export interface PoolItemBaseData {
   poolShare: number
   price: number
   allowance: number
+  allowance_lp: number
   volume24: number
 }
+
+export function calcFee (val: number, t_fee: number, usefulCountFee: number): string {
+  const valDecimalStr = getDecimalPartStr(val)
+        const valDecimalLen = valDecimalStr.length
+        const fe = val * t_fee
+        const intStr = getIntStr(fe)
+        const decStr = getDecimalPartStr(fe)
+        const usefulCount = usefulCountFee + valDecimalLen // val=12.131 -> 7 (3+4)
+
+        let feeDecimalPartStr = ''
+        for (let i = 0; i < usefulCount; i++) {
+          feeDecimalPartStr += decStr.charAt(i)
+        }
+        const feeStr = intStr.concat('.').concat(feeDecimalPartStr)
+        return feeStr
+}
+

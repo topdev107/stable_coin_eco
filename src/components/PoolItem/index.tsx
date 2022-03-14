@@ -55,6 +55,7 @@ interface PoolItemProps {
   token: Token | undefined
   baseData: PoolItemBaseData | undefined
   openDepositModal: () => void
+  openWithdrawModal: () => void
   onRefresh: () => void
 }
 
@@ -62,6 +63,7 @@ export default function PoolItem({
   token,
   baseData,
   openDepositModal,
+  openWithdrawModal,
   onRefresh
 }: PoolItemProps) {
   const theme = useContext(ThemeContext)
@@ -166,7 +168,13 @@ export default function PoolItem({
                       (account !== null && account !== undefined) ? (
                         <Row>
                           <Button size='sm' style={borderRadius7} variant='secondary' onClick={openDepositModal}>Deposit</Button>
-                          <Button size='sm' style={borderRadius7} variant='secondary' className="ml-2" >Withdraw</Button>
+                          {
+                            baseData !== undefined && baseData?.balanceOf > 0 ? (
+                              <Button size='sm' style={borderRadius7} variant='secondary' className="ml-2" onClick={openWithdrawModal}>Withdraw</Button>
+                            ) : (
+                              <Button size='sm' style={borderRadius7} variant='secondary' className="ml-2" disabled>Withdraw</Button>
+                            )
+                          }
                         </Row>
                       ) : (
                         <Row>
@@ -238,9 +246,9 @@ export default function PoolItem({
                   {
                     stakeOpened ?
                       <CloseIcon onClick={close} />
-                      : account !== null && account !== undefined ?                      
-                      <Button size='sm' onClick={open}>Stake<ChevronDownIcon /></Button> :
-                      <Button size='sm' disabled>Stake<ChevronDownIcon /></Button>
+                      : account !== null && account !== undefined ?
+                        <Button size='sm' onClick={open}>Stake<ChevronDownIcon /></Button> :
+                        <Button size='sm' disabled>Stake<ChevronDownIcon /></Button>
                   }
                 </CenterContainer>
               </Col>

@@ -7,7 +7,7 @@ import { Col, Row } from 'react-bootstrap'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { tryParseAmount, useSwapState } from 'state/swap/hooks'
-import { getDecimalPartStr, getIntStr, getUnitedValue, getUsefulCount, nDecimals, PoolItemBaseData, getERC20Contract } from 'utils'
+import { getDecimalPartStr, getIntStr, getUnitedValue, getUsefulCount, nDecimals, PoolItemBaseData, getERC20Contract, calcFee } from 'utils'
 import { POOL_ADDRESS, T_FEE } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrencyBalance } from '../../state/wallet/hooks'
@@ -16,16 +16,6 @@ import CurrencyLogo from '../CurrencyLogo'
 import Modal from '../Modal'
 import { QuestionColorHelper } from '../QuestionHelper'
 import { RowBetween } from '../Row'
-
-interface DepositConfirmModalProps {
-  isOpen: boolean
-  token: Token | undefined
-  baseData: PoolItemBaseData | undefined
-  onDismiss: () => void
-  onApprove: (amount: string, token: Token | undefined) => void
-  onDeposit: (amount: string, token: Token | undefined) => void
-  onRefresh: () => void
-}
 
 const CenterContainerStyle = {
   display: 'flex',
@@ -39,6 +29,16 @@ const CenterVerticalContainerStyle = {
   alignItems: 'center'
 }
 
+interface WithdrawConfirmModalProps {
+  isOpen: boolean
+  token: Token | undefined
+  baseData: PoolItemBaseData | undefined
+  onDismiss: () => void
+  onApprove: (amount: string, token: Token | undefined) => void
+  onDeposit: (amount: string, token: Token | undefined) => void
+  onRefresh: () => void
+}
+
 export default function DepositConfirmModal({
   isOpen,
   token,
@@ -47,7 +47,7 @@ export default function DepositConfirmModal({
   onApprove,
   onDeposit,
   onRefresh
-}: DepositConfirmModalProps) {
+}: WithdrawConfirmModalProps) {
 
   const { account, chainId, library } = useActiveWeb3React()
   const [inputedValue, setInputedValue] = useState('')
@@ -69,19 +69,8 @@ export default function DepositConfirmModal({
   const handleTypeInput = useCallback(
     (val: string) => {
       setInputedValue(val)
-      if (token !== undefined) {
-        const valDecimalStr = getDecimalPartStr(+val)
-        const valDecimalLen = valDecimalStr.length
-        const fe = (+val) * T_FEE
-        const intStr = getIntStr(fe)
-        const decStr = getDecimalPartStr(fe)
-        const usefulCount = usefulCountFee + valDecimalLen // val=12.131 -> 7 (3+4)
-
-        let feeDecimalPartStr = ''
-        for (let i = 0; i < usefulCount; i++) {
-          feeDecimalPartStr += decStr.charAt(i)
-        }
-        const feeStr = intStr.concat('.').concat(feeDecimalPartStr)
+      if (token !== undefined) {        
+        const feeStr = calcFee(+val, T_FEE, usefulCountFee)
         setFee(+feeStr)        
       }
     },
@@ -91,8 +80,10 @@ export default function DepositConfirmModal({
   const handleMaxInput = useCallback(() => {
     if (selectedCurrencyBalance) {
       setInputedValue(selectedCurrencyBalance.toExact())
+      const feeStr = calcFee(+selectedCurrencyBalance.toExact(), T_FEE, usefulCountFee)
+      setFee(+feeStr)
     }
-  }, [selectedCurrencyBalance, setInputedValue])
+  }, [selectedCurrencyBalance, setInputedValue, usefulCountFee])
 
   const handleClose = useCallback(
     () => {
@@ -177,7 +168,7 @@ export default function DepositConfirmModal({
               color='white'
             />
           </div>
-          <Text fontSize="13px">{`${fee} ${token?.symbol}`}</Text>
+          <Text fontSize="13px">{`${nDecimals(2,fee)} ${token?.symbol}`}</Text>
         </RowBetween>
         <RowBetween className='mt-2'>
           <div style={CenterVerticalContainerStyle} >
@@ -197,7 +188,7 @@ export default function DepositConfirmModal({
               color='white'
             />
           </div>
-          <Text fontSize="13px">{`${baseData?.poolShare}%`}</Text>
+          <Text fontSize="13px">{`${nDecimals(2, baseData?.poolShare)}%`}</Text>
         </RowBetween>
         <Row className='mt-4'>
           <Col className='pl-3 pr-1'>
