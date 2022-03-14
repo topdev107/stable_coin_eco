@@ -159,7 +159,7 @@ export default function WithdrawConfirmModal({
               {
                 baseData !== undefined && baseData.balanceOf > 0 ?
                   <Slider value={selectedAmount} onChange={handleChange} max={baseData?.balanceOf * 100} /> :
-                  <Slider value={0} onChange={handleChange} max={0}/>                  
+                  <Slider value={0} onChange={handleChange} max={0} />
               }
             </Col>
           </Row>
@@ -200,7 +200,7 @@ export default function WithdrawConfirmModal({
           <Text fontSize="13px">My Remaining Share</Text>
           {
             baseData !== undefined && baseData.totalSupply > 0 ?
-              <Text fontSize="13px">{`${nDecimals(2, (baseData.balanceOf - selectedAmount / 100)/baseData.totalSupply*100)}%`}</Text> :
+              <Text fontSize="13px">{`${nDecimals(2, (baseData.balanceOf - selectedAmount / 100) / baseData.totalSupply * 100)}%`}</Text> :
               <Text fontSize="13px">0%</Text>
           }
         </RowBetween>
@@ -210,10 +210,8 @@ export default function WithdrawConfirmModal({
           </Col>
           <Col className='pl-1 pr-3'>
             {
-              avaliable && baseData !== undefined ?
-                (baseData.allowance_lp >= +selectedAmount/100 ?
-                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleWithdraw(e, nDecimals(6, +selectedAmount/100).toString(), token)}>Withdraw</Button> :
-                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleApprove(e, nDecimals(6, +selectedAmount/100).toString(), token)}>Approve</Button>) :
+              avaliable ?
+                <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleWithdraw(e, nDecimals(6, +selectedAmount / 100).toString(), token)}>Withdraw</Button> :
                 <Button variant='primary' style={{ borderRadius: '5px' }} disabled fullWidth>Deposit</Button>
             }
           </Col>

@@ -130,7 +130,7 @@ export default function Pool() {
     async (amount: string, tkn: Token | undefined) => {
       if (!chainId || !library || !account || !tkn) return
       setShowConfirm(true)
-      setIsDepositModalOpen(false)
+      setIsWithdrawModalOpen(false)
       setAttemptingTxn(true)
       const poolContract = getPoolContract(chainId, library, account)
       const deadline = Date.now() + DEFAULT_DEADLINE_FROM_NOW * 1000
@@ -361,9 +361,9 @@ export default function Pool() {
       }
     }
 
-    const interval = setInterval(() => {
-      getBaseData()
-    }, 20000)
+    // const interval = setInterval(() => {
+    //   getBaseData()
+    // }, 20000)
 
     getBaseData()
     // return () => clearInterval(interval)
