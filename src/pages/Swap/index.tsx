@@ -18,6 +18,7 @@ import TokenWarningModal from 'components/TokenWarningModal'
 import SyrupWarningModal from 'components/SyrupWarningModal'
 import ProgressSteps from 'components/ProgressSteps'
 
+import { getAssetContract, getERC20Contract, getPoolContract, getPriceProviderContract, PoolItemBaseData } from 'utils'
 import { INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -95,7 +96,7 @@ const Swap = () => {
   const { onSwitchTokens, onCurrencySelection, onUserInput, onChangeRecipient } = useSwapActionHandlers()
   const isValid = !swapInputError
   const dependentField: Field = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT
-
+  
   const handleTypeInput = useCallback(
     (value: string) => {
       onUserInput(Field.INPUT, value)
@@ -135,6 +136,7 @@ const Swap = () => {
   const userHasSpecifiedInputOutput = Boolean(
     currencies[Field.INPUT] && currencies[Field.OUTPUT] && parsedAmounts[independentField]?.greaterThan(JSBI.BigInt(0))
   )
+  // const noRoute = !route
   const noRoute = !route
 
   // check whether the user has approved the router on the input token
@@ -149,6 +151,12 @@ const Swap = () => {
       setApprovalSubmitted(true)
     }
   }, [approval, approvalSubmitted])
+
+  // useEffect (() => {
+  //   if (userHasSpecifiedInputOutput) {
+  //     const inAmount = formattedAmounts[Field.INPUT]
+  //   }
+  // }, [formattedAmounts, userHasSpecifiedInputOutput])
 
   const maxAmountInput: CurrencyAmount | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
   const atMaxAmountInput = Boolean(maxAmountInput && parsedAmounts[Field.INPUT]?.equalTo(maxAmountInput))

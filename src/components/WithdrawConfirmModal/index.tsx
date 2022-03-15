@@ -104,7 +104,7 @@ export default function WithdrawConfirmModal({
     (e, value: string, tk: Token | undefined) => {
       if (tk !== undefined) {
         const val = nDecimals(6, value)
-        const amount = getUnitedValue(val.toString(), tk?.decimals)
+        const amount = getUnitedValue(value, tk?.decimals)
         onWithdraw(amount.toString(), tk)
       }
     }, [onWithdraw]
@@ -211,7 +211,7 @@ export default function WithdrawConfirmModal({
           <Col className='pl-1 pr-3'>
             {
               avaliable ?
-                <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleWithdraw(e, nDecimals(6, +selectedAmount / 100).toString(), token)}>Withdraw</Button> :
+                <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleWithdraw(e, (selectedAmount / 100 - fee).toString(), token)}>Withdraw</Button> :
                 <Button variant='primary' style={{ borderRadius: '5px' }} disabled fullWidth>Deposit</Button>
             }
           </Col>
