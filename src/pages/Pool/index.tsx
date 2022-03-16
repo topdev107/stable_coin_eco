@@ -62,7 +62,8 @@ export default function Pool() {
 
   const closeWithdrawModal = useCallback(() => setIsWithdrawModalOpen(false), [setIsWithdrawModalOpen]);
 
-  const volume24_url = 'http://localhost:5000/api/v1/tnxs/'
+  // const volume24_url = 'http://localhost:5000/api/v1/tnxs/'
+  const volume24_url = 'https://fathomless-savannah-95001.herokuapp.com/api/v1/tnxs/'
 
   const handleDeposit = useCallback(
     async (amount: string, tkn: Token | undefined) => {
@@ -158,7 +159,7 @@ export default function Pool() {
       await poolContract.withdraw(tkn.address, amount, minimumAmount.toString(), account, deadline)
         .then((response) => {
           setAttemptingTxn(false)
-          console.log('deposit: ', response)
+          console.log('Withdraw: ', response)
           setTxHash(response.hash)
           tnx_hash = response.hash
 
