@@ -73,12 +73,13 @@ export default function Pool() {
       const poolContract = getPoolContract(chainId, library, account)
       const deadline = Date.now() + DEFAULT_DEADLINE_FROM_NOW * 1000
 
+      let tnx_hash = ''
       await poolContract.deposit(tkn.address, amount, account, deadline)
         .then((response) => {
           setAttemptingTxn(false)
           console.log('deposit: ', response)
           setTxHash(response.hash)
-          setIsNeedRefresh(true)
+          tnx_hash = response.hash
 
           const requestOptions = {
             method: 'POST',
@@ -112,17 +113,34 @@ export default function Pool() {
           }
         })
 
+      const checkTnx = async () => {
+        if (tnx_hash === '') return
+        poolContract.once('Deposit', (sender, token, depositAmount, liquidity, to) => {
+          console.log('== Deposit ==')
+          console.log('Sender: ', sender)
+          console.log('Token: ', token)
+          console.log('Amount: ', parseInt(depositAmount._hex, 16) / (10 ** 18))
+          console.log('Liquidity: ', parseInt(liquidity._hex, 16) / (10 ** 18))
+          console.log('To: ', to)
 
-      // event Deposit(address indexed sender, address token, uint256 amount, uint256 liquidity, address indexed to);
-      poolContract.once('Deposit', (sender, token, depositAmount, liquidity, to) => {
-        console.log('== Deposit ==')
-        console.log('Sender: ', sender)
-        console.log('Token: ', token)
-        console.log('Amount: ', parseInt(depositAmount._hex, 16) / (10 ** 18))
-        console.log('Liquidity: ', parseInt(liquidity._hex, 16) / (10 ** 18))
-        console.log('To: ', to)
-        setIsNeedRefresh(true)
-      })
+          poolContract.provider
+            .getTransactionReceipt(tnx_hash)
+            .then((res) => {
+              console.log('getTransactionReceipt: ', res)
+            })
+            .catch(e => {
+              console.log('tnx_receipt_exception: ', e)
+            })
+            .finally(() => {
+              console.log('finally called')
+              setIsNeedRefresh(true)
+              setAttemptingTxn(false)
+            })
+        })
+      }
+
+      checkTnx()
+
     }, [account, chainId, library, baseData]
   )
 
@@ -136,12 +154,13 @@ export default function Pool() {
       const deadline = Date.now() + DEFAULT_DEADLINE_FROM_NOW * 1000
 
       const minimumAmount = (+amount) - (+amount) * T_FEE
+      let tnx_hash = ''
       await poolContract.withdraw(tkn.address, amount, minimumAmount.toString(), account, deadline)
         .then((response) => {
           setAttemptingTxn(false)
           console.log('deposit: ', response)
           setTxHash(response.hash)
-          setIsNeedRefresh(true)
+          tnx_hash = response.hash
 
           const requestOptions = {
             method: 'POST',
@@ -174,17 +193,34 @@ export default function Pool() {
             setShowConfirm(false)
           }
         })
+      
+      const checkTnx = async () => {
+        if (tnx_hash === '') return
+        poolContract.once('Withdraw', (sender, token, withdrawAmount, liquidity, to) => {
+          console.log('== Withdraw ==')
+          console.log('Sender: ', sender)
+          console.log('Token: ', token)
+          console.log('Amount: ', parseInt(withdrawAmount._hex, 16) / (10 ** 18))
+          console.log('Liquidity: ', parseInt(liquidity._hex, 16) / (10 ** 18))
+          console.log('To: ', to)
 
-      // event Withdraw(address indexed sender, address token, uint256 amount, uint256 liquidity, address indexed to);
-      poolContract.once('Withdraw', (sender, token, withdrawAmount, liquidity, to) => {
-        console.log('== Withdraw ==')
-        console.log('Sender: ', sender)
-        console.log('Token: ', token)
-        console.log('Amount: ', parseInt(withdrawAmount._hex, 16) / (10 ** 18))
-        console.log('Liquidity: ', parseInt(liquidity._hex, 16) / (10 ** 18))
-        console.log('To: ', to)
-        setIsNeedRefresh(true)
-      })
+          poolContract.provider
+            .getTransactionReceipt(tnx_hash)
+            .then((res) => {
+              console.log('getTransactionReceipt: ', res)
+            })
+            .catch(e => {
+              console.log('tnx_receipt_exception: ', e)
+            })
+            .finally(() => {
+              console.log('finally called')
+              setIsNeedRefresh(true)
+              setAttemptingTxn(false)
+            })
+        })
+      }
+
+      checkTnx()
     }, [account, chainId, library, baseData]
   )
 
@@ -194,12 +230,13 @@ export default function Pool() {
       setShowConfirm(true)
       setAttemptingTxn(true)
       const erc20Contract = getERC20Contract(chainId, tkn.address, library, account)
+      let tnx_hash = ''
       await erc20Contract.approve(POOL_ADDRESS, amount)
         .then((response) => {
           console.log('approved: ', response)
           // setAttemptingTxn(false)          
           setTxHash(response.hash)
-          setIsNeedRefresh(true)
+          tnx_hash = response.hash
         })
         .catch((e) => {
           setAttemptingTxn(false)
@@ -212,15 +249,32 @@ export default function Pool() {
           }
         })
 
-      erc20Contract
-        .once('Approval', (owner, spender, allowanceAmount) => {
-          console.log('== Approval ==')
-          console.log('owner: ', owner)
-          console.log('spender: ', spender)
-          console.log('amount: ', parseInt(allowanceAmount._hex, 16) / (10 ** 18))
-          setIsNeedRefresh(true)
-          setAttemptingTxn(false)
-        })
+      const checkTnx = async () => {
+        if (tnx_hash === '') return
+        erc20Contract
+          .once('Approval', (owner, spender, allowanceAmount) => {
+            console.log('== Approval ==')
+            console.log('owner: ', owner)
+            console.log('spender: ', spender)
+            console.log('amount: ', parseInt(allowanceAmount._hex, 16) / (10 ** 18))
+
+            erc20Contract.provider
+              .getTransactionReceipt(tnx_hash)
+              .then((res) => {
+                console.log('getTransactionReceipt: ', res)
+              })
+              .catch(e => {
+                console.log('tnx_receipt_exception: ', e)
+              })
+              .finally(() => {
+                console.log('finally called')
+                setIsNeedRefresh(true)
+                setAttemptingTxn(false)
+              })
+          })
+      }
+
+      checkTnx()
     }, [account, chainId, library]
   )
 
@@ -235,12 +289,12 @@ export default function Pool() {
       setShowConfirm(true)
       setAttemptingTxn(true)
       const assetContract = getAssetContract(chainId, tokenAddress, library, account)
+      let tnx_hash = ''
       await assetContract.approve(POOL_ADDRESS, amount)
         .then((response) => {
           console.log('approved: ', response)
-          // setAttemptingTxn(false)
           setTxHash(response.hash)
-          setIsNeedRefresh(true)
+          tnx_hash = response.hash
         })
         .catch((e) => {
           setAttemptingTxn(false)
@@ -253,15 +307,33 @@ export default function Pool() {
           }
         })
 
+      const checkTnx = async () => {
+        if (tnx_hash === '') return
         assetContract
-        .once('Approval', (owner, spender, allowanceAmount) => {
-          console.log('== Approval ==')
-          console.log('owner: ', owner)
-          console.log('spender: ', spender)
-          console.log('amount: ', parseInt(allowanceAmount._hex, 16) / (10 ** 18))
-          setIsNeedRefresh(true)
-          setAttemptingTxn(false)
-        })
+          .once('Approval', (owner, spender, allowanceAmount) => {
+            console.log('== Approval ==')
+            console.log('owner: ', owner)
+            console.log('spender: ', spender)
+            console.log('amount: ', parseInt(allowanceAmount._hex, 16) / (10 ** 18))
+
+            assetContract.provider
+              .getTransactionReceipt(tnx_hash)
+              .then((res) => {
+                console.log('getTransactionReceipt: ', res)
+              })
+              .catch(e => {
+                console.log('tnx_receipt_exception: ', e)
+              })
+              .finally(() => {
+                console.log('finally called')
+                setIsNeedRefresh(true)
+                setAttemptingTxn(false)
+              })
+          })
+      }
+
+      checkTnx()
+
     }, [account, chainId, library]
   )
 
