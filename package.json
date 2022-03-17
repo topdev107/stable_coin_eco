@@ -71,7 +71,8 @@
     "@types/testing-library__cypress": "^5.0.8"
   },
   "engines": {
-    "node": "16.13.0"
+    "node": "16.13.0",
+    "npm": "8.5.0"
   },
   "devDependencies": {
     "@pancakeswap-libs/eslint-config-pancake": "1.0.0",
@@ -90,8 +91,8 @@
     "@walletconnect/web3-provider": "1.1.1-alpha.0"
   },
   "scripts": {    
-    "start": "node --max_old_space_size=2560 node_modules/.bin/react-scripts start",
-    "build": "node --max_old_space_size=2560 node_modules/.bin/react-scripts build",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
