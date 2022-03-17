@@ -70,6 +70,9 @@
     "@types/react-bootstrap": "^0.32.29",
     "@types/testing-library__cypress": "^5.0.8"
   },
+  "engines": {
+    "node": "16.13.0"
+  },
   "devDependencies": {
     "@pancakeswap-libs/eslint-config-pancake": "1.0.0",
     "@types/bootstrap": "^5.1.9",
