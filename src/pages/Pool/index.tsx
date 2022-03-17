@@ -271,6 +271,7 @@ export default function Pool() {
                 console.log('finally called')
                 setIsNeedRefresh(true)
                 setAttemptingTxn(false)
+                setShowConfirm(false)
               })
           })
       }
