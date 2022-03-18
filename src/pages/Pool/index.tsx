@@ -346,6 +346,11 @@ export default function Pool() {
   )
 
   useEffect(() => {
+    if (!chainId || !library || !account) return
+    setIsNeedRefresh(true)
+  } ,[account, library, chainId])
+
+  useEffect(() => {
     if (!isNeedRefresh) return
     if (!chainId || !library || !account) return
     const getBaseData = async () => {
@@ -435,12 +440,8 @@ export default function Pool() {
       }
     }
 
-    // const interval = setInterval(() => {
-    //   getBaseData()
-    // }, 20000)
-
     getBaseData()
-    // return () => clearInterval(interval)
+
   }, [account, chainId, library, allTokens, isNeedRefresh, baseData, selectedToken])
 
   const handleDismissConfirmation = useCallback(() => {

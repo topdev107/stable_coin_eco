@@ -301,11 +301,18 @@ const Swap = () => {
   const handleInputSelect = useCallback(
     (inputCurrency) => {
       const oneToken = Object.values(allTokens).find((d) => d.address.toLowerCase() === inputCurrency.address.toLowerCase())
-      setSelectedTokenA(oneToken)
+      if (selectedTokenB?.address !== oneToken?.address) {
+        setSelectedTokenA(oneToken)
+      } else {
+        setSelectedTokenA(selectedTokenB)
+        setSelectedTokenB(selectedTokenA)
+      }
       setInputValueA('')
       setInputValueB('')
+      setAllowanceAmount(0)
       setIsInsufficientCash(false)
       console.log('inputTokenSelected: ', selectedTokenA?.address)
+
 
       setApprovalSubmitted(false) // reset 2 step UI for approvals
       onCurrencySelection(Field.INPUT, inputCurrency)
@@ -313,7 +320,7 @@ const Swap = () => {
         checkForSyrup(inputCurrency.symbol.toLowerCase(), 'Selling')
       }
     },
-    [onCurrencySelection, setApprovalSubmitted, checkForSyrup, allTokens, selectedTokenA?.address]
+    [onCurrencySelection, setApprovalSubmitted, checkForSyrup, allTokens, selectedTokenA, selectedTokenB]
   )
 
   // const handleMaxInput = useCallback(() => {
@@ -331,21 +338,24 @@ const Swap = () => {
   const handleOutputSelect = useCallback(
     (outputCurrency) => {
       const oneToken = Object.values(allTokens).find((d) => d.address.toLowerCase() === outputCurrency.address.toLowerCase())
-      setSelectedTokenB(oneToken)
-      setAllowanceAmount(0)
-
+      if (selectedTokenA?.address !== oneToken?.address) {
+        setSelectedTokenB(oneToken)        
+      } else {
+        setSelectedTokenA(selectedTokenB)
+        setSelectedTokenB(selectedTokenA)
+      }
       console.log('outputTokenSelected: ', selectedTokenB?.address)
       onCurrencySelection(Field.OUTPUT, outputCurrency)
       if (outputCurrency.symbol.toLowerCase() === 'syrup') {
         checkForSyrup(outputCurrency.symbol.toLowerCase(), 'Buying')
       }
     },
-    [onCurrencySelection, checkForSyrup, allTokens, selectedTokenB?.address]
+    [onCurrencySelection, checkForSyrup, allTokens, selectedTokenB, selectedTokenA]
   )
 
   const handleDismissConfirmation = useCallback(() => {
     setSwapState((prevState) => ({ ...prevState, showConfirm: false, txHash: undefined }))
-    
+
   }, [])
 
   const handleApprove = useCallback(
@@ -355,7 +365,7 @@ const Swap = () => {
       const amount = getUnitedValue(inputValueA, tkn.decimals)
       setTnxHash(undefined)
       setSwapState((prevState) => ({ showConfirm: true, tradeToConfirm: undefined, attemptingTxn: true, swapErrorMessage: '', txHash: undefined }))
-      const erc20Contract = getERC20Contract(chainId, tkn.address, library, account)      
+      const erc20Contract = getERC20Contract(chainId, tkn.address, library, account)
 
       const approveCall = async () => {
         await erc20Contract.approve(POOL_ADDRESS, amount.toString())
@@ -378,7 +388,7 @@ const Swap = () => {
                 erc20Contract.provider
                   .getTransactionReceipt(response.hash)
                   .then((res) => {
-                    console.log('getTransactionReceipt: ', res)                    
+                    console.log('getTransactionReceipt: ', res)
                   })
                   .catch(e => {
                     console.log('tnx_receipt_exception: ', e)
@@ -387,7 +397,7 @@ const Swap = () => {
                     console.log('finally called')
                     console.log('txHash: ', txHash)
                     setAllowanceAmount(parseInt(allowanceAmt._hex, 16) / (10 ** 18))
-                    setSwapState((prevState) => ({ ...prevState, showConfirm: false, attemptingTxn: false }))                    
+                    setSwapState((prevState) => ({ ...prevState, showConfirm: false, attemptingTxn: false }))
                   })
               })
           })
@@ -422,11 +432,11 @@ const Swap = () => {
 
       const fromToken = selectedTokenA.address
       const toToken = selectedTokenB.address
-      const fromAmount = getUnitedValue(inputValueA, selectedTokenA.decimals).toString()   
-      const minimumToAmount = getUnitedValue(((+inputValueB)-(+inputValueB*allowedSlippage/10000)).toString(), selectedTokenB.decimals).toString()
+      const fromAmount = getUnitedValue(inputValueA, selectedTokenA.decimals).toString()
+      const minimumToAmount = getUnitedValue(((+inputValueB) - (+inputValueB * allowedSlippage / 10000)).toString(), selectedTokenB.decimals).toString()
       console.log('inputValueB: ', inputValueB)
-      console.log('mininumToAmount: ', (+inputValueB)-(+inputValueB*allowedSlippage/10000))
-      console.log('allowedSlipage: ', allowedSlippage)      
+      console.log('mininumToAmount: ', (+inputValueB) - (+inputValueB * allowedSlippage / 10000))
+      console.log('allowedSlipage: ', allowedSlippage)
       const to = account
       const tnxDeadline = Date.now() + deadline * 1000
 
@@ -437,9 +447,9 @@ const Swap = () => {
       const swapCall = async () => {
         await poolContract.swap(fromToken, toToken, fromAmount, minimumToAmount, to, tnxDeadline)
           .then((response) => {
-            console.log('swap: ', response)     
-            setTnxHash(response.hash)      
-            setSwapState((prevState) => ({ ...prevState, txHash: response.hash }))            
+            console.log('swap: ', response)
+            setTnxHash(response.hash)
+            setSwapState((prevState) => ({ ...prevState, txHash: response.hash }))
             // event Swap(
             //   address indexed sender,
             //   address fromToken,
@@ -457,21 +467,21 @@ const Swap = () => {
                 console.log('fromAmount: ', parseInt(fromAmount1._hex, 16) / (10 ** 18))
                 console.log('toAmount: ', parseInt(toAmount1._hex, 16) / (10 ** 18))
                 console.log('to: ', to1)
-                                
+
                 poolContract.provider
                   .getTransactionReceipt(response.hash)
                   .then((res) => {
-                    console.log('getTransactionReceipt: ', res)  
+                    console.log('getTransactionReceipt: ', res)
                     setInputValueA('0.0')
-                    setInputValueA('') 
+                    setInputValueA('')
                   })
                   .catch(e => {
                     console.log('tnx_receipt_exception: ', e)
-                    setSwapState((prevState) => ({ ...prevState, swapErrorMessage: e.message }))               
+                    setSwapState((prevState) => ({ ...prevState, swapErrorMessage: e.message }))
                   })
                   .finally(() => {
                     console.log('finally called')
-                    setSwapState((prevState) => ({ ...prevState, attemptingTxn: false }))                    
+                    setSwapState((prevState) => ({ ...prevState, attemptingTxn: false }))
                   })
               })
           })
@@ -616,7 +626,7 @@ const Swap = () => {
                 onUserInput={handleTypeInput}
                 onMax={handleMaxInput}
                 onCurrencySelect={handleInputSelect}
-                otherCurrency={currencies[Field.OUTPUT]}
+                otherCurrency={selectedTokenB}
                 id="swap-currency-input"
               />
               <AutoColumn justify="space-between">
@@ -651,7 +661,7 @@ const Swap = () => {
                 showMaxButton={false}
                 currency={selectedTokenB}
                 onCurrencySelect={handleOutputSelect}
-                otherCurrency={currencies[Field.INPUT]}
+                otherCurrency={selectedTokenA}
                 id="swap-currency-output"
               />
 
