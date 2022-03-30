@@ -7,17 +7,19 @@ import { useActiveWeb3React } from 'hooks'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import styled from 'styled-components'
-import { getAssetContract, getERC20Contract, getPoolContract, getPriceProviderContract, PoolItemBaseData } from 'utils'
+import { getAssetContract, getVePTPContract, getPTPContract, getMasterPlatypusContract, getERC20Contract, getPoolContract, getPriceProviderContract, PoolItemBaseData } from 'utils'
 import { useTnxHandler } from 'state/tnxs/hooks'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { clearInterval } from 'timers'
+import { useCurrencyBalance, useTokenBalances } from 'state/wallet/hooks'
 import DepositModal from '../../components/DepositConfirmModal'
 import WithdrawModal from '../../components/WithdrawConfirmModal'
 import TransactionConfirmationModal, { TransactionErrorContent } from '../../components/TransactionConfirmationModal'
-import { ASSET_BUSD_ADDRESS, ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_ADDRESS, DEFAULT_DEADLINE_FROM_NOW, POOL_ADDRESS, T_FEE } from '../../constants'
+import { USDT_LP_ID, BUSD_LP_ID, DAI_LP_ID, USDC_LP_ID, ASSET_BUSD_ADDRESS, ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_ADDRESS, DEFAULT_DEADLINE_FROM_NOW, POOL_ADDRESS, T_FEE } from '../../constants'
 import { useAllTokens } from '../../hooks/Tokens'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
+
 
 
 
@@ -43,6 +45,9 @@ export default function Pool() {
   const [txHash, setTxHash] = useState<string>('')
 
   const { saveTnx } = useTnxHandler()
+
+  // const acnt = account === null ? undefined : account  
+  // const tokenBalances = useTokenBalances(acnt, Object.values(allTokens))
 
   const openDepositModal = (token: Token) => () => {
     setIsDepositModalOpen(true)
@@ -194,7 +199,7 @@ export default function Pool() {
             setShowConfirm(false)
           }
         })
-      
+
       const checkTnx = async () => {
         if (tnx_hash === '') return
         poolContract.once('Withdraw', (sender, token, withdrawAmount, liquidity, to) => {
@@ -348,7 +353,7 @@ export default function Pool() {
   useEffect(() => {
     if (!chainId || !library || !account) return
     setIsNeedRefresh(true)
-  } ,[account, library, chainId])
+  }, [account, library, chainId])
 
   useEffect(() => {
     if (!isNeedRefresh) return
@@ -361,9 +366,16 @@ export default function Pool() {
               token.symbol === 'USDT' ? ASSET_USDT_ADDRESS :
                 token.symbol === 'BUSD' ? ASSET_BUSD_ADDRESS : '0x'
 
+        const lpID =
+          token.symbol === 'DAI' ? DAI_LP_ID :
+            token.symbol === 'USDC' ? USDC_LP_ID :
+              token.symbol === 'USDT' ? USDT_LP_ID :
+                token.symbol === 'BUSD' ? BUSD_LP_ID : '0x'
+
         const assetContract = getAssetContract(chainId, tokenAddress, library, account)
         const priceProviderContract = getPriceProviderContract(chainId, library, account)
         const erc20Contract = getERC20Contract(chainId, token.address, library, account)
+        const masterPlatypusContract = getMasterPlatypusContract(chainId, library, account)
         const getVolume24h = async () => {
           const res = await fetch(volume24_url.concat('get_tnx_amount_24h/').concat(token.address))
           return res.json()
@@ -377,9 +389,10 @@ export default function Pool() {
           priceProviderContract.getAssetPrice(token.address),
           erc20Contract.allowance(account, POOL_ADDRESS),
           assetContract.allowance(account, POOL_ADDRESS),
+          masterPlatypusContract.lpStakedInfo(lpID, account),
           getVolume24h()
         ])
-          .then(response => {
+          .then(response => {            
             const totalSupply = parseInt(response[0]._hex, 16) / (10 ** 18)
             const balanceOf = parseInt(response[1]._hex, 16) / (10 ** 18)
             const poolShare = totalSupply === 0 ? 0 : balanceOf * 100 / totalSupply
@@ -388,7 +401,9 @@ export default function Pool() {
             const price = parseInt(response[4]._hex, 16) / (10 ** 8)
             const allowance = parseInt(response[5]._hex, 16) / (10 ** 18)
             const allowance_lp = parseInt(response[6]._hex, 16) / (10 ** 18)
-            const volume24h = response[7].status === 'success' ? response[7].volume24 : 0
+            const stakedLPAmount = parseInt(response[7].lpAmount._hex, 16) / (10 ** 18)
+            const rewardableVePTPAmount = parseInt(response[7].rewardAmount._hex, 16) / (10 ** 18)
+            const volume24h = response[8].status === 'success' ? response[8].volume24 : 0
             const bData: PoolItemBaseData = {
               'symbol': token.symbol,
               'address': token.address,
@@ -400,7 +415,9 @@ export default function Pool() {
               'price': price,
               'allowance': allowance,
               'allowance_lp': allowance_lp,
-              'volume24': volume24h
+              'volume24': volume24h,
+              'stakedLPAmount': stakedLPAmount,
+              'rewardableVePTPAmount': rewardableVePTPAmount
             }
             return bData
           })
@@ -417,7 +434,9 @@ export default function Pool() {
               'price': 0,
               'allowance': 0,
               'allowance_lp': 0,
-              'volume24': 0
+              'volume24': 0,
+              'stakedLPAmount': 0,
+              'rewardableVePTPAmount': 0
             }
             return bData
           })

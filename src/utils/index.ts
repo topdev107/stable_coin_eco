@@ -9,7 +9,10 @@ import PoolABI from '../constants/abis/Pool.json'
 import AssetABI from '../constants/abis/Asset.json'
 import ERC20ABI from '../constants/abis/erc20.json'
 import PriceProviderABI from '../constants/abis/ChainlinkProxyPriceProvider.json'
-import { ROUTER_ADDRESS, POOL_ADDRESS, CHAIN_LINK_PRICE_PROVIDER_ADDRESS } from '../constants'
+import PTPABI from '../constants/abis/PTP.json'
+import VePTPABI from '../constants/abis/VePTP.json'
+import MasterPlatypusABI from '../constants/abis/MasterPlatypus.json'
+import { ROUTER_ADDRESS, POOL_ADDRESS, CHAIN_LINK_PRICE_PROVIDER_ADDRESS, PTP_ADDRESS, VEPTP_ADDRESS, MASTER_PLATYPUS_ADDRESS } from '../constants'
 import { TokenAddressMap } from '../state/lists/hooks'
 
 // returns the checksummed address if the address is valid, otherwise returns false
@@ -109,6 +112,18 @@ export function getAssetContract(_: number, address: string, library: Web3Provid
   return getContract(address, AssetABI, library, account)
 }
 
+export function getPTPContract(_: number, library: Web3Provider, account?: string): Contract {
+  return getContract(PTP_ADDRESS, PTPABI, library, account)
+}
+
+export function getVePTPContract(_: number, library: Web3Provider, account?: string): Contract {
+  return getContract(VEPTP_ADDRESS, VePTPABI, library, account)
+}
+
+export function getMasterPlatypusContract(_: number, library: Web3Provider, account?: string): Contract {
+  return getContract(MASTER_PLATYPUS_ADDRESS, MasterPlatypusABI, library, account)
+}
+
 // account is optional
 export function getRouterContract(_: number, library: Web3Provider, account?: string): Contract {
   return getContract(ROUTER_ADDRESS, IUniswapV2Router02ABI, library, account)
@@ -177,6 +192,8 @@ export interface PoolItemBaseData {
   allowance: number
   allowance_lp: number
   volume24: number
+  stakedLPAmount: number
+  rewardableVePTPAmount: number
 }
 
 export function calcFee (val: number, t_fee: number, usefulCountFee: number): string {

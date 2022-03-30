@@ -2,6 +2,7 @@ import { Button, Text } from '@pantherswap-libs/uikit'
 import React, { useContext, useState } from 'react'
 import { Col, Form, Row } from 'react-bootstrap'
 import styled, { ThemeContext } from 'styled-components'
+import { nDecimals } from 'utils'
 import { GreyCard } from '../Card'
 import Question, { QuestionColorHelper } from '../QuestionHelper'
 import { TYPE } from '../Shared'
@@ -43,7 +44,7 @@ const RadioColorOrangeStyle = {
   accentColor: '#ff720d'
 }
 
-export default function StakeView ({ token, staked, ...rest }: any) {
+export default function StakeView ({ token, baseData, ...rest }: any) {
   const theme = useContext(ThemeContext)
 
   const [radio, setRadio] = useState("stake"); // claim, stake, unstake
@@ -52,6 +53,11 @@ export default function StakeView ({ token, staked, ...rest }: any) {
     const { value } = evt.target;
     setRadio(value);
   };
+
+  const stakedAmount = baseData.stakedLPAmount
+  const formattedStakedAmount = nDecimals(3, stakedAmount)
+  const stakableAmount = baseData.balanceOf - baseData.stakedLPAmount
+  const formattedStakableAmount = nDecimals(3, stakableAmount)
 
 
   return (
@@ -116,10 +122,10 @@ export default function StakeView ({ token, staked, ...rest }: any) {
                       </div>
                     ) : (
                       <div className="w-100">
-                        <Text fontSize='11px' className='text-right w-100 mt-1' color='darkOrange'>{radio==='stake'? 0.0 : 1.09} {token.symbol}</Text>
+                        <Text fontSize='11px' className='text-right w-100 mt-1' color='darkOrange'>{radio==='stake'? formattedStakedAmount : formattedStakableAmount} {token.symbol}</Text>
                         <Row>
                           <Col style={verticalCenterContainerStyle100}>
-                            <Text className='text-right w-100 mt-1' >{radio==='stake'? 1.09 : 0.0} </Text>
+                            <Text className='text-right w-100 mt-1' >{radio==='stake'? formattedStakableAmount : formattedStakedAmount} </Text>
                             <Text fontSize='11px' className='text-right mt-1 ml-1'> {token.symbol}</Text>
                           </Col>
                         </Row>                    
@@ -133,7 +139,7 @@ export default function StakeView ({ token, staked, ...rest }: any) {
           <Col md={4} xs={12} style={verticalCenterContainerStyle}>
             {
               radio==='claim'? (
-                staked? (
+                stakedAmount > 0? (
                   <Button style={borderRadius7} fullWidth>Claim</Button>
                 ) : (
                   <Button style={borderRadius7} disabled fullWidth>Claim</Button>
@@ -142,11 +148,11 @@ export default function StakeView ({ token, staked, ...rest }: any) {
                 radio==='stake'? (
                   <div>
                     <Text fontSize='10px'>Earned PTP will be automatically claimed on staking</Text>
-                    {
-                      staked? (
-                        <Button style={borderRadius7} disabled fullWidth>Stake All</Button>
-                      ) : (
+                    {                      
+                      stakableAmount > 0? (
                         <Button style={borderRadius7} fullWidth>Stake All</Button>
+                      ) : (
+                        <Button style={borderRadius7} disabled fullWidth>Stake All</Button>
                       )
                     }                    
                   </div>
@@ -154,7 +160,7 @@ export default function StakeView ({ token, staked, ...rest }: any) {
                   <div>
                     <Text fontSize='10px'>Earned PTP will be automatically claimed on unstaking</Text>
                     {
-                      staked? (
+                      stakedAmount > 0? (
                         <Button style={borderRadius7} fullWidth>Unstake All</Button>
                       ) : (
                         <Button style={borderRadius7} disabled fullWidth>Unstake All</Button>

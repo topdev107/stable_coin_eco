@@ -255,7 +255,7 @@ export default function PoolItem({
             </Row>
             {
               stakeOpened ? (
-                <StakeView token={token} />
+                <StakeView token={token} baseData={baseData}/>
               ) : (
                 <></>
               )
