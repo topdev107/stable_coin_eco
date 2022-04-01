@@ -29,7 +29,7 @@ const CenterVerticalContainerStyle = {
   alignItems: 'center'
 }
 
-interface WithdrawConfirmModalProps {
+interface DepositConfirmModalProps {
   isOpen: boolean
   token: Token | undefined
   baseData: PoolItemBaseData | undefined
@@ -47,7 +47,7 @@ export default function DepositConfirmModal({
   onApprove,
   onDeposit,
   onRefresh
-}: WithdrawConfirmModalProps) {
+}: DepositConfirmModalProps) {
 
   const { account, chainId, library } = useActiveWeb3React()
   const [inputedValue, setInputedValue] = useState('')

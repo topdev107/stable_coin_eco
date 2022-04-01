@@ -11,7 +11,7 @@ export const ASSET_USDT_ADDRESS = '0xd2647cb3101eccF76c4C08296EFaC747C0b0f675' /
 export const ASSET_BUSD_ADDRESS = '0x86D513Ad9e941603BBA5d5C4bAD63a67ed4dD341' // bsc testnet
 export const PTP_ADDRESS = '0xe0C8AA531c50f81fb2820e04B7caAB2Dc13A9Ca6'
 export const VEPTP_ADDRESS = '0xf08073eDC5C9378811CE341DA6FB0D5ec183400b'
-export const MASTER_PLATYPUS_ADDRESS = '0x4Af202e85CD4AEe8F0689d9Fd55944C588789E88'
+export const MASTER_PLATYPUS_ADDRESS = '0x400a120C8E8027fBE2dC202Dea7EE28976975b8d'
 
 export const USDT_LP_ID = 0
 export const BUSD_LP_ID = 1
@@ -24,6 +24,9 @@ export const T_FEE = 0.0001 // 0.01%
 type ChainTokenList = {
   readonly [chainId in ChainId]: Token[]
 }
+
+
+export const PTP = new Token(ChainId.BSCTESTNET, '0xe0C8AA531c50f81fb2820e04B7caAB2Dc13A9Ca6', 18, 'PTP', 'Platypus')
 
 export const DAI = new Token(ChainId.MAINNET, '0x1af3f329e8be154074d8769d1ffa4ee058b1dbc3', 18, 'DAI', 'Dai Stablecoin')
 export const BUSD = new Token(ChainId.MAINNET, '0xe9e7cea3dedca5984780bafc599bd69add087d56', 18, 'BUSD', 'Binance USD')

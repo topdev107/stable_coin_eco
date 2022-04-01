@@ -10,6 +10,7 @@ import CurrencyLogo from '../CurrencyLogo'
 import Question from '../QuestionHelper'
 import { TYPE } from '../Shared'
 import StakeView from "../StakeView"
+import { PTP } from '../../constants'
 
 
 
@@ -56,6 +57,9 @@ interface PoolItemProps {
   baseData: PoolItemBaseData | undefined
   openDepositModal: () => void
   openWithdrawModal: () => void
+  openLPStakeModal: () => void
+  openLPUnStakeModal: () =>void
+  openPTPClaimModal: () =>void
   onRefresh: () => void
 }
 
@@ -64,6 +68,9 @@ export default function PoolItem({
   baseData,
   openDepositModal,
   openWithdrawModal,
+  openLPStakeModal,
+  openLPUnStakeModal,
+  openPTPClaimModal,
   onRefresh
 }: PoolItemProps) {
   const theme = useContext(ThemeContext)
@@ -151,11 +158,15 @@ export default function PoolItem({
                       <div>
                         <Text color='#888888' fontSize='12px'>My Deposits</Text>
                         {
-                          baseData === undefined ?
-                            <Text>$0</Text> :
-                            <Text>{`$${nDecimals(2, baseData.balanceOf * baseData.price)}`}</Text>
+                          baseData === undefined ? (
+                            <Text>$0</Text>
+                          ) : (
+                            <>
+                              <Text>{`$${nDecimals(2, (baseData.balanceOf + baseData.stakedLPAmount) * baseData.price)}`}</Text>
+                              <Text color='#888888' fontSize='12px'>{`${nDecimals(2, (baseData?.balanceOf + baseData.stakedLPAmount))}${token?.symbol}`}</Text>
+                            </>
+                          )
                         }
-                        <Text color='#888888' fontSize='12px'>{`${nDecimals(2, baseData?.balanceOf)}${token?.symbol}`}</Text>
                       </div>
                     </CenterContainer>
                   </Col>
@@ -197,7 +208,7 @@ export default function PoolItem({
                   <div className='mt-1'>
                     <CenterContainer>
                       <Text color='#888888' fontSize='10px' className="mr-1">Reward</Text>
-                      <CurrencyLogo currency={token} size="15px" />
+                      <CurrencyLogo currency={PTP} size="15px" />
                     </CenterContainer>
                   </div>
                 </CenterContainer>
@@ -255,14 +266,20 @@ export default function PoolItem({
             </Row>
             {
               stakeOpened ? (
-                <StakeView token={token} baseData={baseData}/>
+                <StakeView
+                  token={token}
+                  baseData={baseData}
+                  openLPStakeModal={openLPStakeModal}
+                  openLPUnStakeModal={openLPUnStakeModal} 
+                  handleClaimPTP={openPTPClaimModal}
+                  />
               ) : (
                 <></>
               )
             }
           </PaddingDiv>
         </Body>
-      </DarkblueOutlineCard>
+      </DarkblueOutlineCard >
     </>
   )
 }

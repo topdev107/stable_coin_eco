@@ -173,11 +173,12 @@ export function getUsefulCount(num: number): number {
   return i + 1
 }
 
-export function nDecimals(n, num) {
+export function nDecimals(n, num, thr = 0.000001) {
   const log10 = num ? Math.floor(Math.log10(num)) : 0
   const div = log10 < 0 ? 10**(1 - log10) : 10**n
 
-  return Math.round(num * div) / div
+  const ndes = Math.round(num * div) / div
+  return ndes > thr ? ndes : 0
 }
 
 export interface PoolItemBaseData {
@@ -190,10 +191,12 @@ export interface PoolItemBaseData {
   poolShare: number
   price: number
   allowance: number
-  allowance_lp: number
+  allowance_lp_pool: number
+  allowance_lp_master: number
   volume24: number
   stakedLPAmount: number
-  rewardableVePTPAmount: number
+  rewardablePTPAmount: number
+  multiRewardablePTPAmount: number
 }
 
 export function calcFee (val: number, t_fee: number, usefulCountFee: number): string {

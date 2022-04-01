@@ -212,7 +212,7 @@ export default function WithdrawConfirmModal({
             {
               avaliable ?
                 <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleWithdraw(e, (selectedAmount / 100 - fee).toString(), token)}>Withdraw</Button> :
-                <Button variant='primary' style={{ borderRadius: '5px' }} disabled fullWidth>Deposit</Button>
+                <Button variant='primary' style={{ borderRadius: '5px' }} disabled fullWidth>Withdraw</Button>
             }
           </Col>
         </Row>
