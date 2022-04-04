@@ -1,9 +1,10 @@
 import { Token } from '@pantherswap-libs/sdk'
 import { Button, Text } from '@pantherswap-libs/uikit'
 import { GreyCard } from 'components/Card'
+import { BigNumber } from 'ethers'
 import React, { useCallback } from 'react'
 import { Col, Row } from 'react-bootstrap'
-import { getUnitedValue, nDecimals, PoolItemBaseData } from 'utils'
+import { getUnitedValue, nDecimals, norValue, PoolItemBaseData } from 'utils'
 import CurrencyLogo from '../CurrencyLogo'
 import Modal from '../Modal'
 import { QuestionColorHelper } from '../QuestionHelper'
@@ -21,13 +22,24 @@ const CenterVerticalContainerStyle = {
   alignItems: 'center'
 }
 
+// interface LPStakeConfirmModalProps {
+//   isOpen: boolean
+//   token: Token | undefined
+//   baseData: PoolItemBaseData | undefined
+//   onDismiss: () => void
+//   onApprove: (amount: string, token: Token | undefined) => void
+//   onStakeLP: (amount: string, token: Token | undefined) => void
+//   onRefresh: () => void
+// }
+
+
 interface LPStakeConfirmModalProps {
   isOpen: boolean
   token: Token | undefined
   baseData: PoolItemBaseData | undefined
   onDismiss: () => void
-  onApprove: (amount: string, token: Token | undefined) => void
-  onStakeLP: (amount: string, token: Token | undefined) => void
+  onApprove: (amount: BigNumber, token: Token | undefined) => void
+  onStakeLP: (amount: BigNumber, token: Token | undefined) => void
   onRefresh: () => void
 }
 
@@ -41,20 +53,18 @@ export default function LPStakeConfirmModal({
   onRefresh
 }: LPStakeConfirmModalProps) {
 
-  const handleStakeLP = useCallback(
-    (e, value: string, tk: Token | undefined) => {
-      if (tk !== undefined) {              
-        const amount = getUnitedValue(value.toString(), tk?.decimals)
-        onStakeLP(amount.toString(), tk)
+  const handleStakeLP = useCallback(    
+    (e, value: BigNumber, tk: Token | undefined) => {
+      if (tk !== undefined) {      
+        onStakeLP(value, tk)
       }
     }, [onStakeLP]
   )
 
   const handleApprove = useCallback(
-    (e, value: string, tk: Token | undefined) => {
+    (e, value: BigNumber, tk: Token | undefined) => {
       if (tk !== undefined) {
-        const amount = getUnitedValue(value, tk?.decimals)
-        onApprove(amount.toString(), tk)
+        onApprove(value, tk)
       }
     }, [onApprove]
   )
@@ -69,7 +79,7 @@ export default function LPStakeConfirmModal({
         </div>
         <RowBetween className="mt-4">
           <div style={CenterVerticalContainerStyle} >
-            <Text fontSize="13px" color='#888888'>{`Staked: ${nDecimals(2, baseData?.stakedLPAmount)} ${token?.symbol}`}</Text>
+            <Text fontSize="13px" color='#888888'>{`Staked: ${nDecimals(2, norValue(baseData?.stakedLPAmount))} ${token?.symbol}`}</Text>
             <QuestionColorHelper
               text={`Amount of your deposited ${token?.symbol} (as LP token) which is currently staked and generating PTP`}
               color='white'
@@ -78,7 +88,7 @@ export default function LPStakeConfirmModal({
           {
             baseData?.balanceOf !== undefined && baseData?.stakedLPAmount !== undefined ? (
               <div style={CenterVerticalContainerStyle} >
-                <Text fontSize='13px' color='#888888'>{`Stable: ${nDecimals(2, baseData?.balanceOf)} ${token?.symbol}`}</Text>
+                <Text fontSize='13px' color='#888888'>{`Stable: ${nDecimals(2, norValue(baseData?.balanceOf))} ${token?.symbol}`}</Text>
                 <QuestionColorHelper
                   text={`Amount of your deposited ${token?.symbol} (as LP token) which can be staked to generate yield in PTP`}
                   color='white'
@@ -98,7 +108,7 @@ export default function LPStakeConfirmModal({
         <Row className='mt-1'>
           <Col>
             <GreyCard style={{ textAlign: 'right' }}>
-              <Text>{nDecimals(6, baseData?.balanceOf)}</Text>
+              <Text>{nDecimals(6, norValue(baseData?.balanceOf))}</Text>                          
             </GreyCard>
           </Col>
         </Row>
@@ -111,8 +121,8 @@ export default function LPStakeConfirmModal({
             />
           </div>
           {
-            baseData?.balanceOf !== undefined && baseData?.stakedLPAmount !== undefined ? (
-              <Text fontSize="13px">{`${nDecimals(6, (baseData?.balanceOf + baseData?.stakedLPAmount))} ${token?.symbol}`}</Text>
+            baseData?.balanceOf !== undefined && baseData?.stakedLPAmount !== undefined ? (              
+              <Text fontSize="13px">{`${nDecimals(6, (norValue(baseData?.balanceOf) + norValue(baseData?.stakedLPAmount)))} ${token?.symbol}`}</Text>
             ) : (
               <Text>0.0</Text>
             )
@@ -126,11 +136,11 @@ export default function LPStakeConfirmModal({
           <Col className='pl-1 pr-3'>
             {
               baseData?.balanceOf !== undefined ?
-                (baseData.allowance_lp_master >= baseData?.balanceOf ?
-                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleStakeLP(e, baseData?.balanceOf.toString(), token)}>Stake All</Button> :
-                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleApprove(e, baseData?.balanceOf.toString(), token)}>Approve</Button>) :
+                (baseData.allowance_lp_master.gte(baseData?.balanceOf) ?
+                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleStakeLP(e, baseData?.balanceOf, token)}>Stake All</Button> :
+                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleApprove(e, baseData?.balanceOf, token)}>Approve</Button>) :
                 <Button variant='primary' style={{ borderRadius: '5px' }} disabled fullWidth>Stake All</Button>
-            }            
+            } 
           </Col>
         </Row>
       </div>

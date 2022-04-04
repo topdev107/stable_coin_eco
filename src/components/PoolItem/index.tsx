@@ -3,7 +3,7 @@ import { Button, ChevronDownIcon, CloseIcon, Text } from '@pantherswap-libs/uiki
 import React, { useCallback, useContext, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import styled, { ThemeContext } from 'styled-components'
-import { PoolItemBaseData, nDecimals } from 'utils'
+import { PoolItemBaseData, nDecimals, norValue } from 'utils'
 import { useActiveWeb3React } from '../../hooks'
 import { DarkblueOutlineCard } from '../Card'
 import CurrencyLogo from '../CurrencyLogo'
@@ -58,8 +58,8 @@ interface PoolItemProps {
   openDepositModal: () => void
   openWithdrawModal: () => void
   openLPStakeModal: () => void
-  openLPUnStakeModal: () =>void
-  openPTPClaimModal: () =>void
+  openLPUnStakeModal: () => void
+  openPTPClaimModal: () => void
   onRefresh: () => void
 }
 
@@ -112,9 +112,9 @@ export default function PoolItem({
                       <div>
                         <CenterVerticalContainer>
                           {
-                            baseData === undefined || baseData.liability === 0 ?
+                            baseData === undefined || norValue(baseData.liability) === 0 ?
                               <Text ml={2} fontSize='12px'>0.0%</Text> :
-                              <Text ml={2} fontSize='12px'>{`${nDecimals(2, baseData.cash / baseData.liability * 100)}%`}</Text>
+                              <Text ml={2} fontSize='12px'>{`${nDecimals(2, norValue(baseData.cash) / norValue(baseData.liability) * 100)}%`}</Text>
                           }
                           <Question
                             text='The coverage ratio is the asset-to-liability ratio of a pool. It determines the swapping slippage, withdrawal and deposit fee in our protocol.'
@@ -132,11 +132,18 @@ export default function PoolItem({
                       <div>
                         <Text color='#888888' fontSize='12px'>Pool Deposits</Text>
                         {
-                          baseData === undefined ?
-                            <Text>$0</Text> :
-                            <Text>{`$${nDecimals(2, baseData.totalSupply * baseData.price)}`}</Text>
+                          baseData === undefined ? (
+                            <>
+                              <Text>$0</Text>
+                              <Text color='#888888' fontSize='12px'>{`0 ${token?.symbol}`}</Text>
+                            </>
+                          ) : (
+                            <>                              
+                              <Text>{`$${nDecimals(2, norValue(baseData.totalSupply) * norValue(baseData.price, 8))}`}</Text>
+                              <Text color='#888888' fontSize='12px'>{`${nDecimals(2, norValue(baseData.totalSupply))}${token?.symbol}`}</Text>
+                            </>
+                          )
                         }
-                        <Text color='#888888' fontSize='12px'>{`${nDecimals(2, baseData?.totalSupply)}${token?.symbol}`}</Text>
                       </div>
                     </CenterContainer>
                   </Col>
@@ -147,7 +154,7 @@ export default function PoolItem({
                         {
                           baseData === undefined ?
                             <Text>$0</Text> :
-                            <Text>{`$${nDecimals(2, baseData.volume24 * baseData.price)}`}</Text>
+                            <Text>{`$${nDecimals(2, baseData.volume24 * norValue(baseData.price, 8))}`}</Text>
                         }
                         <Text color='#888888' fontSize='12px'>{`${nDecimals(2, baseData?.volume24)}${token?.symbol}`}</Text>
                       </div>
@@ -162,8 +169,8 @@ export default function PoolItem({
                             <Text>$0</Text>
                           ) : (
                             <>
-                              <Text>{`$${nDecimals(2, (baseData.balanceOf + baseData.stakedLPAmount) * baseData.price)}`}</Text>
-                              <Text color='#888888' fontSize='12px'>{`${nDecimals(2, (baseData?.balanceOf + baseData.stakedLPAmount))}${token?.symbol}`}</Text>
+                              <Text>{`$${nDecimals(2, (norValue(baseData.balanceOf) + norValue(baseData.stakedLPAmount)) * norValue(baseData.price, 8))}`}</Text>
+                              <Text color='#888888' fontSize='12px'>{`${nDecimals(2, (norValue(baseData?.balanceOf) + norValue(baseData.stakedLPAmount)))}${token?.symbol}`}</Text>
                             </>
                           )
                         }
@@ -180,7 +187,7 @@ export default function PoolItem({
                         <Row>
                           <Button size='sm' style={borderRadius7} variant='secondary' onClick={openDepositModal}>Deposit</Button>
                           {
-                            baseData !== undefined && baseData?.balanceOf > 0 ? (
+                            baseData !== undefined && norValue(baseData?.balanceOf) > 0 ? (
                               <Button size='sm' style={borderRadius7} variant='secondary' className="ml-2" onClick={openWithdrawModal}>Withdraw</Button>
                             ) : (
                               <Button size='sm' style={borderRadius7} variant='secondary' className="ml-2" disabled>Withdraw</Button>
@@ -257,7 +264,7 @@ export default function PoolItem({
                   {
                     stakeOpened ?
                       <CloseIcon onClick={close} />
-                      : account !== null && account !== undefined ?
+                      : account !== null && account !== undefined && baseData !== undefined ?
                         <Button size='sm' onClick={open}>Stake<ChevronDownIcon /></Button> :
                         <Button size='sm' disabled>Stake<ChevronDownIcon /></Button>
                   }
@@ -270,9 +277,9 @@ export default function PoolItem({
                   token={token}
                   baseData={baseData}
                   openLPStakeModal={openLPStakeModal}
-                  openLPUnStakeModal={openLPUnStakeModal} 
+                  openLPUnStakeModal={openLPUnStakeModal}
                   handleClaimPTP={openPTPClaimModal}
-                  />
+                />
               ) : (
                 <></>
               )

@@ -2,6 +2,7 @@ import { CurrencyAmount, Currency, Token, TokenAmount } from '@pantherswap-libs/
 import { Button, Text } from '@pantherswap-libs/uikit'
 import Slider from 'components/Slider'
 import { useTokenAllowance } from 'data/Allowances'
+import { BigNumber } from 'ethers'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { borderColor } from 'polished'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -9,7 +10,7 @@ import { Col, Row } from 'react-bootstrap'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { tryParseAmount, useSwapState } from 'state/swap/hooks'
-import { getDecimalPartStr, getIntStr, getUnitedValue, getUsefulCount, nDecimals, PoolItemBaseData, getERC20Contract, calcFee } from 'utils'
+import { getDecimalPartStr, getIntStr, float2int, getUnitedValue, getUsefulCount, nDecimals, PoolItemBaseData, getERC20Contract, calcFee, norValue } from 'utils'
 import { POOL_ADDRESS, T_FEE } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrencyBalance } from '../../state/wallet/hooks'
@@ -39,8 +40,8 @@ interface WithdrawConfirmModalProps {
   token: Token | undefined
   baseData: PoolItemBaseData | undefined
   onDismiss: () => void
-  onApprove: (amount: string, token: Token | undefined) => void
-  onWithdraw: (amount: string, token: Token | undefined) => void
+  onApprove: (amount: BigNumber, token: Token | undefined) => void
+  onWithdraw: (amount: BigNumber, token: Token | undefined) => void
   onRefresh: () => void
 }
 
@@ -71,9 +72,9 @@ export default function WithdrawConfirmModal({
   }, [])
 
   const handleMaxInput = useCallback(() => {
-    if (baseData !== undefined) {
-      setSelectedAmount(baseData.balanceOf * 100)
-      const feeStr = calcFee(baseData.balanceOf, T_FEE, usefulCountFee)
+    if (baseData !== undefined) {      
+      setSelectedAmount(norValue(baseData.balanceOf) * 100)
+      const feeStr = calcFee(norValue(baseData.balanceOf), T_FEE, usefulCountFee)
       setFee(+feeStr)
     }
   }, [baseData, usefulCountFee])
@@ -101,20 +102,17 @@ export default function WithdrawConfirmModal({
   }, [selectedAmount])
 
   const handleWithdraw = useCallback(
-    (e, value: string, tk: Token | undefined) => {
-      if (tk !== undefined) {
-        const val = nDecimals(6, value)
-        const amount = getUnitedValue(value, tk?.decimals)
-        onWithdraw(amount.toString(), tk)
+    (e, value: BigNumber, tk: Token | undefined) => {
+      if (tk !== undefined) {        
+        onWithdraw(value, tk)
       }
     }, [onWithdraw]
   )
 
   const handleApprove = useCallback(
-    (e, value: string, tk: Token | undefined) => {
-      if (tk !== undefined) {
-        const amount = getUnitedValue(value, tk?.decimals)
-        onApprove(amount.toString(), tk)
+    (e, value: BigNumber, tk: Token | undefined) => {
+      if (tk !== undefined) {        
+        onApprove(value, tk)
       }
     }, [onApprove]
   )
@@ -139,14 +137,14 @@ export default function WithdrawConfirmModal({
         </div>
 
         <RowBetween className="mt-4">
-          <Text fontSize="13px" color='#888888'>{`Deposited: ${nDecimals(6, baseData?.balanceOf)} ${token?.symbol}`}</Text>
+          <Text fontSize="13px" color='#888888'>{`Deposited: ${nDecimals(6, norValue(baseData?.balanceOf))} ${token?.symbol}`}</Text>
           <Text fontSize='13px' color='#888888'>Balance: {selectedCurrencyBalance?.toSignificant(6)} {token?.symbol}</Text>
         </RowBetween>
         <LightCard padding="15px 0px" className="mt-2">
           <RowBetween className="mt-1 pl-3 pr-4">
-            {
-              baseData !== undefined && baseData.balanceOf > 0 ?
-                <Text fontSize="15px" >{`${nDecimals(0, selectedAmount / baseData.balanceOf)}%`}</Text> :
+            {              
+              baseData !== undefined && norValue(baseData.balanceOf) > 0 ?
+                <Text fontSize="15px" >{`${nDecimals(0, selectedAmount / norValue(baseData.balanceOf))}%`}</Text> :
                 <Text fontSize="13px" color='#888888'>0</Text>
             }
             <Row style={CenterVerticalContainerStyle}>
@@ -157,8 +155,8 @@ export default function WithdrawConfirmModal({
           <Row className="mt-2">
             <Col>
               {
-                baseData !== undefined && baseData.balanceOf > 0 ?
-                  <Slider value={selectedAmount} onChange={handleChange} max={baseData?.balanceOf * 100} /> :
+                baseData !== undefined && norValue(baseData.balanceOf) > 0 ?
+                  <Slider value={selectedAmount} onChange={handleChange} max={norValue(baseData?.balanceOf) * 100} /> :
                   <Slider value={0} onChange={handleChange} max={0} />
               }
             </Col>
@@ -191,16 +189,16 @@ export default function WithdrawConfirmModal({
         <RowBetween className='mt-3'>
           <Text fontSize="13px">My Remaining Liquidity</Text>
           {
-            baseData !== undefined && baseData.balanceOf > 0 ?
-              <Text fontSize="13px">{`${baseData.balanceOf - selectedAmount / 100} ${token?.symbol}`}</Text> :
+            baseData !== undefined && norValue(baseData.balanceOf) > 0 ?
+              <Text fontSize="13px">{`${norValue(baseData.balanceOf) - selectedAmount / 100} ${token?.symbol}`}</Text> :
               <Text fontSize="13px">{`0 ${token?.symbol}`}</Text>
           }
         </RowBetween>
         <RowBetween>
           <Text fontSize="13px">My Remaining Share</Text>
           {
-            baseData !== undefined && baseData.totalSupply > 0 ?
-              <Text fontSize="13px">{`${nDecimals(2, (baseData.balanceOf - selectedAmount / 100) / baseData.totalSupply * 100)}%`}</Text> :
+            baseData !== undefined && norValue(baseData.totalSupply) > 0 ?
+              <Text fontSize="13px">{`${nDecimals(2, (norValue(baseData.balanceOf) - selectedAmount / 100) / norValue(baseData.totalSupply) * 100)}%`}</Text> :
               <Text fontSize="13px">0%</Text>
           }
         </RowBetween>
@@ -210,8 +208,8 @@ export default function WithdrawConfirmModal({
           </Col>
           <Col className='pl-1 pr-3'>
             {
-              avaliable ?
-                <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleWithdraw(e, (selectedAmount / 100 - fee).toString(), token)}>Withdraw</Button> :
+              avaliable && token !== undefined?              
+                <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleWithdraw(e, BigNumber.from(float2int(getUnitedValue((selectedAmount / 100 - fee).toString(), token?.decimals).toString())), token)}>Withdraw</Button> :
                 <Button variant='primary' style={{ borderRadius: '5px' }} disabled fullWidth>Withdraw</Button>
             }
           </Col>

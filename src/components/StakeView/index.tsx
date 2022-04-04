@@ -2,7 +2,7 @@ import { Button, Text } from '@pantherswap-libs/uikit'
 import React, { useContext, useState } from 'react'
 import { Col, Form, Row } from 'react-bootstrap'
 import styled, { ThemeContext } from 'styled-components'
-import { nDecimals } from 'utils'
+import { nDecimals, norValue } from 'utils'
 import { GreyCard } from '../Card'
 import Question, { QuestionColorHelper } from '../QuestionHelper'
 import { TYPE } from '../Shared'
@@ -62,12 +62,11 @@ export default function StakeView({
   };
 
   const stakedAmount = baseData.stakedLPAmount
-  const formattedStakedAmount = nDecimals(3, stakedAmount)
+  const formattedStakedAmount = nDecimals(3, norValue(stakedAmount))
   const stakableAmount = baseData.balanceOf
-  const formattedStakableAmount = nDecimals(3, stakableAmount)
+  const formattedStakableAmount = nDecimals(3, norValue(stakableAmount))
   const claimableAmount = baseData.rewardablePTPAmount
-  const formattedClaimableAmount = nDecimals(6, claimableAmount)
-
+  const formattedClaimableAmount = nDecimals(6, norValue(claimableAmount))
 
   return (
     <Body color={theme.colors.textDisabled} textAlign="center">

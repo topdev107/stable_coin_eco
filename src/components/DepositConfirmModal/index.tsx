@@ -1,13 +1,14 @@
 import { CurrencyAmount, Currency, Token, TokenAmount } from '@pantherswap-libs/sdk'
 import { Button, Text } from '@pantherswap-libs/uikit'
 import { useTokenAllowance } from 'data/Allowances'
+import { BigNumber } from 'ethers'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { tryParseAmount, useSwapState } from 'state/swap/hooks'
-import { getDecimalPartStr, getIntStr, getUnitedValue, getUsefulCount, nDecimals, PoolItemBaseData, getERC20Contract, calcFee } from 'utils'
+import { getDecimalPartStr, getIntStr, getUnitedValue, float2int, getUsefulCount, nDecimals, PoolItemBaseData, getERC20Contract, calcFee, norValue } from 'utils'
 import { POOL_ADDRESS, T_FEE } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrencyBalance } from '../../state/wallet/hooks'
@@ -34,8 +35,8 @@ interface DepositConfirmModalProps {
   token: Token | undefined
   baseData: PoolItemBaseData | undefined
   onDismiss: () => void
-  onApprove: (amount: string, token: Token | undefined) => void
-  onDeposit: (amount: string, token: Token | undefined) => void
+  onApprove: (amount: BigNumber, token: Token | undefined) => void
+  onDeposit: (amount: BigNumber, token: Token | undefined) => void
   onRefresh: () => void
 }
 
@@ -72,7 +73,7 @@ export default function DepositConfirmModal({
       if (token !== undefined) {        
         const feeStr = calcFee(+val, T_FEE, usefulCountFee)
         setFee(+feeStr)        
-      }
+      }      
     },
     [setInputedValue, token, usefulCountFee]
   )
@@ -114,20 +115,17 @@ export default function DepositConfirmModal({
   }, [selectedCurrencyBalance, inputedValue])
 
   const handleDeposit = useCallback(
-    (e, value: string, tk: Token | undefined) => {
-      if (tk !== undefined) {
-        const val = nDecimals(6, value)
-        const amount = getUnitedValue(val.toString(), tk?.decimals)
-        onDeposit(amount.toString(), tk)
+    (e, value: BigNumber, tk: Token | undefined) => {
+      if (tk !== undefined) {        
+        onDeposit(value, tk)
       }
     }, [onDeposit]
   )
 
   const handleApprove = useCallback(
-    (e, value: string, tk: Token | undefined) => {
+    (e, value: BigNumber, tk: Token | undefined) => {
       if (tk !== undefined) {
-        const amount = getUnitedValue(value, tk?.decimals)
-        onApprove(amount.toString(), tk)
+        onApprove(value, tk)
       }
     }, [onApprove]
   )
@@ -142,7 +140,7 @@ export default function DepositConfirmModal({
         </div>
 
         <RowBetween className="mt-4">
-          <Text fontSize="13px" color='#888888'>{`Deposited: ${nDecimals(6, baseData?.balanceOf)} ${token?.symbol}`}</Text>
+          <Text fontSize="13px" color='#888888'>{`Deposited: ${nDecimals(6, norValue(baseData?.balanceOf))} ${token?.symbol}`}</Text>
           <Text fontSize='13px' color='#888888'>Balance: {selectedCurrencyBalance?.toSignificant(6)} {token?.symbol}</Text>
         </RowBetween>
         <Row className='mt-1'>
@@ -158,7 +156,7 @@ export default function DepositConfirmModal({
         </Row>
         <RowBetween className='mt-3'>
           <Text fontSize="13px">Token Price</Text>
-          <Text fontSize="13px">{`$${baseData?.price}`}</Text>
+          <Text fontSize="13px">{`$${norValue(baseData?.price, 8)}`}</Text>
         </RowBetween>
         <RowBetween>
           <div style={CenterVerticalContainerStyle} >
@@ -178,7 +176,7 @@ export default function DepositConfirmModal({
               color='white'
             />
           </div>
-          <Text fontSize="13px">{`${nDecimals(6, baseData?.balanceOf)} ${token?.symbol}`}</Text>
+          <Text fontSize="13px">{`${nDecimals(6, norValue(baseData?.balanceOf))} ${token?.symbol}`}</Text>
         </RowBetween>
         <RowBetween>
           <div style={CenterVerticalContainerStyle} >
@@ -195,11 +193,12 @@ export default function DepositConfirmModal({
             <Button variant='secondary' style={{ borderRadius: '5px' }} fullWidth onClick={handleClose}>Cancel</Button>
           </Col>
           <Col className='pl-1 pr-3'>
-            {
-              avaliable && baseData !== undefined ?
-                (baseData.allowance >= +inputedValue ?
-                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleDeposit(e, nDecimals(6, inputedValue).toString(), token)}>Deposit</Button> :
-                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleApprove(e, nDecimals(6, inputedValue).toString(), token)}>Approve</Button>) :
+          {
+              avaliable && baseData !== undefined && token !== undefined ?
+                // (baseData.allowance >= BigNumber.from(parseInt(getUnitedValue(inputedValue, token?.decimals).toString())) ?
+                (baseData.allowance.gte(BigNumber.from(float2int(getUnitedValue(inputedValue, token?.decimals).toString()))) ?
+                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleDeposit(e, BigNumber.from(float2int(getUnitedValue(inputedValue, token.decimals).toString())), token)}>Deposit</Button> :                  
+                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleApprove(e, BigNumber.from(float2int(getUnitedValue(inputedValue, token.decimals).toString())), token)}>Approve</Button>) :
                 <Button variant='primary' style={{ borderRadius: '5px' }} disabled fullWidth>Deposit</Button>
             }
           </Col>

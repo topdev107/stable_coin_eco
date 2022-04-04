@@ -1,9 +1,10 @@
 import { Token } from '@pantherswap-libs/sdk'
 import { Button, Text } from '@pantherswap-libs/uikit'
 import { GreyCard } from 'components/Card'
+import { BigNumber } from 'ethers'
 import React, { useCallback } from 'react'
 import { Col, Row } from 'react-bootstrap'
-import { getUnitedValue, nDecimals, PoolItemBaseData } from 'utils'
+import { getUnitedValue, nDecimals, norValue, PoolItemBaseData } from 'utils'
 import CurrencyLogo from '../CurrencyLogo'
 import Modal from '../Modal'
 import { QuestionColorHelper } from '../QuestionHelper'
@@ -21,13 +22,13 @@ const CenterVerticalContainerStyle = {
   alignItems: 'center'
 }
 
-interface LPUnStakeConfirmModalProps {
+interface LPUnStakeConfirmModalProps {  
   isOpen: boolean
   token: Token | undefined
   baseData: PoolItemBaseData | undefined
   onDismiss: () => void
-  onApprove: (amount: string, token: Token | undefined) => void
-  onUnStakeLP: (amount: string, token: Token | undefined) => void
+  onApprove: (amount: BigNumber, token: Token | undefined) => void
+  onUnStakeLP: (amount: BigNumber, token: Token | undefined) => void
   onRefresh: () => void
 }
 
@@ -41,20 +42,18 @@ export default function LPUnStakeConfirmModal({
   onRefresh
 }: LPUnStakeConfirmModalProps) {
 
-  const handleUnStakeLP = useCallback(
-    (e, value: string, tk: Token | undefined) => {
-      if (tk !== undefined) {
-        const amount = getUnitedValue(value.toString(), tk?.decimals)
-        onUnStakeLP(amount.toString(), tk)
+  const handleUnStakeLP = useCallback(    
+    (e, value: BigNumber, tk: Token | undefined) => {
+      if (tk !== undefined) {                
+        onUnStakeLP(value, tk)
       }
     }, [onUnStakeLP]
   )
 
   const handleApprove = useCallback(
-    (e, value: string, tk: Token | undefined) => {
-      if (tk !== undefined) {
-        const amount = getUnitedValue(value, tk?.decimals)
-        onApprove(amount.toString(), tk)
+    (e, value: BigNumber, tk: Token | undefined) => {
+      if (tk !== undefined) {        
+        onApprove(value, tk)
       }
     }, [onApprove]
   )
@@ -67,11 +66,11 @@ export default function LPUnStakeConfirmModal({
           <CurrencyLogo currency={token} size="25px" />
           <Text className="ml-1" fontSize='20px'>{token?.symbol}</Text>
         </div>
-        <Text className='mt-4' fontSize="13px" color='#888888'>{`Unstakable: ${nDecimals(2, baseData?.stakedLPAmount)} ${token?.symbol}`}</Text>
+        <Text className='mt-4' fontSize="13px" color='#888888'>{`Unstakable: ${nDecimals(2, norValue(baseData?.stakedLPAmount))} ${token?.symbol}`}</Text>
         <Row className='mt-1'>
           <Col>
             <GreyCard style={{ textAlign: 'right' }}>
-              <Text>{nDecimals(6, baseData?.stakedLPAmount)}</Text>
+              <Text>{nDecimals(6, norValue(baseData?.stakedLPAmount))}</Text>
             </GreyCard>
           </Col>
         </Row>
@@ -83,16 +82,16 @@ export default function LPUnStakeConfirmModal({
               color='white'
             />
           </div>
-          <Text fontSize="13px">{`${nDecimals(6, baseData?.rewardablePTPAmount)} PTP`}</Text>
+          <Text fontSize="13px">{`${nDecimals(6, norValue(baseData?.rewardablePTPAmount))} PTP`}</Text>
         </RowBetween>
         <Row className='mt-4'>
           <Col className='pl-3 pr-1'>
             <Button variant='secondary' style={{ borderRadius: '5px' }} fullWidth onClick={onDismiss}>Cancel</Button>
           </Col>
           <Col className='pl-1 pr-3'>
-            {
-              baseData?.stakedLPAmount !== undefined && baseData?.stakedLPAmount > 0.000001 ?
-                <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleUnStakeLP(e, baseData?.stakedLPAmount.toString(), token)}>Unstake All</Button> :
+            {              
+              baseData?.stakedLPAmount !== undefined && baseData?.stakedLPAmount.gt(BigNumber.from(0)) ?
+                <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleUnStakeLP(e, baseData?.stakedLPAmount, token)}>Unstake All</Button> :
                 <Button variant='primary' style={{ borderRadius: '5px' }} disabled fullWidth>Unstake All</Button>
             }
           </Col>

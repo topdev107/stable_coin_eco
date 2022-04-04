@@ -1,29 +1,26 @@
 import { Token } from '@pantherswap-libs/sdk'
-import { Button, LogoIcon, Text } from '@pantherswap-libs/uikit'
+import { Button, Text } from '@pantherswap-libs/uikit'
 import { LightCard } from 'components/Card'
 import CardNav from 'components/CardNav'
 import PoolItem from 'components/PoolItem'
-import { useActiveWeb3React } from 'hooks'
-import React, { useCallback, useEffect, useState, useMemo } from 'react'
-import { Col, Row } from 'react-bootstrap'
-import styled from 'styled-components'
-import { getAssetContract, getVePTPContract, getPTPContract, getMasterPlatypusContract, getERC20Contract, getPoolContract, getPriceProviderContract, PoolItemBaseData } from 'utils'
-import { useTnxHandler } from 'state/tnxs/hooks'
-import { useSelector } from 'react-redux'
-import { AppState } from 'state'
-import { clearInterval } from 'timers'
-import { useCurrencyBalance, useTokenBalances } from 'state/wallet/hooks'
 import { RowBetween } from 'components/Row'
+import { BigNumber } from 'ethers'
+import { useActiveWeb3React } from 'hooks'
+import React, { useCallback, useEffect, useState } from 'react'
+import { useTnxHandler } from 'state/tnxs/hooks'
+import styled from 'styled-components'
+import { float2int, getAssetContract, getERC20Contract, getMasterPlatypusContract, getPoolContract, getPriceProviderContract, norValue, PoolItemBaseData } from 'utils'
+import CurrencyLogo from '../../components/CurrencyLogo'
 import DepositModal from '../../components/DepositConfirmModal'
-import WithdrawModal from '../../components/WithdrawConfirmModal'
 import LPStakeModal from '../../components/LPStakeConfirmModal'
 import LPUnStakeModal from '../../components/LPUnStakeConfirmModal'
 import PTPClaimModal from '../../components/PTPClaimConfirmModal'
-import CurrencyLogo from '../../components/CurrencyLogo'
 import TransactionConfirmationModal, { TransactionErrorContent } from '../../components/TransactionConfirmationModal'
-import { PTP, USDT_LP_ID, BUSD_LP_ID, DAI_LP_ID, USDC_LP_ID, ASSET_BUSD_ADDRESS, ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_ADDRESS, DEFAULT_DEADLINE_FROM_NOW, POOL_ADDRESS, T_FEE, MASTER_PLATYPUS_ADDRESS } from '../../constants'
+import WithdrawModal from '../../components/WithdrawConfirmModal'
+import { ASSET_BUSD_ADDRESS, ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_ADDRESS, BUSD_LP_ID, DAI_LP_ID, DEFAULT_DEADLINE_FROM_NOW, MASTER_PLATYPUS_ADDRESS, POOL_ADDRESS, PTP, T_FEE, USDC_LP_ID, USDT_LP_ID } from '../../constants'
 import { useAllTokens } from '../../hooks/Tokens'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
+
 
 
 export default function Pool() {
@@ -106,7 +103,7 @@ export default function Pool() {
   const volume24_url = 'https://fathomless-savannah-95001.herokuapp.com/api/v1/tnxs/'
 
   const handleDeposit = useCallback(
-    async (amount: string, tkn: Token | undefined) => {
+    async (amount: BigNumber, tkn: Token | undefined) => {
       if (!chainId || !library || !account || !tkn) return
       setShowConfirm(true)
       setIsDepositModalOpen(false)
@@ -186,15 +183,20 @@ export default function Pool() {
   )
 
   const handleWithdraw = useCallback(
-    async (amount: string, tkn: Token | undefined) => {
+    async (amount: BigNumber, tkn: Token | undefined) => {
       if (!chainId || !library || !account || !tkn) return
+      console.log('Withdraw Amount: ', amount.toString())
       setShowConfirm(true)
       setIsWithdrawModalOpen(false)
       setAttemptingTxn(true)
       const poolContract = getPoolContract(chainId, library, account)
       const deadline = Date.now() + DEFAULT_DEADLINE_FROM_NOW * 1000
+      
+      const minAmount = (+amount) - (+amount) * T_FEE      
+      const minimumAmount = BigNumber.from(float2int(minAmount.toString()))
+      console.log('Withdraw Amount: ', amount.toString())
+      console.log('Withdraw minimumAmount: ', minimumAmount.toString())
 
-      const minimumAmount = (+amount) - (+amount) * T_FEE
       let tnx_hash = ''
       await poolContract.withdraw(tkn.address, amount, minimumAmount.toString(), account, deadline)
         .then((response) => {
@@ -266,7 +268,7 @@ export default function Pool() {
   )
 
   const handleApprove = useCallback(
-    async (amount: string, tkn: Token | undefined) => {
+    async (amount: BigNumber, tkn: Token | undefined) => {
       if (!chainId || !library || !account || !tkn) return
       setShowConfirm(true)
       setAttemptingTxn(true)
@@ -321,7 +323,7 @@ export default function Pool() {
   )
 
   const handleApproveWithdraw = useCallback(
-    async (amount: string, token: Token | undefined) => {
+    async (amount: BigNumber, token: Token | undefined) => {
       if (!chainId || !library || !account || !token) return
       const tokenAddress =
         token.symbol === 'DAI' ? ASSET_DAI_ADDRESS :
@@ -379,8 +381,8 @@ export default function Pool() {
     }, [account, chainId, library]
   )
 
-  const handleApproveLPStaking = useCallback(
-    async (amount: string, token: Token | undefined) => {
+  const handleApproveLPStaking = useCallback(    
+    async (amount: BigNumber, token: Token | undefined) => {
       if (!chainId || !library || !account || !token) return
       const tokenAddress =
         token.symbol === 'DAI' ? ASSET_DAI_ADDRESS :
@@ -440,7 +442,7 @@ export default function Pool() {
   )
 
   const handleStakeLP = useCallback(
-    async (amount: string, token: Token | undefined) => {
+    async (amount: BigNumber, token: Token | undefined) => {
       if (!chainId || !library || !account || !token) return
       setShowConfirm(true)
       setAttemptingTxn(true)
@@ -501,7 +503,7 @@ export default function Pool() {
   )
 
   const handleUnStakeLP = useCallback(
-    async (amount: string, token: Token | undefined) => {
+    async (amount: BigNumber, token: Token | undefined) => {
       if (!chainId || !library || !account || !token) return
       setShowConfirm(true)
       setAttemptingTxn(true)
@@ -514,6 +516,7 @@ export default function Pool() {
             token.symbol === 'USDT' ? USDT_LP_ID :
               token.symbol === 'BUSD' ? BUSD_LP_ID : '0'
 
+      console.log('Unstake LP Amount: ', amount)
       await masterPlatypusContract.unStakingLP(lpID, amount)
         .then((response) => {
           console.log('unStakingLP: ', response)
@@ -575,7 +578,7 @@ export default function Pool() {
             token.symbol === 'USDT' ? USDT_LP_ID :
               token.symbol === 'BUSD' ? BUSD_LP_ID : '0'
 
-      await masterPlatypusContract.multiClaimPTP([lpID])
+      await masterPlatypusContract.claimPTP(lpID)
         .then((response) => {
           console.log('ClaimPTP: ', response)
           // setAttemptingTxn(false)          
@@ -633,7 +636,7 @@ export default function Pool() {
   }, [account, library, chainId])
 
   useEffect(() => {
-    if (!isNeedRefresh) return undefined
+    // if (!isNeedRefresh) return undefined
     const getBaseData = async () => {
       if (!chainId || !library || !account) return
       const baseDatas = await Promise.all(Object.values(allTokens).map(async (token) => {
@@ -671,22 +674,22 @@ export default function Pool() {
           getVolume24h(),
           masterPlatypusContract.multiLpStakedInfo(account)
         ])
-          .then(response => {            
-            const totalSupply = parseInt(response[0]._hex, 16) / (10 ** 18)
-            const balanceOf = parseInt(response[1]._hex, 16) / (10 ** 18)
-            const poolShare = totalSupply === 0 ? 0 : balanceOf * 100 / totalSupply
-            const cash = parseInt(response[2]._hex, 16) / (10 ** 18)
-            const liability = parseInt(response[3]._hex, 16) / (10 ** 18)
-            const price = parseInt(response[4]._hex, 16) / (10 ** 8)
-            const allowance = parseInt(response[5]._hex, 16) / (10 ** 18)
-            const allowance_lp_pool = parseInt(response[6]._hex, 16) / (10 ** 18)
-            const allowance_lp_master = parseInt(response[7]._hex, 16) / (10 ** 18)
-            const stakedLPAmount = parseInt(response[8].lpAmount._hex, 16) / (10 ** 18)
-            const rewardablePTPAmount = parseInt(response[8].rewardAmount._hex, 16) / (10 ** 18)
+          .then(response => {                  
+            const totalSupply = BigNumber.from(response[0]._hex)            
+            const balanceOf = BigNumber.from(response[1]._hex)
+            const poolShare = norValue(totalSupply) === 0 ? 0 : norValue(balanceOf) * 100 / norValue(totalSupply)
+            const cash = BigNumber.from(response[2]._hex)
+            const liability = BigNumber.from(response[3]._hex)
+            const price = BigNumber.from(response[4]._hex) // decimals = 8
+            const allowance = BigNumber.from(response[5]._hex)
+            const allowance_lp_pool = BigNumber.from(response[6]._hex)
+            const allowance_lp_master = BigNumber.from(response[7]._hex)
+            const stakedLPAmount = BigNumber.from(response[8].lpAmount._hex)
+            const rewardablePTPAmount = BigNumber.from(response[8].rewardAmount._hex)
             const volume24h = response[9].status === 'success' ? response[9].volume24 : 0
-            const multiRewardablePTPAmount = parseInt(response[10][0]._hex, 16) / (10 ** 18)
+            const multiRewardablePTPAmount = BigNumber.from(response[10][0]._hex)            
 
-            setTotalRewardablePTPAmount(multiRewardablePTPAmount)
+            setTotalRewardablePTPAmount(norValue(multiRewardablePTPAmount))
 
             const bData: PoolItemBaseData = {
               'symbol': token.symbol,
@@ -712,19 +715,19 @@ export default function Pool() {
             const bData: PoolItemBaseData = {
               'symbol': token.symbol,
               'address': token.address,
-              'totalSupply': 0,
-              'balanceOf': 0,
-              'cash': 0,
-              'liability': 0,
+              'totalSupply': BigNumber.from(0),
+              'balanceOf': BigNumber.from(0),
+              'cash': BigNumber.from(0),
+              'liability': BigNumber.from(0),
               'poolShare': 0,
-              'price': 0,
-              'allowance': 0,
-              'allowance_lp_master': 0,
-              'allowance_lp_pool': 0,
+              'price': BigNumber.from(0),
+              'allowance': BigNumber.from(0),
+              'allowance_lp_master': BigNumber.from(0),
+              'allowance_lp_pool': BigNumber.from(0),
               'volume24': 0,
-              'stakedLPAmount': 0,
-              'rewardablePTPAmount': 0,
-              'multiRewardablePTPAmount': 0
+              'stakedLPAmount': BigNumber.from(0),
+              'rewardablePTPAmount': BigNumber.from(0),
+              'multiRewardablePTPAmount': BigNumber.from(0)
             }
             return bData
           })
@@ -738,7 +741,7 @@ export default function Pool() {
         })
 
       setBaseData(baseDatas)
-      // setIsNeedRefresh(false)
+      setIsNeedRefresh(false)
       console.log('baseData: ', baseDatas)
 
       if (selectedToken !== undefined) {
@@ -825,7 +828,7 @@ export default function Pool() {
         onApprove={handleApproveLPStaking}
         onUnStakeLP={handleUnStakeLP}
         onRefresh={handleRefresh}
-      />
+      />      
 
       <PTPClaimModal
         isOpen={isPTPClaimModalOpen}

@@ -1,14 +1,14 @@
 import { Token } from '@pantherswap-libs/sdk'
 import { Button, Text } from '@pantherswap-libs/uikit'
 import { GreyCard } from 'components/Card'
+import { BigNumber } from 'ethers'
 import React, { useCallback } from 'react'
 import { Col, Row } from 'react-bootstrap'
-import { getUnitedValue, nDecimals, PoolItemBaseData } from 'utils'
+import { nDecimals, norValue, PoolItemBaseData } from 'utils'
+import { PTP } from '../../constants'
 import CurrencyLogo from '../CurrencyLogo'
 import Modal from '../Modal'
-import { QuestionColorHelper } from '../QuestionHelper'
-import { RowBetween } from '../Row'
-import { PTP } from '../../constants'
+
 
 const CenterContainerStyle = {
   display: 'flex',
@@ -56,11 +56,11 @@ export default function PTPClaimConfirmModal({
           <CurrencyLogo currency={PTP} size="25px" />
           <Text className="ml-1" fontSize='20px'>{PTP.symbol}</Text>
         </div>
-        <Text fontSize="13px" className='mt-4' color='#888888'>{`Claimable: ${nDecimals(2, baseData?.rewardablePTPAmount)} PTP`}</Text>
+        <Text fontSize="13px" className='mt-4' color='#888888'>{`Claimable: ${nDecimals(2, norValue(baseData?.rewardablePTPAmount))} PTP`}</Text>
         <Row className='mt-1'>
           <Col>
             <GreyCard style={{ textAlign: 'right' }}>
-              <Text>{nDecimals(6, baseData?.rewardablePTPAmount)}</Text>
+              <Text>{nDecimals(6, norValue(baseData?.rewardablePTPAmount))}</Text>
             </GreyCard>
           </Col>
         </Row>
@@ -70,7 +70,7 @@ export default function PTPClaimConfirmModal({
           </Col>
           <Col className='pl-1 pr-3'>
             {
-              baseData?.rewardablePTPAmount !== undefined && baseData?.rewardablePTPAmount > 0 ?
+              baseData?.rewardablePTPAmount !== undefined && baseData?.rewardablePTPAmount.gt(BigNumber.from(0)) ?
                 <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleClaimPTP(e, token)}>Claim</Button> :
                 <Button variant='primary' style={{ borderRadius: '5px' }} disabled fullWidth>Claim</Button>
             }

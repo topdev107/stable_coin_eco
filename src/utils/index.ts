@@ -12,7 +12,14 @@ import PriceProviderABI from '../constants/abis/ChainlinkProxyPriceProvider.json
 import PTPABI from '../constants/abis/PTP.json'
 import VePTPABI from '../constants/abis/VePTP.json'
 import MasterPlatypusABI from '../constants/abis/MasterPlatypus.json'
-import { ROUTER_ADDRESS, POOL_ADDRESS, CHAIN_LINK_PRICE_PROVIDER_ADDRESS, PTP_ADDRESS, VEPTP_ADDRESS, MASTER_PLATYPUS_ADDRESS } from '../constants'
+import {
+  ROUTER_ADDRESS,
+  POOL_ADDRESS,
+  CHAIN_LINK_PRICE_PROVIDER_ADDRESS,
+  PTP_ADDRESS,
+  VEPTP_ADDRESS,
+  MASTER_PLATYPUS_ADDRESS,
+} from '../constants'
 import { TokenAddressMap } from '../state/lists/hooks'
 
 // returns the checksummed address if the address is valid, otherwise returns false
@@ -175,43 +182,50 @@ export function getUsefulCount(num: number): number {
 
 export function nDecimals(n, num, thr = 0.000001) {
   const log10 = num ? Math.floor(Math.log10(num)) : 0
-  const div = log10 < 0 ? 10**(1 - log10) : 10**n
+  const div = log10 < 0 ? 10 ** (1 - log10) : 10 ** n
 
   const ndes = Math.round(num * div) / div
   return ndes > thr ? ndes : 0
 }
 
+export function float2int (value) {
+  return value || 0;
+}
+
 export interface PoolItemBaseData {
   symbol: string | undefined
   address: string
-  totalSupply: number
-  balanceOf: number
-  cash: number
-  liability: number
+  totalSupply: BigNumber
+  balanceOf: BigNumber
+  cash: BigNumber
+  liability: BigNumber
   poolShare: number
-  price: number
-  allowance: number
-  allowance_lp_pool: number
-  allowance_lp_master: number
+  price: BigNumber // decimals = 8
+  allowance: BigNumber
+  allowance_lp_pool: BigNumber
+  allowance_lp_master: BigNumber
   volume24: number
-  stakedLPAmount: number
-  rewardablePTPAmount: number
-  multiRewardablePTPAmount: number
+  stakedLPAmount: BigNumber
+  rewardablePTPAmount: BigNumber
+  multiRewardablePTPAmount: BigNumber
 }
 
-export function calcFee (val: number, t_fee: number, usefulCountFee: number): string {
+export function calcFee(val: number, t_fee: number, usefulCountFee: number): string {
   const valDecimalStr = getDecimalPartStr(val)
-        const valDecimalLen = valDecimalStr.length
-        const fe = val * t_fee
-        const intStr = getIntStr(fe)
-        const decStr = getDecimalPartStr(fe)
-        const usefulCount = usefulCountFee + valDecimalLen // val=12.131 -> 7 (3+4)
+  const valDecimalLen = valDecimalStr.length
+  const fe = val * t_fee
+  const intStr = getIntStr(fe)
+  const decStr = getDecimalPartStr(fe)
+  const usefulCount = usefulCountFee + valDecimalLen // val=12.131 -> 7 (3+4)
 
-        let feeDecimalPartStr = ''
-        for (let i = 0; i < usefulCount; i++) {
-          feeDecimalPartStr += decStr.charAt(i)
-        }
-        const feeStr = intStr.concat('.').concat(feeDecimalPartStr)
-        return feeStr
+  let feeDecimalPartStr = ''
+  for (let i = 0; i < usefulCount; i++) {
+    feeDecimalPartStr += decStr.charAt(i)
+  }
+  const feeStr = intStr.concat('.').concat(feeDecimalPartStr)
+  return feeStr
 }
 
+export function norValue(bnum: BigNumber | undefined, decimals = 18): number {      
+    return bnum === undefined ? 0 : parseInt(bnum.toHexString(), 16) / (10 ** decimals)
+}
