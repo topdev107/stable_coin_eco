@@ -71,8 +71,8 @@ export default function PTPClaimConfirmModal({
           <Col className='pl-1 pr-3'>
             {
               baseData?.rewardablePTPAmount !== undefined && baseData?.rewardablePTPAmount.gt(BigNumber.from(0)) ?
-                <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleClaimPTP(e, token)}>Claim</Button> :
-                <Button variant='primary' style={{ borderRadius: '5px' }} disabled fullWidth>Claim</Button>
+              <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleClaimPTP(e, token)}>Claim</Button> :
+              <Button variant='primary' style={{ borderRadius: '5px' }} disabled fullWidth>Claim</Button>             
             }
           </Col>
         </Row>

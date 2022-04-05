@@ -6,10 +6,11 @@ import PoolItem from 'components/PoolItem'
 import { RowBetween } from 'components/Row'
 import { BigNumber } from 'ethers'
 import { useActiveWeb3React } from 'hooks'
+import { isAbsolute } from 'path'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTnxHandler } from 'state/tnxs/hooks'
 import styled from 'styled-components'
-import { float2int, getAssetContract, getERC20Contract, getMasterPlatypusContract, getPoolContract, getPriceProviderContract, norValue, PoolItemBaseData } from 'utils'
+import { float2int, getAssetContract, getERC20Contract, getMasterPlatypusContract, getPoolContract, getPriceProviderContract, nDecimals, norValue, PoolItemBaseData } from 'utils'
 import CurrencyLogo from '../../components/CurrencyLogo'
 import DepositModal from '../../components/DepositConfirmModal'
 import LPStakeModal from '../../components/LPStakeConfirmModal'
@@ -20,7 +21,7 @@ import WithdrawModal from '../../components/WithdrawConfirmModal'
 import { ASSET_BUSD_ADDRESS, ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_ADDRESS, BUSD_LP_ID, DAI_LP_ID, DEFAULT_DEADLINE_FROM_NOW, MASTER_PLATYPUS_ADDRESS, POOL_ADDRESS, PTP, T_FEE, USDC_LP_ID, USDT_LP_ID } from '../../constants'
 import { useAllTokens } from '../../hooks/Tokens'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
-
+import Question from '../../components/QuestionHelper'
 
 
 export default function Pool() {
@@ -37,7 +38,6 @@ export default function Pool() {
   const [isLPUnStakeModalOpen, setIsLPUnStakeModalOpen] = useState<boolean>(false);
   const [isPTPClaimModalOpen, setIsPTPClaimModalOpen] = useState<boolean>(false);
   const [isNeedRefresh, setIsNeedRefresh] = useState<boolean>(true)
-
   const [totalRewardablePTPAmount, setTotalRewardablePTPAmount] = useState<number>(0)
 
   // modal and loading
@@ -134,6 +134,7 @@ export default function Pool() {
                   const volume24h = baseData[idx].volume24
                   baseData[idx].volume24 = data1.status === 'success' ? data1.volume24 : volume24h
                   setIsNeedRefresh(true)
+                  console.log('setIsNeedRefresh: ', 'true')
                 })
             })
             .catch(e => {
@@ -191,8 +192,8 @@ export default function Pool() {
       setAttemptingTxn(true)
       const poolContract = getPoolContract(chainId, library, account)
       const deadline = Date.now() + DEFAULT_DEADLINE_FROM_NOW * 1000
-      
-      const minAmount = (+amount) - (+amount) * T_FEE      
+
+      const minAmount = (+amount) - (+amount) * T_FEE
       const minimumAmount = BigNumber.from(float2int(minAmount.toString()))
       console.log('Withdraw Amount: ', amount.toString())
       console.log('Withdraw minimumAmount: ', minimumAmount.toString())
@@ -312,6 +313,7 @@ export default function Pool() {
               .finally(() => {
                 console.log('finally called')
                 setIsNeedRefresh(true)
+                console.log('setIsNeedRefresh: ', 'true')
                 setAttemptingTxn(false)
                 setShowConfirm(false)
               })
@@ -381,7 +383,7 @@ export default function Pool() {
     }, [account, chainId, library]
   )
 
-  const handleApproveLPStaking = useCallback(    
+  const handleApproveLPStaking = useCallback(
     async (amount: BigNumber, token: Token | undefined) => {
       if (!chainId || !library || !account || !token) return
       const tokenAddress =
@@ -624,6 +626,61 @@ export default function Pool() {
     }, [account, chainId, library]
   )
 
+  const handleMultiClaimPTP = useCallback(
+    async () => {
+      if (!chainId || !library || !account) return
+      setShowConfirm(true)
+      setAttemptingTxn(true)
+      setIsPTPClaimModalOpen(false)
+      const masterPlatypusContract = getMasterPlatypusContract(chainId, library, account)
+      let tnx_hash = ''
+
+      await masterPlatypusContract.multiClaimPTP()
+        .then((response) => {
+          console.log('MultiClaimPTP: ', response)
+          // setAttemptingTxn(false)          
+          setTxHash(response.hash)
+          tnx_hash = response.hash
+        })
+        .catch((e) => {
+          setAttemptingTxn(false)
+          // we only care if the error is something _other_ than the user rejected the tx          
+          if (e?.code !== 4001) {
+            console.error(e)
+            setErrMessage(e.message)
+          } else {
+            setShowConfirm(false)
+          }
+        })
+
+      const checkTnx = async () => {
+        if (tnx_hash === '') return
+        masterPlatypusContract
+          .once('PTPClaimed', (owner, amt) => {
+            console.log('== ClaimPTP: PTPClaimed ==')
+            console.log('owner: ', owner)
+            console.log('amount: ', parseInt(amt._hex, 16) / (10 ** 18))
+
+            masterPlatypusContract.provider
+              .getTransactionReceipt(tnx_hash)
+              .then((res) => {
+                console.log('getTransactionReceipt: ', res)
+              })
+              .catch(e => {
+                console.log('tnx_receipt_exception: ', e)
+              })
+              .finally(() => {
+                console.log('finally called')
+                setIsNeedRefresh(true)
+                setAttemptingTxn(false)
+              })
+          })
+      }
+
+      checkTnx()
+    }, [account, chainId, library]
+  )
+
   const handleRefresh = useCallback(
     () => {
       setIsNeedRefresh(true)
@@ -674,8 +731,8 @@ export default function Pool() {
           getVolume24h(),
           masterPlatypusContract.multiLpStakedInfo(account)
         ])
-          .then(response => {                  
-            const totalSupply = BigNumber.from(response[0]._hex)            
+          .then(response => {
+            const totalSupply = BigNumber.from(response[0]._hex)
             const balanceOf = BigNumber.from(response[1]._hex)
             const poolShare = norValue(totalSupply) === 0 ? 0 : norValue(balanceOf) * 100 / norValue(totalSupply)
             const cash = BigNumber.from(response[2]._hex)
@@ -687,7 +744,7 @@ export default function Pool() {
             const stakedLPAmount = BigNumber.from(response[8].lpAmount._hex)
             const rewardablePTPAmount = BigNumber.from(response[8].rewardAmount._hex)
             const volume24h = response[9].status === 'success' ? response[9].volume24 : 0
-            const multiRewardablePTPAmount = BigNumber.from(response[10][0]._hex)            
+            const multiRewardablePTPAmount = BigNumber.from(response[10][0]._hex)
 
             setTotalRewardablePTPAmount(norValue(multiRewardablePTPAmount))
 
@@ -740,7 +797,35 @@ export default function Pool() {
           return []
         })
 
-      setBaseData(baseDatas)
+      let isSameData = true
+      if (baseData.length > 0) {
+        for (let i = 0; i < baseData.length; i++) {
+          const bd = baseData[i]
+          const bds = baseDatas[i]
+          if (bd.symbol !== bds.symbol) isSameData = false
+          if (bd.address.toLowerCase() !== bds.address.toLowerCase()) isSameData = false
+          if (!(bd.totalSupply.eq(bds.totalSupply))) isSameData = false
+          if (!(bd.balanceOf.eq(bds.balanceOf))) isSameData = false
+          if (!(bd.cash.eq(bds.cash))) isSameData = false
+          if (!(bd.liability.eq(bds.liability))) isSameData = false
+          if (bd.poolShare !== bds.poolShare) isSameData = false
+          if (!(bd.price.eq(bds.price))) isSameData = false
+          if (!(bd.allowance.eq(bds.allowance))) isSameData = false
+          if (!(bd.allowance_lp_master.eq(bds.allowance_lp_master))) isSameData = false
+          if (!(bd.allowance_lp_pool.eq(bds.allowance_lp_pool))) isSameData = false
+          if (bd.volume24 !== bds.volume24) isSameData = false
+          if (!(bd.stakedLPAmount.eq(bds.stakedLPAmount))) isSameData = false
+          if (!(bd.rewardablePTPAmount.eq(bds.rewardablePTPAmount))) isSameData = false
+          if (!(bd.multiRewardablePTPAmount.eq(bds.multiRewardablePTPAmount))) isSameData = false
+        }
+
+        if (!isSameData) {
+          setBaseData(baseDatas)
+        }
+      } else {
+        setBaseData(baseDatas)
+      }
+
       setIsNeedRefresh(false)
       console.log('baseData: ', baseDatas)
 
@@ -750,13 +835,13 @@ export default function Pool() {
       }
     }
 
+    getBaseData()
+
     const interval = setInterval(() => {
       getBaseData()
     }, 20000);
-    
-    return () => window.clearInterval(interval);
-    // getBaseData() 
 
+    return () => window.clearInterval(interval);
   }, [account, chainId, library, allTokens, isNeedRefresh, baseData, selectedToken])
 
   const handleDismissConfirmation = useCallback(() => {
@@ -828,7 +913,7 @@ export default function Pool() {
         onApprove={handleApproveLPStaking}
         onUnStakeLP={handleUnStakeLP}
         onRefresh={handleRefresh}
-      />      
+      />
 
       <PTPClaimModal
         isOpen={isPTPClaimModalOpen}
@@ -857,8 +942,30 @@ export default function Pool() {
       <MaxWidthDiv>
         <LightCard className="mt-2 ml-1">
           <RowBetween>
-            <Text style={verticalCenterContainerStyle}>Pools Earning: <CurrencyLogo currency={PTP} size="20px" style={{ marginLeft: '5px', marginRight: '5px' }} /> {`${totalRewardablePTPAmount} PTP`}</Text>
-            <Button variant='secondary' size='sm' style={borderRadius7} >Claim PTP</Button>
+            <div>
+              {
+                totalRewardablePTPAmount > 0.01 ? (
+                  <div>
+                    <CenterContainer>
+                      <Text style={verticalCenterContainerStyle}>Pools Earning: <CurrencyLogo currency={PTP} size="20px" style={{ marginLeft: '5px', marginRight: '5px' }} /> {`${nDecimals(6, totalRewardablePTPAmount)} PTP`}</Text>
+                      <Question
+                        text={`${totalRewardablePTPAmount} PTP`}
+                      />
+                    </CenterContainer>
+                  </div>
+                ) : (
+                  <div>
+                    <CenterContainer>
+                      <Text style={verticalCenterContainerStyle}>Pools Earning: <CurrencyLogo currency={PTP} size="20px" style={{ marginLeft: '5px', marginRight: '5px' }} /> {`< 0.01 PTP`}</Text>
+                      <Question
+                        text={`${totalRewardablePTPAmount} PTP`}
+                      />
+                    </CenterContainer>
+                  </div>
+                )
+              }
+            </div>
+            <Button variant='secondary' size='sm' style={borderRadius7} onClick={handleMultiClaimPTP}>Claim PTP</Button>
           </RowBetween>
         </LightCard>
         {
