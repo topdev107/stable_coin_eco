@@ -1,27 +1,38 @@
+import { ButtonMenu, ButtonMenuItem, CogIcon, IconButton, useModal } from '@pantherswap-libs/uikit'
+import SettingsModal from 'components/PageHeader/SettingsModal'
 import React from 'react'
-import styled from 'styled-components'
 import { Link } from 'react-router-dom'
-import { ButtonMenu, ButtonMenuItem } from '@pantherswap-libs/uikit'
+import styled from 'styled-components'
 import TranslatedText from '../TranslatedText'
 
+
 const StyledNav = styled.div`
-  margin-bottom: 40px;
+  margin-bottom: 40px;  
 `
 
-const Nav = ({ activeIndex = 0 }: { activeIndex?: number }) => (
-  <StyledNav>
-    <ButtonMenu activeIndex={activeIndex} size="sm" variant="subtle">
-      <ButtonMenuItem id="swap-nav-link" to="/swap" as={Link}>
-        <TranslatedText translationId={8}>Swap</TranslatedText>
-      </ButtonMenuItem>
-      <ButtonMenuItem id="pool-nav-link" to="/pool" as={Link}>
-        <TranslatedText translationId={74}>Pool</TranslatedText>
-      </ButtonMenuItem>
-      <ButtonMenuItem id="staking-nav-link" to="/staking" as={Link}>
-        Staking
-      </ButtonMenuItem>      
-    </ButtonMenu>
-  </StyledNav>
-)
+const Nav = ({ activeIndex = 0 }: { activeIndex?: number }) => {
+  const [onPresentSettings] = useModal(<SettingsModal />)
+
+  return (
+    <StyledNav>
+      <ButtonMenu activeIndex={activeIndex} size="sm" variant="subtle">
+        <ButtonMenuItem id="swap-nav-link" to="/swap" as={Link}>
+          Swap
+        </ButtonMenuItem>
+        <ButtonMenuItem id="pool-nav-link" to="/pool" as={Link}>
+          Pool
+        </ButtonMenuItem>
+        <ButtonMenuItem id="staking-nav-link" to="/veptp" as={Link}>
+          VePTP
+        </ButtonMenuItem>
+      </ButtonMenu>
+      <div style={{display: 'inline-block', position: 'relative', top: '5px'}}>
+        <IconButton size='sm' className="ml-3" variant="primary" onClick={onPresentSettings} title="Settings">
+          <CogIcon />
+        </IconButton>
+      </div>
+    </StyledNav>
+  )
+}
 
 export default Nav

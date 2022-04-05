@@ -133,7 +133,7 @@ export default function App() {
                       <Route exact strict path="/swap" component={Swap} />
                       <Route exact strict path="/find" component={PoolFinder} />
                       <Route exact strict path="/pool" component={Pool} />
-                      <Route exact strict path="/staking" component={Staking} />
+                      <Route exact strict path="/veptp" component={Staking} />
                       <Route exact path="/add" component={AddLiquidity} />
                       <Route exact strict path="/remove/:currencyIdA/:currencyIdB" component={RemoveLiquidity} />
 
