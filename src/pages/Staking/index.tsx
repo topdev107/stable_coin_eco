@@ -13,6 +13,7 @@ import PTPStakeModal from 'components/PTPStakeConfirmModal'
 import PTPUnStakeModal from 'components/PTPUnStakeConfirmModal'
 import VePTPClaimModal from 'components/VePTPClaimConfirmModal'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
+import CalcModal from 'components/CalcModal'
 import { MASTER_PLATYPUS_ADDRESS, PTP, VEPTP } from '../../constants'
 import PTP_logo from '../../assets/PTP_logo.png'
 import PTP_logo_blank from '../../assets/PTP_logo_blank.png'
@@ -44,6 +45,7 @@ export default function Staking() {
   const [isPTPStakeModalOpen, setIsPTPStakeModalOpen] = useState<boolean>(false);
   const [isPTPUnStakeModalOpen, setIsPTPUnStakeModalOpen] = useState<boolean>(false);
   const [isVePTPClaimModalOpen, setIsVePTPClaimModalOpen] = useState<boolean>(false);
+  const [isCalcModalOpen, setIsCalcModalOpen] = useState<boolean>(false);
 
   // modal and loading
   const [showConfirm, setShowConfirm] = useState<boolean>(false)
@@ -59,6 +61,9 @@ export default function Staking() {
 
   const openVePTPClaimModal = useCallback(() => setIsVePTPClaimModalOpen(true), [setIsVePTPClaimModalOpen]);
   const closeVePTPClaimModal = useCallback(() => setIsVePTPClaimModalOpen(false), [setIsVePTPClaimModalOpen]);
+
+  const openCalcModal = useCallback(() => setIsCalcModalOpen(true), [setIsCalcModalOpen]);
+  const closeCalcModal = useCallback(() => setIsCalcModalOpen(false), [setIsCalcModalOpen]);
 
   const handleApprovePTPStaking = useCallback(
     async (amount: BigNumber) => {
@@ -339,7 +344,7 @@ export default function Staking() {
         !(baseData.ptpBalanceOf.eq(baseDatas.ptpBalanceOf))
       ) {
         setBaseData(baseDatas)
-      }    
+      }
 
       setIsNeedRefresh(false)
       console.log('baseData: ', baseData)
@@ -409,6 +414,11 @@ export default function Staking() {
           />
         )}
         pendingText={pendingText}
+      />
+
+      <CalcModal
+        isOpen={isCalcModalOpen}
+        onDismiss={closeCalcModal}
       />
 
       <CardNav activeIndex={2} />
@@ -507,7 +517,7 @@ export default function Staking() {
               <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', backgroundColor: '#0a0e17', paddingLeft: '10px', paddingRight: '10px' }}>
                 <img src={PTP_logo} alt='logo' style={{ width: '25px', height: '25px' }} />
                 <Text className='ml-1'>vePTP boosts PTP APR (</Text>
-                <Text className='textBtn' style={{ color: '#ff720d', cursor: 'pointer' }}>Booster Calculator</Text>
+                <Text className='textBtn' style={{ color: '#ff720d', cursor: 'pointer' }} onClick={openCalcModal}>Booster Calculator</Text>
                 <Text>)</Text>
               </div>
             </div>
@@ -577,7 +587,7 @@ export default function Staking() {
                   </Row>
                 </div>
               </div>
-            ) : (              
+            ) : (
               account ? (
                 <div className='mt-3'>
                   <Button fullWidth onClick={openPTPStakeModal}>Stake</Button>
