@@ -210,6 +210,16 @@ export interface PoolItemBaseData {
   multiRewardablePTPAmount: BigNumber
 }
 
+export interface PTPStakedInfo {
+  ptpStakedAmount: BigNumber
+  vePTPrewardableAmount: BigNumber
+  vePTPBalanceOf: BigNumber
+  veTotalSupply: BigNumber
+  calcVePTPAmount: BigNumber
+  allowancePTP: BigNumber
+  ptpBalanceOf: BigNumber
+}
+
 export function calcFee(val: number, t_fee: number, usefulCountFee: number): string {
   const valDecimalStr = getDecimalPartStr(val)
   const valDecimalLen = valDecimalStr.length

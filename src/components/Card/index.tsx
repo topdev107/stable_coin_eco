@@ -21,7 +21,7 @@ export const LightCard = styled(Card)`
 export const DarkblueOutlineCard = styled(Card)`
   border: 1px solid ${({ theme }) => theme.colors.primaryDark};
   background-color: ${({ theme }) => theme.colors.invertedContrast};
-  margin: 5px;
+  margin: ${({margin}) => margin};
 `
 
 export const GreyCard = styled(Card)`

@@ -84,7 +84,7 @@ export default function PoolItem({
 
   return (
     <>
-      <DarkblueOutlineCard padding="0px">
+      <DarkblueOutlineCard padding="0px" margin="5px">
         <Body color={theme.colors.textDisabled} textAlign="center">
           <PaddingDiv padding="0px">
             <Row>

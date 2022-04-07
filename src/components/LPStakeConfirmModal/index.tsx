@@ -88,7 +88,7 @@ export default function LPStakeConfirmModal({
           {
             baseData?.balanceOf !== undefined && baseData?.stakedLPAmount !== undefined ? (
               <div style={CenterVerticalContainerStyle} >
-                <Text fontSize='13px' color='#888888'>{`Stable: ${nDecimals(2, norValue(baseData?.balanceOf))} ${token?.symbol}`}</Text>
+                <Text fontSize='13px' color='#888888'>{`Stakable: ${nDecimals(2, norValue(baseData?.balanceOf))} ${token?.symbol}`}</Text>
                 <QuestionColorHelper
                   text={`Amount of your deposited ${token?.symbol} (as LP token) which can be staked to generate yield in PTP`}
                   color='white'

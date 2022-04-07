@@ -1,7 +1,7 @@
 import { CurrencyAmount, Currency, Token, TokenAmount } from '@pantherswap-libs/sdk'
 import { Button, Text } from '@pantherswap-libs/uikit'
 import { useTokenAllowance } from 'data/Allowances'
-import { BigNumber } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
@@ -52,7 +52,7 @@ export default function DepositConfirmModal({
 
   const { account, chainId, library } = useActiveWeb3React()
   const [inputedValue, setInputedValue] = useState('')
-  
+
   const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, token ?? undefined)
 
   const [avaliable, setAvailable] = useState(false)
@@ -70,10 +70,10 @@ export default function DepositConfirmModal({
   const handleTypeInput = useCallback(
     (val: string) => {
       setInputedValue(val)
-      if (token !== undefined) {        
+      if (token !== undefined) {
         const feeStr = calcFee(+val, T_FEE, usefulCountFee)
-        setFee(+feeStr)        
-      }      
+        setFee(+feeStr)
+      }
     },
     [setInputedValue, token, usefulCountFee]
   )
@@ -116,7 +116,7 @@ export default function DepositConfirmModal({
 
   const handleDeposit = useCallback(
     (e, value: BigNumber, tk: Token | undefined) => {
-      if (tk !== undefined) {        
+      if (tk !== undefined) {
         onDeposit(value, tk)
       }
     }, [onDeposit]
@@ -166,7 +166,7 @@ export default function DepositConfirmModal({
               color='white'
             />
           </div>
-          <Text fontSize="13px">{`${nDecimals(2,fee)} ${token?.symbol}`}</Text>
+          <Text fontSize="13px">{`${nDecimals(2, fee)} ${token?.symbol}`}</Text>
         </RowBetween>
         <RowBetween className='mt-2'>
           <div style={CenterVerticalContainerStyle} >
@@ -193,12 +193,18 @@ export default function DepositConfirmModal({
             <Button variant='secondary' style={{ borderRadius: '5px' }} fullWidth onClick={handleClose}>Cancel</Button>
           </Col>
           <Col className='pl-1 pr-3'>
-          {
+            {/* {
               avaliable && baseData !== undefined && token !== undefined ?
-                // (baseData.allowance >= BigNumber.from(parseInt(getUnitedValue(inputedValue, token?.decimals).toString())) ?
                 (baseData.allowance.gte(BigNumber.from(float2int(getUnitedValue(inputedValue, token?.decimals).toString()))) ?
-                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleDeposit(e, BigNumber.from(float2int(getUnitedValue(inputedValue, token.decimals).toString())), token)}>Deposit</Button> :                  
+                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleDeposit(e, BigNumber.from(float2int(getUnitedValue(inputedValue, token.decimals).toString())), token)}>Deposit</Button> :
                   <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleApprove(e, BigNumber.from(float2int(getUnitedValue(inputedValue, token.decimals).toString())), token)}>Approve</Button>) :
+                <Button variant='primary' style={{ borderRadius: '5px' }} disabled fullWidth>Deposit</Button>
+            } */}
+            {
+              avaliable && baseData !== undefined && token !== undefined && inputedValue !== ''?
+                (baseData.allowance.gte(ethers.utils.parseUnits(inputedValue, token?.decimals)) ?                
+                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleDeposit(e, ethers.utils.parseUnits(inputedValue, token?.decimals), token)}>Deposit</Button> :
+                  <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleApprove(e, ethers.utils.parseUnits(inputedValue, token?.decimals), token)}>Approve</Button>) :
                 <Button variant='primary' style={{ borderRadius: '5px' }} disabled fullWidth>Deposit</Button>
             }
           </Col>

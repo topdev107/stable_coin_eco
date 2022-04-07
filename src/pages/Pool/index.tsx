@@ -865,7 +865,7 @@ export default function Pool() {
     justify-content: center;
     align-items: center;
     padding: ${({ padding }) => padding};
-`
+  `
 
   const verticalCenterContainerStyle = {
     height: '100%',
@@ -965,7 +965,7 @@ export default function Pool() {
                 )
               }
             </div>
-            <Button variant='secondary' size='sm' style={borderRadius7} onClick={handleMultiClaimPTP}>Claim PTP</Button>
+            <Button variant='secondary' size='sm' style={borderRadius7} onClick={handleMultiClaimPTP}>Claim PTP</Button>            
           </RowBetween>
         </LightCard>
         {
