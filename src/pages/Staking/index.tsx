@@ -418,6 +418,7 @@ export default function Staking() {
 
       <CalcModal
         isOpen={isCalcModalOpen}
+        // isOpen        
         onDismiss={closeCalcModal}
       />
 
@@ -517,7 +518,11 @@ export default function Staking() {
               <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', backgroundColor: '#0a0e17', paddingLeft: '10px', paddingRight: '10px' }}>
                 <img src={PTP_logo} alt='logo' style={{ width: '25px', height: '25px' }} />
                 <Text className='ml-1'>vePTP boosts PTP APR (</Text>
-                <Text className='textBtn' style={{ color: '#ff720d', cursor: 'pointer' }} onClick={openCalcModal}>Booster Calculator</Text>
+                {
+                  account ?
+                    <Text className='textBtn' style={{ color: '#ff720d', cursor: 'pointer' }} onClick={openCalcModal}>Booster Calculator</Text> :
+                    <Text className='textBtn' style={{ color: '#ff720d', cursor: 'pointer' }} >Booster Calculator</Text>
+                }
                 <Text>)</Text>
               </div>
             </div>
@@ -542,7 +547,7 @@ export default function Staking() {
                       </div>
                     </Col>
                     <Col>
-                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                         <Button variant='success' size='sm' onClick={openVePTPClaimModal}>Claim vePTP</Button>
                       </div>
                     </Col>
