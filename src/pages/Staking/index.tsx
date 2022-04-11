@@ -6,7 +6,7 @@ import { DarkblueOutlineCard, LightCard, GreyCard, YellowCard, PinkCard } from '
 import { Col, ProgressBar, Row } from 'react-bootstrap'
 import Question, { QuestionColorHelper } from 'components/QuestionHelper'
 import { useActiveWeb3React } from 'hooks'
-import { PTPStakedInfo, getMasterPlatypusContract, getVePTPContract, getPTPContract, norValue, nDecimals } from 'utils'
+import { PTPStakedInfo, getMasterPlatypusContract,getAssetContract, getVePTPContract, getPTPContract, norValue, nDecimals } from 'utils'
 import { BigNumber } from 'ethers'
 import { RowBetween } from 'components/Row'
 import PTPStakeModal from 'components/PTPStakeConfirmModal'
@@ -293,7 +293,7 @@ export default function Staking() {
       if (!chainId || !library || !account) return
       const masterPlatypusContract = getMasterPlatypusContract(chainId, library, account)
       const vePTPContract = getVePTPContract(chainId, library, account)
-      const ptpContract = getPTPContract(chainId, library, account)
+      const ptpContract = getPTPContract(chainId, library, account)      
 
       const baseDatas: PTPStakedInfo = await Promise.all([
         masterPlatypusContract.ptpStakedInfo(account),
@@ -301,7 +301,8 @@ export default function Staking() {
         vePTPContract.totalSupply(),
         masterPlatypusContract.calcVePTPReward(baseData.ptpStakedAmount, 3600), // 3600s
         ptpContract.allowance(account, MASTER_PLATYPUS_ADDRESS),
-        ptpContract.balanceOf(account)
+        ptpContract.balanceOf(account),
+        
       ]).then(response => {
         const ptpAmount = BigNumber.from(response[0].ptpAmount._hex)
         const rewardAmount = BigNumber.from(response[0].rewardAmount._hex)
@@ -418,7 +419,9 @@ export default function Staking() {
 
       <CalcModal
         isOpen={isCalcModalOpen}
-        // isOpen        
+        vePTPBalanceOf={baseData.vePTPBalanceOf}
+        vePTPTotalSupply={baseData.veTotalSupply}
+        ptpStakedAmount={baseData.ptpStakedAmount}
         onDismiss={closeCalcModal}
       />
 
