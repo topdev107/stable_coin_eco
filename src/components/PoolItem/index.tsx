@@ -4,6 +4,7 @@ import React, { useCallback, useContext, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import styled, { ThemeContext } from 'styled-components'
 import { PoolItemBaseData, nDecimals, norValue } from 'utils'
+import { BigNumber } from 'ethers'
 import { useActiveWeb3React } from '../../hooks'
 import { DarkblueOutlineCard } from '../Card'
 import CurrencyLogo from '../CurrencyLogo'
@@ -138,7 +139,7 @@ export default function PoolItem({
                               <Text color='#888888' fontSize='12px'>{`0 ${token?.symbol}`}</Text>
                             </>
                           ) : (
-                            <>                              
+                            <>
                               <Text>{`$${nDecimals(2, norValue(baseData.totalSupply) * norValue(baseData.price, 8))}`}</Text>
                               <Text color='#888888' fontSize='12px'>{`${nDecimals(2, norValue(baseData.totalSupply))}${token?.symbol}`}</Text>
                             </>
@@ -225,10 +226,23 @@ export default function PoolItem({
                   <div>
                     <CenterContainer>
                       <Text color='#888888' fontSize='10px' className="mr-1">Base APR</Text>
-                      <Text fontSize='11px'>0.0%</Text>
-                      <Question
-                        text={`Base APR of this pool for the users who have deposited and staked ${token?.symbol}`}
-                      />
+                      {
+                        baseData === undefined || baseData.liability.eq(BigNumber.from(0)) ? (
+                          <>
+                            <Text fontSize='11px'>0.0%</Text>
+                            <Question
+                              text={`Base APR of this pool for the users who have deposited and staked ${token?.symbol}`}
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <Text fontSize='11px'>{`${nDecimals(2, parseInt(baseData.cash.toHexString(), 16) / parseInt(baseData.liability.toHexString(), 16) * parseInt(baseData.rewardFactorPTP.toHexString(), 16) * 365 * 86400 * 100 / (10 ** 18))}%`}</Text>
+                            <Question
+                              text={`Base APR of this pool for the users who have deposited and staked ${token?.symbol}`}
+                            />
+                          </>
+                        )
+                      }
                     </CenterContainer>
                   </div>
                 </CenterContainer>
@@ -238,10 +252,23 @@ export default function PoolItem({
                   <div>
                     <CenterContainer>
                       <Text color='#888888' fontSize='10px' className="mr-1">Median Boosted APR</Text>
-                      <Text fontSize='11px'>0.0%</Text>
-                      <Question
-                        text={`The median boosted APR of this pool for the users who have staked ${token?.symbol} and hold vePTP. Half of the users get higher than the median APR. It does not include the Base APR.`}
-                      />
+                      {
+                        baseData === undefined || baseData.liability.eq(BigNumber.from(0)) ? (
+                          <>
+                            <Text fontSize='11px'>0.0%</Text>
+                            <Question
+                              text={`The median boosted APR of this pool for the users who have staked ${token?.symbol} and hold vePTP. Half of the users get higher than the median APR. It does not include the Base APR.`}
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <Text fontSize='11px'>{`${nDecimals(2, parseInt(baseData.cash.toHexString(), 16) / parseInt(baseData.liability.toHexString(), 16) * parseInt(baseData.rewardFactorVePTP.toHexString(), 16) * 365 * 86400 * 100 / (10 ** 18) / (10 ** 3))}%`}</Text>
+                            <Question
+                              text={`The median boosted APR of this pool for the users who have staked ${token?.symbol} and hold vePTP. Half of the users get higher than the median APR. It does not include the Base APR.`}
+                            />
+                          </>
+                        )
+                      }
                     </CenterContainer>
                   </div>
                 </CenterContainer>
@@ -251,10 +278,24 @@ export default function PoolItem({
                   <div>
                     <CenterContainer>
                       <Text color='#888888' fontSize='10px' className="mr-1">My Boosted APR</Text>
-                      <Text fontSize='11px'>0.0%</Text>
-                      <Question
-                        text={`The exact boosted APR you are currently earning at. The value depends on your vePTP balance and staked ${token?.symbol} amount.`}
-                      />
+                      {
+                        baseData === undefined || baseData.stakedPTPAmount.eq(BigNumber.from(0)) || baseData.vePTPBalance.eq(BigNumber.from(0)) ? (
+                          <>
+                            <Text fontSize='11px'>0.0%</Text>
+                            <Question
+                              text={`The exact boosted APR you are currently earning at. The value depends on your vePTP balance and staked ${token?.symbol} amount.`}
+                            />
+                          </>
+                        ) : (
+                          <>
+                            {/* <Text fontSize='11px'>{`${nDecimals(2, baseData.vePTPBalance.div(baseData.stakedPTPAmount).mul(BigNumber.from(100)))}%`}</Text> */}
+                            <Text fontSize='11px'>{`${nDecimals(2, parseInt(baseData.vePTPBalance.toHexString(), 16) / parseInt(baseData.stakedPTPAmount.toHexString(), 16) * 100)}%`}</Text>
+                            <Question
+                              text={`The exact boosted APR you are currently earning at. The value depends on your vePTP balance and staked ${token?.symbol} amount.`}
+                            />
+                          </>
+                        )
+                      }                      
                     </CenterContainer>
                   </div>
                 </CenterContainer>

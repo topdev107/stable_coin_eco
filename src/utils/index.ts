@@ -208,6 +208,10 @@ export interface PoolItemBaseData {
   stakedLPAmount: BigNumber
   rewardablePTPAmount: BigNumber
   multiRewardablePTPAmount: BigNumber
+  rewardFactorPTP: BigNumber
+  rewardFactorVePTP: BigNumber
+  vePTPBalance: BigNumber
+  stakedPTPAmount: BigNumber
 }
 
 export interface PTPStakedInfo {

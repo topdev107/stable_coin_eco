@@ -10,7 +10,7 @@ import { isAbsolute } from 'path'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTnxHandler } from 'state/tnxs/hooks'
 import styled from 'styled-components'
-import { float2int, getAssetContract, getERC20Contract, getMasterPlatypusContract, getPoolContract, getPriceProviderContract, nDecimals, norValue, PoolItemBaseData } from 'utils'
+import { float2int, getAssetContract, getERC20Contract, getMasterPlatypusContract, getPoolContract, getPriceProviderContract, getVePTPContract, nDecimals, norValue, PoolItemBaseData } from 'utils'
 import CurrencyLogo from '../../components/CurrencyLogo'
 import DepositModal from '../../components/DepositConfirmModal'
 import LPStakeModal from '../../components/LPStakeConfirmModal'
@@ -713,6 +713,7 @@ export default function Pool() {
         const priceProviderContract = getPriceProviderContract(chainId, library, account)
         const erc20Contract = getERC20Contract(chainId, token.address, library, account)
         const masterPlatypusContract = getMasterPlatypusContract(chainId, library, account)
+        const vePTPContract = getVePTPContract(chainId, library, account)
         const getVolume24h = async () => {
           const res = await fetch(volume24_url.concat('get_tnx_amount_24h/').concat(token.address))
           return res.json()
@@ -729,7 +730,11 @@ export default function Pool() {
           assetContract.allowance(account, MASTER_PLATYPUS_ADDRESS),
           masterPlatypusContract.lpStakedInfo(lpID, account),
           getVolume24h(),
-          masterPlatypusContract.multiLpStakedInfo(account)
+          masterPlatypusContract.multiLpStakedInfo(account),
+          masterPlatypusContract.rewardFactorPTP(),
+          masterPlatypusContract.rewardFactorVePTP(),
+          vePTPContract.balanceOf(account),
+          masterPlatypusContract.ptpStakedInfo(account)
         ])
           .then(response => {
             const totalSupply = BigNumber.from(response[0]._hex)
@@ -745,6 +750,10 @@ export default function Pool() {
             const rewardablePTPAmount = BigNumber.from(response[8].rewardAmount._hex)
             const volume24h = response[9].status === 'success' ? response[9].volume24 : 0
             const multiRewardablePTPAmount = BigNumber.from(response[10][0]._hex)
+            const rewardFactorPTP = BigNumber.from(response[11]._hex)
+            const rewardFactorVePTP = BigNumber.from(response[12]._hex)
+            const vePTPBalance = BigNumber.from(response[13]._hex)
+            const stakedPTPAmount = BigNumber.from(response[14].ptpAmount._hex)
 
             setTotalRewardablePTPAmount(norValue(multiRewardablePTPAmount))
 
@@ -763,7 +772,11 @@ export default function Pool() {
               'volume24': volume24h,
               'stakedLPAmount': stakedLPAmount,
               'rewardablePTPAmount': rewardablePTPAmount,
-              'multiRewardablePTPAmount': multiRewardablePTPAmount
+              'multiRewardablePTPAmount': multiRewardablePTPAmount,
+              'rewardFactorPTP': rewardFactorPTP,
+              'rewardFactorVePTP': rewardFactorVePTP,
+              'vePTPBalance': vePTPBalance,
+              'stakedPTPAmount': stakedPTPAmount
             }
             return bData
           })
@@ -784,7 +797,11 @@ export default function Pool() {
               'volume24': 0,
               'stakedLPAmount': BigNumber.from(0),
               'rewardablePTPAmount': BigNumber.from(0),
-              'multiRewardablePTPAmount': BigNumber.from(0)
+              'multiRewardablePTPAmount': BigNumber.from(0),
+              'rewardFactorPTP': BigNumber.from(0),
+              'rewardFactorVePTP': BigNumber.from(0),
+              'vePTPBalance': BigNumber.from(0),
+              'stakedPTPAmount': BigNumber.from(0)
             }
             return bData
           })
@@ -817,6 +834,10 @@ export default function Pool() {
           if (!(bd.stakedLPAmount.eq(bds.stakedLPAmount))) isSameData = false
           if (!(bd.rewardablePTPAmount.eq(bds.rewardablePTPAmount))) isSameData = false
           if (!(bd.multiRewardablePTPAmount.eq(bds.multiRewardablePTPAmount))) isSameData = false
+          if (!(bd.rewardFactorPTP.eq(bds.rewardFactorPTP))) isSameData = false
+          if (!(bd.rewardFactorVePTP.eq(bds.rewardFactorVePTP))) isSameData = false
+          if (!(bd.vePTPBalance.eq(bds.vePTPBalance))) isSameData = false
+          if (!(bd.stakedPTPAmount.eq(bds.stakedPTPAmount))) isSameData = false
         }
 
         if (!isSameData) {

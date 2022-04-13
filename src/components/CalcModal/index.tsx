@@ -36,6 +36,10 @@ interface CalcData {
   poolLiquidity: BigNumber
   lpBalanceOf: BigNumber
   stakedLPAmount: BigNumber
+  cash: BigNumber
+  liability: BigNumber
+  rewardFactorPTP: BigNumber
+  rewardFactorVePTP: BigNumber
 }
 
 export default function CalcModal({
@@ -86,11 +90,11 @@ export default function CalcModal({
   const [isPeriodModalOpen, setIsPeriodModalOpen] = useState(false)
   const [selectedPeriodId, setSelectedPeriodId] = useState<number | undefined>()
 
-  const selectedPeriodTxt = useMemo (() => {    
-    switch (selectedPeriodId) {          
-      case 0: 
+  const selectedPeriodTxt = useMemo(() => {
+    switch (selectedPeriodId) {
+      case 0:
         return "2 months"
-      case 1: 
+      case 1:
         return "5 months"
       case 2:
         return "8 months"
@@ -117,6 +121,13 @@ export default function CalcModal({
     }
     return 0
   }, [inputedVePTPValue, inputedVePTPTotalSupply])
+
+  const vePTPShareFromPTP = useMemo(() => {
+    if (!vePTPTotalSupply.eq(BigNumber.from(0))) {
+      return calculatedVePTP.mul(BigNumber.from(100)).div(vePTPTotalSupply)
+    }
+    return 0
+  }, [calculatedVePTP, vePTPTotalSupply])
 
   const handleTypeInputToken = useCallback(
     (val: string) => {
@@ -199,7 +210,7 @@ export default function CalcModal({
       setBaseData(undefined)
       setSelectedToken(undefined)
       onDismiss()
-    }, [setInputedTokenValue,setInputedPTPValue, setInputedPoolValue, setInputedVePTPValue, setInputedVePTPTotalSupply, setBaseData, setSelectedToken, onDismiss]
+    }, [setInputedTokenValue, setInputedPTPValue, setInputedPoolValue, setInputedVePTPValue, setInputedVePTPTotalSupply, setBaseData, setSelectedToken, onDismiss]
   )
 
   const onCurrencySelect = useCallback(
@@ -212,7 +223,7 @@ export default function CalcModal({
 
   const handlePeriodSelect = useCallback(
     (selectedId) => {
-      setSelectedPeriodId(selectedId)  
+      setSelectedPeriodId(selectedId)
     }, [setSelectedPeriodId]
   )
 
@@ -239,22 +250,22 @@ export default function CalcModal({
 
   useEffect(() => {
     const calcVePTPReword = async () => {
-      if (!chainId || !library || !account ) return            
+      if (!chainId || !library || !account) return
       const masterPlatypusContract = getMasterPlatypusContract(chainId, library, account)
 
-      const stakingTimeSecond = 
-          selectedPeriodId === 0? 2 * 30 * 24* 3600 :
-          selectedPeriodId === 1? 5 * 30 * 24 * 3600 : 
-          selectedPeriodId === 2? 8 * 30 * 24 * 3600 :
-          selectedPeriodId === 3? 10 * 30 * 24 * 3600 : 0
+      const stakingTimeSecond =
+        selectedPeriodId === 0 ? 2 * 30 * 24 * 3600 :
+          selectedPeriodId === 1 ? 5 * 30 * 24 * 3600 :
+            selectedPeriodId === 2 ? 8 * 30 * 24 * 3600 :
+              selectedPeriodId === 3 ? 10 * 30 * 24 * 3600 : 0
 
       const inPTPValue = inputedPTPValue === '' ? '0' : inputedPTPValue
       const calcedVePTP = await Promise.all([
         masterPlatypusContract.calcVePTPReward(ethers.utils.parseUnits(inPTPValue, PTP.decimals), stakingTimeSecond)
       ]).then(response => {
-        return BigNumber.from(response[0]._hex)        
+        return BigNumber.from(response[0]._hex)
       }).catch((e) => {
-        console.error(e)        
+        console.error(e)
         return BigNumber.from(0)
       })
 
@@ -263,7 +274,7 @@ export default function CalcModal({
 
     calcVePTPReword()
   }, [account, chainId, library, inputedPTPValue, selectedPeriodId, calculatedVePTP])
-  
+
   useEffect(() => {
     const getBaseData = async () => {
       if (!chainId || !library || !account || !selectedToken) return
@@ -283,25 +294,37 @@ export default function CalcModal({
       const assetContract = getAssetContract(chainId, tokenAddress, library, account)
       const masterPlatypusContract = getMasterPlatypusContract(chainId, library, account)
 
-      const stakingTimeSecond = 
-          selectedPeriodId === 0? 2 * 30 * 24 * 3600 :
-          selectedPeriodId === 1? 5 * 30 * 24 * 3600 : 
-          selectedPeriodId === 2? 8 * 30 * 24 * 3600 :
-          selectedPeriodId === 3? 10 * 30 * 24 * 3600 : 0
+      const stakingTimeSecond =
+        selectedPeriodId === 0 ? 2 * 30 * 24 * 3600 :
+          selectedPeriodId === 1 ? 5 * 30 * 24 * 3600 :
+            selectedPeriodId === 2 ? 8 * 30 * 24 * 3600 :
+              selectedPeriodId === 3 ? 10 * 30 * 24 * 3600 : 0
 
       const baseDatas = await Promise.all([
         assetContract.totalSupply(),
         assetContract.balanceOf(account),
-        masterPlatypusContract.lpStakedInfo(lpID, account)
+        masterPlatypusContract.lpStakedInfo(lpID, account),
+        assetContract.cash(),
+        assetContract.liability(),
+        masterPlatypusContract.rewardFactorPTP(),
+        masterPlatypusContract.rewardFactorVePTP()
       ]).then(response => {
         const poolLiquidity = BigNumber.from(response[0]._hex)
         const lpBalanceOf = BigNumber.from(response[1]._hex)
         const stakedLPAmount = BigNumber.from(response[2].lpAmount._hex)
+        const cash = BigNumber.from(response[3]._hex)
+        const liability = BigNumber.from(response[4]._hex)
+        const rewardFactorPTP = BigNumber.from(response[5]._hex)
+        const rewardFactorVePTP = BigNumber.from(response[6]._hex)
 
         const bData: CalcData = {
           'poolLiquidity': poolLiquidity,
           'lpBalanceOf': lpBalanceOf,
-          'stakedLPAmount': stakedLPAmount
+          'stakedLPAmount': stakedLPAmount,
+          'cash': cash,
+          'liability': liability,
+          'rewardFactorPTP': rewardFactorPTP,
+          'rewardFactorVePTP': rewardFactorVePTP
         }
         return bData
       }).catch((e) => {
@@ -309,17 +332,25 @@ export default function CalcModal({
         const bData: CalcData = {
           'poolLiquidity': BigNumber.from(0),
           'lpBalanceOf': BigNumber.from(0),
-          'stakedLPAmount': BigNumber.from(0)
+          'stakedLPAmount': BigNumber.from(0),
+          'cash': BigNumber.from(0),
+          'liability': BigNumber.from(0),
+          'rewardFactorPTP': BigNumber.from(0),
+          'rewardFactorVePTP': BigNumber.from(0)
         }
         return bData
       })
 
       if (!(baseData?.poolLiquidity.eq(baseDatas.poolLiquidity)) ||
         !(baseData?.lpBalanceOf.eq(baseDatas.lpBalanceOf)) ||
-        !(baseData?.stakedLPAmount.eq(baseDatas.stakedLPAmount))
+        !(baseData?.stakedLPAmount.eq(baseDatas.stakedLPAmount)) ||
+        !(baseData?.cash.eq(baseDatas.cash)) ||
+        !(baseData?.liability.eq(baseDatas.liability)) ||
+        !(baseData?.rewardFactorPTP.eq(baseDatas.rewardFactorPTP)) ||
+        !(baseData?.rewardFactorVePTP.eq(baseDatas.rewardFactorVePTP))
       ) {
         setBaseData(baseDatas)
-      }      
+      }
 
       setIsNeedRefresh(false)
       console.log('baseData: ', baseData)
@@ -532,7 +563,13 @@ export default function CalcModal({
                         color='white'
                       />
                     </div>
-                    <Text>0.0%</Text>
+                    {
+                      selectedToken === undefined || baseData === undefined || baseData.liability.eq(BigNumber.from(0)) ? (
+                        <Text>0.0%</Text>
+                      ) : (
+                        <Text>{`${nDecimals(2, parseInt(baseData.cash.toHexString(), 16) / parseInt(baseData.liability.toHexString(), 16) * parseInt(baseData.rewardFactorPTP.toHexString(), 16) * 365 * 86400 * 100 / (10 ** 18))}%`}</Text>                        
+                      )
+                    }
                   </RowBetween>
                 </div>
                 <div className='mt-0'>
@@ -596,7 +633,7 @@ export default function CalcModal({
                         <div style={{ marginTop: '4px' }}>
                           <div style={{ display: 'flex', alignItems: 'center' }}>
                             {
-                              selectedPeriodId !== undefined? (
+                              selectedPeriodId !== undefined ? (
                                 <>
                                   <img src={lock_icon} alt='logo' style={{ width: '20px', height: '20px', marginRight: '5px' }} />
                                   <Text>{selectedPeriodTxt}</Text>
@@ -618,7 +655,7 @@ export default function CalcModal({
                   </GreyCard>
                 </div>
                 <div className='mt-2'>
-                  <RowBetween>                    
+                  <RowBetween>
                     <Text>Estimated vePTP balance</Text>
                     <Text>{nDecimals(2, norValue(calculatedVePTP))}</Text>
                   </RowBetween>
@@ -629,7 +666,7 @@ export default function CalcModal({
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
                       <CurrencyLogo currency={VEPTP} size="24px" style={{ marginRight: '8px' }} />
                       <Text>Total vePTP Supply</Text>
-                    </div>                    
+                    </div>
                   </YellowCard>
                 </div>
 
@@ -643,11 +680,11 @@ export default function CalcModal({
                       />
                     </div>
                     {
-                      vePTPShare === 0 ?
+                      vePTPShareFromPTP === 0 ?
                         <Text>0.0%</Text> :
-                        vePTPShare < 0.01 ?
+                        (vePTPShareFromPTP.mul(BigNumber.from(100))).lt(BigNumber.from(1)) ?
                           <Text>{`< 0.01%`}</Text> :
-                          <Text>{`${nDecimals(2, vePTPShare)}%`}</Text>
+                          <Text>{`${nDecimals(2, vePTPShareFromPTP)}%`}</Text>
                     }
                   </RowBetween>
                 </div>
@@ -661,7 +698,13 @@ export default function CalcModal({
                         color='white'
                       />
                     </div>
-                    <Text>0.0%</Text>
+                    {
+                      selectedToken === undefined || baseData === undefined || baseData.liability.eq(BigNumber.from(0)) ? (
+                        <Text>0.0%</Text>
+                      ) : (
+                        <Text>{`${nDecimals(2, parseInt(baseData.cash.toHexString(), 16) / parseInt(baseData.liability.toHexString(), 16) * parseInt(baseData.rewardFactorPTP.toHexString(), 16) * 365 * 86400 * 100 / (10 ** 18))}%`}</Text>                        
+                      )
+                    }                    
                   </RowBetween>
                 </div>
                 <div className='mt-0'>
