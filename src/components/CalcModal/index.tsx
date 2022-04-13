@@ -22,8 +22,6 @@ import CurrencyLogo from '../CurrencyLogo'
 import { RowBetween } from '../Row'
 import WideModal from '../WideModal'
 
-
-
 interface CalcModalProps {
   isOpen: boolean,
   vePTPBalanceOf: BigNumber,
@@ -541,7 +539,8 @@ export default function CalcModal({
                 <div className='mt-2'>
                   <GreyCard>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
-                      <CurrencyLogo currency={VEPTP} size="24px" style={{ marginRight: '8px' }} />
+                      {/* <CurrencyLogo currency={VEPTP} size="24px" style={{ marginRight: '8px' }} /> */}
+                      <img src={vePTP_logo} alt='logo' style={{ width: '23px', height: '23px', marginRight: '3px' }} />
                       <Text>Total vePTP Supply</Text>
                     </div>
                     <Row className='mt-1'>
