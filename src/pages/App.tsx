@@ -152,7 +152,7 @@ export default function App() {
                 <Popups />
                 <Web3ReactManager>
                   <Switch>
-                    <Route exact strict path="/swap" component={Swap} />
+                    <Route exact strict path="/" component={Swap} />
                     <Route exact strict path="/pool" component={Pool} />
                     <Route exact strict path="/veptp" component={Staking} />
                   </Switch>

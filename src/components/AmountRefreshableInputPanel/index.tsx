@@ -59,24 +59,35 @@ export default function AmountRefreshableInputPanel({
 
   return (
     <InputPanel>
-      <Container hideInput={hideInput}>        
+      <Container hideInput={hideInput}>
         <InputRow style={hideInput ? { padding: '0', borderRadius: '8px' } : {}} selected={disableCurrencySelect}>
           {!hideInput && (
             <>
-              <NumericalInput
-                className="token-amount-input"
-                value={value}
-                onUserInput={val => {
-                  onUserInput(val)
-                }}
-              />
-              {account && currency && showMaxButton && (                              
-                <AutoRenewIcon className='ml-2' onClick={onRefresh} style={{cursor: 'pointer'}}/>                
+              {
+                currency === undefined ?
+                  <NumericalInput
+                    className="token-amount-input"
+                    value={value}
+                    disabled
+                    onUserInput={val => {
+                      onUserInput(val)
+                    }}
+                  /> :
+                  <NumericalInput
+                    className="token-amount-input"
+                    value={value}
+                    onUserInput={val => {
+                      onUserInput(val)
+                    }}
+                  />
+              }
+              {account && currency && showMaxButton && (
+                <AutoRenewIcon className='ml-2' onClick={onRefresh} style={{ cursor: 'pointer' }} />
               )}
             </>
-          )}          
+          )}
         </InputRow>
-      </Container>      
+      </Container>
     </InputPanel>
   )
 }
