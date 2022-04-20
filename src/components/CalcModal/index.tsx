@@ -36,8 +36,11 @@ interface CalcData {
   stakedLPAmount: BigNumber
   cash: BigNumber
   liability: BigNumber
-  rewardFactorPTP: BigNumber
   rewardFactorVePTP: BigNumber
+  baseAPR: BigNumber
+  boostedAPR: BigNumber
+  estimatedBoostedAPRFromVePTP: BigNumber
+  estimatedBoostedAPRFromPTP: BigNumber
 }
 
 interface VePTPData {
@@ -72,12 +75,13 @@ export default function CalcModal({
   :hover {    
     background-color: ${({ theme }) => darken(0.05, theme.colors.input)};
   }
-`
+` 
 
   const [baseData, setBaseData] = useState<CalcData | undefined>()
   const [vePTPData, setVePTPData] = useState<VePTPData | undefined>()
-  // const [calculatedVePTP, setCalculatedVePTP] = useState<BigNumber>(BigNumber.from(0))
+  
   const [isNeedRefresh, setIsNeedRefresh] = useState<boolean>(true)
+  const [isFirst, setIsFirst] = useState<boolean>(true)
 
   const { account, library, chainId } = useActiveWeb3React()
   const allTokens = useAllTokens()
@@ -128,10 +132,10 @@ export default function CalcModal({
 
   const vePTPShareFromPTP = useMemo(() => {
     if (!vePTPTotalSupply.eq(BigNumber.from(0))) {
-      return vePTPData?.calculatedVePTP.mul(BigNumber.from(100)).div(vePTPTotalSupply)
+      return vePTPData?.calculatedVePTP.mul(BigNumber.from(100)).div(vePTPTotalSupply.sub(vePTPBalanceOf).add(vePTPData?.calculatedVePTP))
     }
     return 0
-  }, [vePTPData?.calculatedVePTP, vePTPTotalSupply])
+  }, [vePTPData?.calculatedVePTP, vePTPTotalSupply, vePTPBalanceOf])
 
   const handleTypeInputToken = useCallback(
     (val: string) => {
@@ -213,7 +217,10 @@ export default function CalcModal({
       setInputedPTPValue('')
       setBaseData(undefined)
       setSelectedToken(undefined)
+      setSelectedPeriodId(undefined)
+      setTabIdx(0)
       onDismiss()
+      setIsFirst(true)
     }, [setInputedTokenValue, setInputedPTPValue, setInputedPoolValue, setInputedVePTPValue, setInputedVePTPTotalSupply, setBaseData, setSelectedToken, onDismiss]
   )
 
@@ -222,6 +229,7 @@ export default function CalcModal({
       const oneToken = Object.values(allTokens).find((d) => d.address.toLowerCase() === inputCurrency.address.toLowerCase())
       setSelectedToken(oneToken)
       setBaseData(undefined)
+      setIsFirst(true)
     }, [allTokens]
   )
 
@@ -244,13 +252,14 @@ export default function CalcModal({
   }
 
   useEffect(() => {
+    if (!isFirst) return 
     setInputedTokenValue(norValue(baseData?.lpBalanceOf.add(baseData?.stakedLPAmount)).toString())
     setInputedPoolValue(norValue(baseData?.poolLiquidity).toString())
     setInputedVePTPValue(norValue(vePTPBalanceOf).toString())
     setInputedVePTPTotalSupply(norValue(vePTPTotalSupply).toString())
     setInputedPTPValue(norValue(ptpStakedAmount).toString())
-
-  }, [baseData, vePTPBalanceOf, vePTPTotalSupply, ptpStakedAmount])
+    if (baseData !== undefined) setIsFirst(false)
+  }, [isFirst, baseData, baseData?.lpBalanceOf, baseData?.stakedLPAmount, baseData?.poolLiquidity, vePTPBalanceOf, vePTPTotalSupply, ptpStakedAmount])
 
   useEffect(() => {
     const getVePTPData = async () => {
@@ -265,7 +274,7 @@ export default function CalcModal({
 
       const inPTPValue = inputedPTPValue === '' ? '0' : inputedPTPValue
       const calcedVePTP = await Promise.all([
-        masterPlatypusContract.calcVePTPReward(ethers.utils.parseUnits(inPTPValue, PTP.decimals), stakingTimeSecond),
+        masterPlatypusContract.calcVePTPReward(account, ethers.utils.parseUnits(inPTPValue, PTP.decimals), stakingTimeSecond),
         masterPlatypusContract.ptpStakedInfo(account)
       ]).then(response => {
         const calculatedVePTP = BigNumber.from(response[0]._hex)
@@ -318,8 +327,18 @@ export default function CalcModal({
             selectedToken.symbol === 'USDT' ? USDT_LP_ID :
               selectedToken.symbol === 'BUSD' ? BUSD_LP_ID : '0'
 
+      const stakingTimeSecond =
+        selectedPeriodId === 0 ? 2 * 30 * 24 * 3600 :
+          selectedPeriodId === 1 ? 5 * 30 * 24 * 3600 :
+            selectedPeriodId === 2 ? 8 * 30 * 24 * 3600 :
+              selectedPeriodId === 3 ? 10 * 30 * 24 * 3600 : 0
+
       const assetContract = getAssetContract(chainId, tokenAddress, library, account)
       const masterPlatypusContract = getMasterPlatypusContract(chainId, library, account)
+
+      const inTokenValue = inputedTokenValue === '' ? '0' : inputedTokenValue
+      const inPTPValue = inputedPTPValue === '' ? '0' : inputedPTPValue
+      const inVePTPValue = inputedVePTPValue === '' ? '0' : inputedVePTPValue
 
       const baseDatas = await Promise.all([
         assetContract.totalSupply(),
@@ -327,16 +346,22 @@ export default function CalcModal({
         masterPlatypusContract.lpStakedInfo(lpID, account),
         assetContract.cash(),
         assetContract.liability(),
-        masterPlatypusContract.rewardFactorPTP(),
         masterPlatypusContract.rewardFactorVePTP(),
+        masterPlatypusContract.baseAPR(lpID),
+        masterPlatypusContract.boostedAPR(lpID, account),
+        masterPlatypusContract.estimatedBoostedAPRFromVePTP(lpID, account, ethers.utils.parseUnits(inTokenValue, selectedToken.decimals), ethers.utils.parseUnits(inVePTPValue, VEPTP.decimals)),
+        masterPlatypusContract.estimatedBoostedAPRFromPTP(lpID, account, ethers.utils.parseUnits(inTokenValue, selectedToken.decimals), ethers.utils.parseUnits(inPTPValue, PTP.decimals), stakingTimeSecond)
       ]).then(response => {
         const poolLiquidity = BigNumber.from(response[0]._hex)
         const lpBalanceOf = BigNumber.from(response[1]._hex)
         const stakedLPAmount = BigNumber.from(response[2].lpAmount._hex)
         const cash = BigNumber.from(response[3]._hex)
         const liability = BigNumber.from(response[4]._hex)
-        const rewardFactorPTP = BigNumber.from(response[5]._hex)
-        const rewardFactorVePTP = BigNumber.from(response[6]._hex)
+        const rewardFactorVePTP = BigNumber.from(response[5]._hex)
+        const baseAPR = BigNumber.from(response[6]._hex)
+        const boostedAPR = BigNumber.from(response[7]._hex)
+        const estimatedBoostedAPRFromVePTP = BigNumber.from(response[8]._hex)        
+        const estimatedBoostedAPRFromPTP = BigNumber.from(response[9]._hex)
 
         const bData: CalcData = {
           'poolLiquidity': poolLiquidity,
@@ -344,8 +369,11 @@ export default function CalcModal({
           'stakedLPAmount': stakedLPAmount,
           'cash': cash,
           'liability': liability,
-          'rewardFactorPTP': rewardFactorPTP,
-          'rewardFactorVePTP': rewardFactorVePTP
+          'rewardFactorVePTP': rewardFactorVePTP,
+          'baseAPR': baseAPR,
+          'boostedAPR': boostedAPR,
+          'estimatedBoostedAPRFromVePTP': estimatedBoostedAPRFromVePTP,
+          'estimatedBoostedAPRFromPTP': estimatedBoostedAPRFromPTP
         }
         return bData
       }).catch((e) => {
@@ -356,8 +384,11 @@ export default function CalcModal({
           'stakedLPAmount': BigNumber.from(0),
           'cash': BigNumber.from(0),
           'liability': BigNumber.from(0),
-          'rewardFactorPTP': BigNumber.from(0),
-          'rewardFactorVePTP': BigNumber.from(0)
+          'rewardFactorVePTP': BigNumber.from(0),
+          'baseAPR': BigNumber.from(0),
+          'boostedAPR': BigNumber.from(0),
+          'estimatedBoostedAPRFromVePTP': BigNumber.from(0),
+          'estimatedBoostedAPRFromPTP': BigNumber.from(0)
         }
         return bData
       })
@@ -367,8 +398,11 @@ export default function CalcModal({
         !(baseData?.stakedLPAmount.eq(baseDatas.stakedLPAmount)) ||
         !(baseData?.cash.eq(baseDatas.cash)) ||
         !(baseData?.liability.eq(baseDatas.liability)) ||
-        !(baseData?.rewardFactorPTP.eq(baseDatas.rewardFactorPTP)) ||
-        !(baseData?.rewardFactorVePTP.eq(baseDatas.rewardFactorVePTP))
+        !(baseData?.rewardFactorVePTP.eq(baseDatas.rewardFactorVePTP)) ||
+        !(baseData?.baseAPR.eq(baseDatas.baseAPR)) ||
+        !(baseData?.boostedAPR.eq(baseDatas.boostedAPR)) ||
+        !(baseData?.estimatedBoostedAPRFromVePTP.eq(baseDatas.estimatedBoostedAPRFromVePTP)) ||
+        !(baseData?.estimatedBoostedAPRFromPTP.eq(baseDatas.estimatedBoostedAPRFromPTP))
       ) {
         setBaseData(baseDatas)
       }
@@ -384,7 +418,7 @@ export default function CalcModal({
     }, 20000);
 
     return () => window.clearInterval(interval);
-  }, [account, chainId, library, baseData, selectedToken, inputedPTPValue, selectedPeriodId])
+  }, [account, chainId, library, baseData, selectedToken, inputedPTPValue, selectedPeriodId, inputedTokenValue, inputedVePTPValue])
 
   const disableCurrencySelect = false
 
@@ -586,10 +620,10 @@ export default function CalcModal({
                       />
                     </div>
                     {
-                      selectedToken === undefined || baseData === undefined || baseData.liability.eq(BigNumber.from(0)) ? (
+                      selectedToken === undefined || baseData === undefined ? (
                         <Text>0.0%</Text>
                       ) : (
-                        <Text>{`${nDecimals(2, parseInt(baseData.cash.toHexString(), 16) / parseInt(baseData.liability.toHexString(), 16) * parseInt(baseData.rewardFactorPTP.toHexString(), 16) * 365 * 86400 * 100 / (10 ** 18))}%`}</Text>
+                        <Text>{`${nDecimals(2, parseInt(baseData.baseAPR.toHexString(), 16) / (10 ** 5 * 10 ** 18))}%`}</Text>
                       )
                     }
                   </RowBetween>
@@ -604,10 +638,10 @@ export default function CalcModal({
                       />
                     </div>
                     {
-                      vePTPData?.claimableVePTP === undefined ? (
+                      selectedToken === undefined || baseData === undefined ? (
                         <Text>0.0%</Text>
                       ) : (
-                        <Text>{`${nDecimals(2, parseInt(vePTPData.claimableVePTP.toHexString(), 16) / parseInt(ptpStakedAmount.toHexString(), 16) * 100)}%`}</Text>
+                        <Text>{`${nDecimals(2, parseInt(baseData.boostedAPR.toHexString(), 16) / (10 ** 18))}%`}</Text>
                       )
                     }
                   </RowBetween>
@@ -622,9 +656,9 @@ export default function CalcModal({
                       />
                     </div>
                     {
-                      inputedVePTPValue === '' || baseData?.rewardFactorVePTP === undefined ?
-                        <Text>0.0%</Text> :
-                        <Text>{`${nDecimals(2, parseInt(baseData.cash.toHexString(), 16)/parseInt(baseData.liability.toHexString(), 16)*parseInt(baseData?.rewardFactorVePTP.toHexString(), 16)*parseFloat(inputedVePTPValue)*100/parseFloat(inputedTokenValue)/(10**18)*1000)}%`}</Text>
+                      selectedToken === undefined || baseData === undefined ? 
+                        <Text>0.0%</Text> :                        
+                        <Text>{`${nDecimals(2, parseInt(baseData.estimatedBoostedAPRFromVePTP.toHexString(), 16) / (10**18))}%`}</Text>
                     }
                   </RowBetween>
                 </div>
@@ -689,7 +723,7 @@ export default function CalcModal({
                 <div className='mt-2'>
                   <RowBetween>
                     <Text>Estimated vePTP balance</Text>
-                    <Text>{nDecimals(2, norValue(vePTPData?.calculatedVePTP))}</Text>
+                    <Text>{nDecimals(2, norValue(vePTPData?.calculatedVePTP.add(vePTPBalanceOf)))}</Text>
                   </RowBetween>
                 </div>
 
@@ -731,10 +765,10 @@ export default function CalcModal({
                       />
                     </div>
                     {
-                      selectedToken === undefined || baseData === undefined || baseData.liability.eq(BigNumber.from(0)) ? (
+                      selectedToken === undefined || baseData === undefined ? (
                         <Text>0.0%</Text>
                       ) : (
-                        <Text>{`${nDecimals(2, parseInt(baseData.cash.toHexString(), 16) / parseInt(baseData.liability.toHexString(), 16) * parseInt(baseData.rewardFactorPTP.toHexString(), 16) * 365 * 86400 * 100 / (10 ** 18))}%`}</Text>
+                        <Text>{`${nDecimals(2, parseInt(baseData.baseAPR.toHexString(), 16) / (10 ** 5 * 10 ** 18))}%`}</Text>
                       )
                     }
                   </RowBetween>
@@ -749,10 +783,10 @@ export default function CalcModal({
                       />
                     </div>
                     {
-                      vePTPData?.claimableVePTP === undefined ? (
+                      selectedToken === undefined || baseData === undefined ? (
                         <Text>0.0%</Text>
                       ) : (
-                        <Text>{`${nDecimals(2, parseInt(vePTPData.claimableVePTP.toHexString(), 16) / parseInt(ptpStakedAmount.toHexString(), 16) * 100)}%`}</Text>
+                        <Text>{`${nDecimals(2, parseInt(baseData.boostedAPR.toHexString(), 16) / (10 ** 18))}%`}</Text>
                       )
                     }
                   </RowBetween>
@@ -766,7 +800,11 @@ export default function CalcModal({
                         color='white'
                       />
                     </div>
-                    <Text>0.0%</Text>                    
+                    {
+                      selectedToken === undefined || baseData === undefined ? 
+                      <Text>0.0%</Text> :
+                      <Text>{`${nDecimals(2, parseInt(baseData.estimatedBoostedAPRFromPTP.toHexString(), 16) / (10**18))}%`}</Text>
+                    }                    
                   </RowBetween>
                 </div>
               </>

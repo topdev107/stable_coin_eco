@@ -115,7 +115,8 @@ export default function PoolItem({
                           {
                             baseData === undefined || norValue(baseData.liability) === 0 ?
                               <Text ml={2} fontSize='12px'>0.0%</Text> :
-                              <Text ml={2} fontSize='12px'>{`${nDecimals(2, norValue(baseData.cash) / norValue(baseData.liability) * 100)}%`}</Text>
+                              // <Text ml={2} fontSize='12px'>{`${nDecimals(2, norValue(baseData.cash) / norValue(baseData.liability) * 100)}%`}</Text>
+                              <Text ml={2} fontSize='12px'>{`${nDecimals(2, parseInt(baseData.coverageRatio.toHexString(), 16) / 1000)}%`}</Text>
                           }
                           <Question
                             text='The coverage ratio is the asset-to-liability ratio of a pool. It determines the swapping slippage, withdrawal and deposit fee in our protocol.'
@@ -227,7 +228,7 @@ export default function PoolItem({
                     <CenterContainer>
                       <Text color='#888888' fontSize='10px' className="mr-1">Base APR</Text>
                       {
-                        baseData === undefined || baseData.liability.eq(BigNumber.from(0)) ? (
+                        baseData === undefined ? (
                           <>
                             <Text fontSize='11px'>0.0%</Text>
                             <Question
@@ -236,7 +237,7 @@ export default function PoolItem({
                           </>
                         ) : (
                           <>
-                            <Text fontSize='11px'>{`${nDecimals(2, parseInt(baseData.cash.toHexString(), 16) / parseInt(baseData.liability.toHexString(), 16) * parseInt(baseData.rewardFactorPTP.toHexString(), 16) * 365 * 86400 * 100 / (10 ** 18))}%`}</Text>
+                            <Text fontSize='11px'>{`${nDecimals(2, parseInt(baseData.baseAPR.toHexString(), 16) / (10**18))}%`}</Text>
                             <Question
                               text={`Base APR of this pool for the users who have deposited and staked ${token?.symbol}`}
                             />
@@ -253,7 +254,7 @@ export default function PoolItem({
                     <CenterContainer>
                       <Text color='#888888' fontSize='10px' className="mr-1">Median Boosted APR</Text>
                       {
-                        baseData === undefined || baseData.liability.eq(BigNumber.from(0)) ? (
+                        baseData === undefined ? (
                           <>
                             <Text fontSize='11px'>0.0%</Text>
                             <Question
@@ -262,7 +263,8 @@ export default function PoolItem({
                           </>
                         ) : (
                           <>
-                            <Text fontSize='11px'>{`${nDecimals(2, parseInt(baseData.cash.toHexString(), 16) / parseInt(baseData.liability.toHexString(), 16) * parseInt(baseData.rewardFactorVePTP.toHexString(), 16) * 365 * 86400 * 100 / (10 ** 18) / (10 ** 3))}%`}</Text>
+                            {/* <Text fontSize='11px'>{`${nDecimals(2, parseInt(baseData.cash.toHexString(), 16) / parseInt(baseData.liability.toHexString(), 16) * parseInt(baseData.rewardFactorVePTP.toHexString(), 16) * 365 * 86400 * 100 / (10 ** 18) / (10 ** 3))}%`}</Text> */}
+                            <Text fontSize='11px'>{`${nDecimals(2, parseInt(baseData.medianBoostedAPR.toHexString(), 16) / (10**18))}%`}</Text>
                             <Question
                               text={`The median boosted APR of this pool for the users who have staked ${token?.symbol} and hold vePTP. Half of the users get higher than the median APR. It does not include the Base APR.`}
                             />
@@ -279,7 +281,7 @@ export default function PoolItem({
                     <CenterContainer>
                       <Text color='#888888' fontSize='10px' className="mr-1">My Boosted APR</Text>
                       {
-                        baseData === undefined || baseData.stakedPTPAmount.eq(BigNumber.from(0)) || baseData.vePTPBalance.eq(BigNumber.from(0)) ? (
+                        baseData === undefined ? (
                           <>
                             <Text fontSize='11px'>0.0%</Text>
                             <Question
@@ -287,9 +289,9 @@ export default function PoolItem({
                             />
                           </>
                         ) : (
-                          <>
-                            {/* <Text fontSize='11px'>{`${nDecimals(2, baseData.vePTPBalance.div(baseData.stakedPTPAmount).mul(BigNumber.from(100)))}%`}</Text> */}
-                            <Text fontSize='11px'>{`${nDecimals(2, parseInt(baseData.vePTPBalance.toHexString(), 16) / parseInt(baseData.stakedPTPAmount.toHexString(), 16) * 100)}%`}</Text>
+                          <>                            
+                            {/* <Text fontSize='11px'>{`${nDecimals(2, parseInt(baseData.vePTPBalance.toHexString(), 16) / parseInt(baseData.stakedPTPAmount.toHexString(), 16) * 100)}%`}</Text> */}
+                            <Text fontSize='11px'>{`${nDecimals(2, parseInt(baseData.boostAPR.toHexString(), 16) / (10**18))}%`}</Text>
                             <Question
                               text={`The exact boosted APR you are currently earning at. The value depends on your vePTP balance and staked ${token?.symbol} amount.`}
                             />

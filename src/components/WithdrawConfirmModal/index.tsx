@@ -122,7 +122,7 @@ export default function WithdrawConfirmModal({
       setSelectedAmount(val)
       if (token !== undefined) {
         const feeStr = calcFee(val / 100, T_FEE, usefulCountFee)
-        setFee(+feeStr)
+        setFee(+feeStr)        
       }
     }, [token, usefulCountFee]
   )

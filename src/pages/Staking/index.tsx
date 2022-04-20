@@ -299,7 +299,7 @@ export default function Staking() {
         masterPlatypusContract.ptpStakedInfo(account),
         vePTPContract.balanceOf(account),
         vePTPContract.totalSupply(),
-        masterPlatypusContract.calcVePTPReward(baseData.ptpStakedAmount, 3600), // 3600s
+        masterPlatypusContract.calcVePTPReward(account, baseData.ptpStakedAmount, 3600), // 3600s
         ptpContract.allowance(account, MASTER_PLATYPUS_ADDRESS),
         ptpContract.balanceOf(account),
         
@@ -453,14 +453,14 @@ export default function Staking() {
                   </div>
                   <RowBetween className='mt-3'>
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                      <Text color='#888' fontSize='14px'>{`Total vePTP supply: ${norValue(baseData.veTotalSupply) / (10 ** 6)}M`}</Text>
+                      <Text color='#888' fontSize='14px'>{`Total vePTP supply: ${nDecimals(2, norValue(baseData.veTotalSupply) / (10 ** 6))}M`}</Text>
                       <QuestionColorHelper
                         text='Total vePTP balance of all users'
                         color='white'
                       />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                      <Text color='#888' fontSize='14px'>{`Max vePTP to Earn: ${norValue(baseData.ptpStakedAmount) * 100}`}</Text>
+                      <Text color='#888' fontSize='14px'>{`Max vePTP to Earn: ${nDecimals(2, norValue(baseData.ptpStakedAmount) * 100)}`}</Text>
                       <QuestionColorHelper
                         text='Max vePTP you can earn is 100 times of your staked PTP'
                         color='white'
@@ -576,7 +576,7 @@ export default function Staking() {
                         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                           <Text color='#888'>vePTP Mine Rate</Text>
                           <QuestionColorHelper
-                            text='Each staked PTP generates 0.0 vePTP per second'
+                            text={`Each staked PTP generates ${nDecimals(8, norValue(baseData.calcVePTPAmount) / norValue(baseData.ptpStakedAmount) / 3600)} vePTP per second`}
                             color='white'
                           />
                         </div>

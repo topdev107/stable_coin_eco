@@ -731,10 +731,13 @@ export default function Pool() {
           masterPlatypusContract.lpStakedInfo(lpID, account),
           getVolume24h(),
           masterPlatypusContract.multiLpStakedInfo(account),
-          masterPlatypusContract.rewardFactorPTP(),
           masterPlatypusContract.rewardFactorVePTP(),
           vePTPContract.balanceOf(account),
-          masterPlatypusContract.ptpStakedInfo(account)
+          masterPlatypusContract.ptpStakedInfo(account),
+          masterPlatypusContract.baseAPR(lpID),
+          masterPlatypusContract.boostedAPR(lpID, account),
+          masterPlatypusContract.medianBoostedAPR(lpID),
+          masterPlatypusContract.coverageRatio(lpID)
         ])
           .then(response => {
             const totalSupply = BigNumber.from(response[0]._hex)
@@ -750,10 +753,13 @@ export default function Pool() {
             const rewardablePTPAmount = BigNumber.from(response[8].rewardAmount._hex)
             const volume24h = response[9].status === 'success' ? response[9].volume24 : 0
             const multiRewardablePTPAmount = BigNumber.from(response[10][0]._hex)
-            const rewardFactorPTP = BigNumber.from(response[11]._hex)
-            const rewardFactorVePTP = BigNumber.from(response[12]._hex)
-            const vePTPBalance = BigNumber.from(response[13]._hex)
-            const stakedPTPAmount = BigNumber.from(response[14].ptpAmount._hex)
+            const rewardFactorVePTP = BigNumber.from(response[11]._hex)
+            const vePTPBalance = BigNumber.from(response[12]._hex)
+            const stakedPTPAmount = BigNumber.from(response[13].ptpAmount._hex)
+            const baseAPR = BigNumber.from(response[14]._hex)
+            const boostAPR = BigNumber.from(response[15]._hex)
+            const medianBoostedAPR = BigNumber.from(response[16]._hex)
+            const coverageRatio = BigNumber.from(response[17]._hex)
 
             setTotalRewardablePTPAmount(norValue(multiRewardablePTPAmount))
 
@@ -773,10 +779,13 @@ export default function Pool() {
               'stakedLPAmount': stakedLPAmount,
               'rewardablePTPAmount': rewardablePTPAmount,
               'multiRewardablePTPAmount': multiRewardablePTPAmount,
-              'rewardFactorPTP': rewardFactorPTP,
               'rewardFactorVePTP': rewardFactorVePTP,
               'vePTPBalance': vePTPBalance,
-              'stakedPTPAmount': stakedPTPAmount
+              'stakedPTPAmount': stakedPTPAmount,
+              'baseAPR': baseAPR,
+              'boostAPR': boostAPR,
+              'medianBoostedAPR': medianBoostedAPR,
+              'coverageRatio': coverageRatio
             }
             return bData
           })
@@ -798,10 +807,13 @@ export default function Pool() {
               'stakedLPAmount': BigNumber.from(0),
               'rewardablePTPAmount': BigNumber.from(0),
               'multiRewardablePTPAmount': BigNumber.from(0),
-              'rewardFactorPTP': BigNumber.from(0),
               'rewardFactorVePTP': BigNumber.from(0),
               'vePTPBalance': BigNumber.from(0),
-              'stakedPTPAmount': BigNumber.from(0)
+              'stakedPTPAmount': BigNumber.from(0),
+              'baseAPR': BigNumber.from(0),
+              'boostAPR': BigNumber.from(0),
+              'medianBoostedAPR': BigNumber.from(0),
+              'coverageRatio': BigNumber.from(0)
             }
             return bData
           })
@@ -834,10 +846,13 @@ export default function Pool() {
           if (!(bd.stakedLPAmount.eq(bds.stakedLPAmount))) isSameData = false
           if (!(bd.rewardablePTPAmount.eq(bds.rewardablePTPAmount))) isSameData = false
           if (!(bd.multiRewardablePTPAmount.eq(bds.multiRewardablePTPAmount))) isSameData = false
-          if (!(bd.rewardFactorPTP.eq(bds.rewardFactorPTP))) isSameData = false
           if (!(bd.rewardFactorVePTP.eq(bds.rewardFactorVePTP))) isSameData = false
           if (!(bd.vePTPBalance.eq(bds.vePTPBalance))) isSameData = false
           if (!(bd.stakedPTPAmount.eq(bds.stakedPTPAmount))) isSameData = false
+          if (!(bd.baseAPR.eq(bds.baseAPR))) isSameData = false
+          if (!(bd.boostAPR.eq(bds.boostAPR))) isSameData = false
+          if (!(bd.medianBoostedAPR.eq(bds.medianBoostedAPR))) isSameData = false
+          if (!(bd.coverageRatio.eq(bds.coverageRatio))) isSameData = false
         }
 
         if (!isSameData) {

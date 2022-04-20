@@ -104,11 +104,17 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "amount",
+        "name": "oldFactor",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newFactor",
         "type": "uint256"
       }
     ],
-    "name": "PTPClaimed",
+    "name": "PTPBaseFactorUpdated",
     "type": "event"
   },
   {
@@ -133,7 +139,26 @@
         "type": "uint256"
       }
     ],
-    "name": "PTPFactorUpdated",
+    "name": "PTPBoostFactorUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "PTPClaimed",
     "type": "event"
   },
   {
@@ -323,7 +348,7 @@
     "name": "VePTP",
     "outputs": [
       {
-        "internalType": "contract VePTPV2",
+        "internalType": "contract VePTPV3",
         "name": "",
         "type": "address"
       }
@@ -346,6 +371,80 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "pid",
+        "type": "uint256"
+      }
+    ],
+    "name": "baseAPR",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "baseRewardFactorPTP",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "boostRewardFactorPTP",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "pid",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "boostedAPR",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
         "name": "ptpAmount",
@@ -386,6 +485,98 @@
     "name": "claimVePTP",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "pid",
+        "type": "uint256"
+      }
+    ],
+    "name": "coverageRatio",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "pid",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lpAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "ptpAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "stakingTimeSecond",
+        "type": "uint256"
+      }
+    ],
+    "name": "estimatedBoostedAPRFromPTP",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "pid",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lpAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "vePTPAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "estimatedBoostedAPRFromVePTP",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -437,6 +628,25 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "pid",
+        "type": "uint256"
+      }
+    ],
+    "name": "medianBoostedAPR",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "multiClaimPTP",
     "outputs": [],
@@ -447,7 +657,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "u",
+        "name": "user",
         "type": "address"
       }
     ],
@@ -501,19 +711,6 @@
     "name": "renounceOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "rewardFactorPTP",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -576,6 +773,25 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "pid",
+        "type": "uint256"
+      }
+    ],
+    "name": "sumSqrtLPVe",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "newOwner",
         "type": "address"
@@ -620,12 +836,12 @@
   {
     "inputs": [
       {
-        "internalType": "contract PTPV2",
-        "name": "newPtp",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "newFactor",
+        "type": "uint256"
       }
     ],
-    "name": "updatePTP",
+    "name": "updateBaseRewardFactorPTP",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -638,7 +854,20 @@
         "type": "uint256"
       }
     ],
-    "name": "updateRewardFactorPTP",
+    "name": "updateBoostRewardFactorPTP",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract PTPV2",
+        "name": "newPtp",
+        "type": "address"
+      }
+    ],
+    "name": "updatePTP",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -672,7 +901,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract VePTPV2",
+        "internalType": "contract VePTPV3",
         "name": "newVePtp",
         "type": "address"
       }

@@ -173,6 +173,7 @@ export function getIntStr(num: number): string {
 // ex: num = 0.0001 -> return 4
 export function getUsefulCount(num: number): number {
   const decStr = getDecimalPartStr(num) // 0.0001 -> '0001', 0.00015 -> '00015'
+  if (decStr === '') return 0;
   let i = 0
   while (decStr.charAt(i) === '0') {
     i++
@@ -208,10 +209,13 @@ export interface PoolItemBaseData {
   stakedLPAmount: BigNumber
   rewardablePTPAmount: BigNumber
   multiRewardablePTPAmount: BigNumber
-  rewardFactorPTP: BigNumber
   rewardFactorVePTP: BigNumber
   vePTPBalance: BigNumber
   stakedPTPAmount: BigNumber
+  baseAPR: BigNumber
+  boostAPR: BigNumber
+  medianBoostedAPR: BigNumber
+  coverageRatio: BigNumber
 }
 
 export interface PTPStakedInfo {
@@ -225,19 +229,22 @@ export interface PTPStakedInfo {
 }
 
 export function calcFee(val: number, t_fee: number, usefulCountFee: number): string {
-  const valDecimalStr = getDecimalPartStr(val)
-  const valDecimalLen = valDecimalStr.length
-  const fe = val * t_fee
-  const intStr = getIntStr(fe)
-  const decStr = getDecimalPartStr(fe)
-  const usefulCount = usefulCountFee + valDecimalLen // val=12.131 -> 7 (3+4)
+  // if (val === 0) return "0"
+  // const valDecimalStr = getDecimalPartStr(val)
+  // const valDecimalLen = valDecimalStr.length
+  // const fe = val * t_fee
+  // const intStr = getIntStr(fe)
+  // const decStr = getDecimalPartStr(fe)
+  // const usefulCount = usefulCountFee + valDecimalLen // val=12.131, t_fee=0.0001 -> 7 (3+4) 
 
-  let feeDecimalPartStr = ''
-  for (let i = 0; i < usefulCount; i++) {
-    feeDecimalPartStr += decStr.charAt(i)
-  }
-  const feeStr = intStr.concat('.').concat(feeDecimalPartStr)
-  return feeStr
+  // let feeDecimalPartStr = ''
+  // for (let i = 0; i < usefulCount; i++) {
+  //   feeDecimalPartStr += decStr.charAt(i)
+  // }
+  // const feeStr = intStr.concat('.').concat(feeDecimalPartStr)
+  // return feeStr
+  const fe = val * t_fee
+  return fe.toString()
 }
 
 export function norValue(bnum: BigNumber | undefined, decimals = 18): number {      
