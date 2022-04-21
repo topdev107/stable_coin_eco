@@ -1,10 +1,8 @@
 import { Currency, Pair } from '@pantherswap-libs/sdk'
-import { Button, CloseIcon, AutoRenewIcon } from '@pantherswap-libs/uikit'
+import { AutoRenewIcon } from '@pantherswap-libs/uikit'
 import React from 'react'
 import styled from 'styled-components'
 import { useActiveWeb3React } from '../../hooks'
-import { useCurrencyBalance } from '../../state/wallet/hooks'
-import { TranslateString } from '../../utils/translateTextHelpers'
 import { Input as NumericalInput } from '../NumericalInput'
 
 const InputRow = styled.div<{ selected: boolean }>`

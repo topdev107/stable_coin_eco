@@ -16,12 +16,6 @@ const CenterContainerStyle = {
   alignItems: 'center'
 }
 
-const CenterVerticalContainerStyle = {
-  height: '100%',
-  display: 'flex',
-  alignItems: 'center'
-}
-
 interface VePTPClaimConfirmModalProps {
   isOpen: boolean 
   token: Token | undefined

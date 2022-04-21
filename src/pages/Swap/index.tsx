@@ -1,47 +1,46 @@
-import { CurrencyAmount, JSBI, Token, Trade } from '@pantherswap-libs/sdk'
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { ArrowDown } from 'react-feather'
-import { CardBody, ArrowDownIcon, Button, IconButton, Text } from '@pantherswap-libs/uikit'
-import { ThemeContext } from 'styled-components'
+import { CurrencyAmount, Token, Trade } from '@pantherswap-libs/sdk'
+import { ArrowDownIcon, Button, CardBody, IconButton, Text } from '@pantherswap-libs/uikit'
 import AddressInputPanel from 'components/AddressInputPanel'
 import Card, { GreyCard } from 'components/Card'
-import { AutoColumn } from 'components/Column'
-import ConfirmSwapModal from 'components/swap/ConfirmSwapModal'
-import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import CardNav from 'components/CardNav'
+import { AutoColumn } from 'components/Column'
+import ConnectWalletButton from 'components/ConnectWalletButton'
+import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import Loader from 'components/Loader'
+import PageHeader from 'components/PageHeader'
+import ProgressSteps from 'components/ProgressSteps'
 import { AutoRow, RowBetween } from 'components/Row'
+import { LinkStyledButton, TYPE } from 'components/Shared'
 import AdvancedSwapDetailsDropdown from 'components/swap/AdvancedSwapDetailsDropdown'
 import confirmPriceImpactWithoutFee from 'components/swap/confirmPriceImpactWithoutFee'
 import { ArrowWrapper, BottomGrouping, SwapCallbackError, Wrapper } from 'components/swap/styleds'
 import TradePrice from 'components/swap/TradePrice'
-import TokenWarningModal from 'components/TokenWarningModal'
 import SyrupWarningModal from 'components/SyrupWarningModal'
-import ProgressSteps from 'components/ProgressSteps'
-
-import { getAssetContract, getERC20Contract, getPoolContract, getPriceProviderContract, getUnitedValue, PoolItemBaseData } from 'utils'
+import TokenWarningModal from 'components/TokenWarningModal'
+import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
-
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallbackFromTrade } from 'hooks/useApproveCallback'
 import { useSwapCallback } from 'hooks/useSwapCallback'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { ArrowDown } from 'react-feather'
 import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useDerivedSwapInfo, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { useExpertModeManager, useUserDeadline, useUserSlippageTolerance } from 'state/user/hooks'
-import { LinkStyledButton, TYPE } from 'components/Shared'
+import { ThemeContext } from 'styled-components'
+import { getERC20Contract, getPoolContract, getPriceProviderContract, getUnitedValue } from 'utils'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { computeTradePriceBreakdown, warningSeverity } from 'utils/prices'
-import Loader from 'components/Loader'
-
 import { TranslateString } from 'utils/translateTextHelpers'
-import PageHeader from 'components/PageHeader'
-import ConnectWalletButton from 'components/ConnectWalletButton'
-import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
-import { ASSET_BUSD_ADDRESS, ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_ADDRESS, DEFAULT_DEADLINE_FROM_NOW, POOL_ADDRESS, T_FEE } from '../../constants'
-import { useCurrencyBalance } from '../../state/wallet/hooks'
+import { POOL_ADDRESS } from '../../constants'
 import { useAllTokens } from '../../hooks/Tokens'
+import { useCurrencyBalance } from '../../state/wallet/hooks'
 import AppBody from '../AppBody'
+
+
+
 
 
 const { main: Main } = TYPE
@@ -113,22 +112,6 @@ const Swap = () => {
   const [selectedTokenB, setSelectedTokenB] = useState<Token | undefined>()
   const [isInsufficientCash, setIsInsufficientCash] = useState<boolean>(false)
   const [allowanceAmount, setAllowanceAmount] = useState<number>(0)
-  const [minAmount, setMinAmount] = useState<number>(0)
-
-
-  // const handleTypeInput = useCallback(
-  //   (value: string) => {
-  //     onUserInput(Field.INPUT, value)
-  //   },
-  //   [onUserInput]
-  // )
-
-  // const handleTypeOutput = useCallback(
-  //   (value: string) => {
-  //     onUserInput(Field.OUTPUT, value)
-  //   },
-  //   [onUserInput]
-  // )
 
   const handleTypeInput = useCallback(
     (value: string) => {
@@ -176,27 +159,7 @@ const Swap = () => {
 
   const [tnxHash, setTnxHash] = useState<string | undefined>()
 
-  // const formattedAmounts = {
-  //   [independentField]: typedValue,
-  //   [dependentField]: showWrap
-  //     ? parsedAmounts[independentField]?.toExact() ?? ''
-  //     : parsedAmounts[dependentField]?.toSignificant(6) ?? '',
-  // }
-
-
-  const formattedAmounts = {
-    [independentField]: typedValue,
-    [dependentField]: showWrap
-      ? parsedAmounts[independentField]?.toExact() ?? ''
-      : parsedAmounts[dependentField]?.toSignificant(6) ?? '',
-  }
-
   const route = trade?.route
-  const userHasSpecifiedInputOutput = Boolean(
-    currencies[Field.INPUT] && currencies[Field.OUTPUT] && parsedAmounts[independentField]?.greaterThan(JSBI.BigInt(0))
-  )
-  // const noRoute = !route
-  const noRoute = !route
 
   // check whether the user has approved the router on the input token
   const [approval, approveCallback] = useApproveCallbackFromTrade(trade, allowedSlippage)
@@ -210,12 +173,6 @@ const Swap = () => {
       setApprovalSubmitted(true)
     }
   }, [approval, approvalSubmitted])
-
-  // useEffect (() => {
-  //   if (userHasSpecifiedInputOutput) {
-  //     const inAmount = formattedAmounts[Field.INPUT]
-  //   }
-  // }, [formattedAmounts, userHasSpecifiedInputOutput])
 
   const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, selectedTokenA ?? undefined)
   const maxAmountInput: CurrencyAmount | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
@@ -273,19 +230,6 @@ const Swap = () => {
       (approvalSubmitted && approval === ApprovalState.APPROVED)) &&
     !(priceImpactSeverity > 3 && !isExpertMode)
 
-  const handleConfirmDismiss = useCallback(() => {
-    setSwapState((prevState) => ({ ...prevState, showConfirm: false }))
-
-    // if there was a tx hash, we want to clear the input
-    if (txHash) {
-      onUserInput(Field.INPUT, '')
-    }
-  }, [onUserInput, txHash, setSwapState])
-
-  const handleAcceptChanges = useCallback(() => {
-    setSwapState((prevState) => ({ ...prevState, tradeToConfirm: trade }))
-  }, [trade])
-
   // This will check to see if the user has selected Syrup to either buy or sell.
   // If so, they will be alerted with a warning message.
   const checkForSyrup = useCallback(
@@ -322,12 +266,6 @@ const Swap = () => {
     },
     [onCurrencySelection, setApprovalSubmitted, checkForSyrup, allTokens, selectedTokenA, selectedTokenB]
   )
-
-  // const handleMaxInput = useCallback(() => {
-  //   if (maxAmountInput) {
-  //     onUserInput(Field.INPUT, maxAmountInput.toExact())
-  //   }
-  // }, [maxAmountInput, onUserInput])
 
   const handleMaxInput = useCallback(() => {
     if (selectedCurrencyBalance) {
@@ -417,14 +355,6 @@ const Swap = () => {
     }, [account, chainId, library, inputValueA, selectedTokenA, txHash]
   )
 
-  // function swap(
-  //   address fromToken,
-  //   address toToken,
-  //   uint256 fromAmount,
-  //   uint256 minimumToAmount,
-  //   address to,
-  //   uint256 deadline
-  // )
 
   const handleSwapTokens = useCallback(
     () => {
@@ -450,14 +380,7 @@ const Swap = () => {
             console.log('swap: ', response)
             setTnxHash(response.hash)
             setSwapState((prevState) => ({ ...prevState, txHash: response.hash }))
-            // event Swap(
-            //   address indexed sender,
-            //   address fromToken,
-            //   address toToken,
-            //   uint256 fromAmount,
-            //   uint256 toAmount,
-            //   address indexed to
-            // );
+
             poolContract
               .once('Swap', (sender, fromToken1, toToken1, fromAmount1, toAmount1, to1) => {
                 console.log('== Swap ==')
@@ -517,7 +440,6 @@ const Swap = () => {
           console.log('potentialSwap: ', response)
           console.log('Expected Value: ', expectValue)
           setIsInsufficientCash(false)
-          // setMinAmount(expectValue)
           setInputValueB(expectValue.toString())
         })
         .catch((e) => {
@@ -528,7 +450,6 @@ const Swap = () => {
               setIsInsufficientCash(true)
             }
           }
-          // setMinAmount(0)
           setInputValueB('')
         })
     }
@@ -556,11 +477,9 @@ const Swap = () => {
           console.log('priceA: ', priceA)
           console.log('priceB: ', priceB)
           const inputB = priceA * (+inputValueA) / priceB
-          // setInputValueB(inputB.toString())
         })
     }
 
-    // checkPrices()
     checkPotentialSwap()
     checkApproval()
 
@@ -583,21 +502,6 @@ const Swap = () => {
       <CardNav />
       <AppBody>
         <Wrapper id="swap-page">
-          {/* <ConfirmSwapModal
-            isOpen={showConfirm}
-            trade={trade}
-            originalTrade={tradeToConfirm}
-            onAcceptChanges={handleAcceptChanges}
-            attemptingTxn={attemptingTxn}
-            txHash={txHash}
-            recipient={recipient}
-            allowedSlippage={allowedSlippage}
-            onConfirm={handleSwap}
-            swapErrorMessage={swapErrorMessage}
-            onDismiss={handleConfirmDismiss}
-          /> */}
-
-
           <TransactionConfirmationModal
             isOpen={showConfirm}
             onDismiss={handleDismissConfirmation}

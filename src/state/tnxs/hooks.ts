@@ -1,13 +1,8 @@
-import { Currency, CurrencyAmount, ETHER, JSBI, Token, TokenAmount, Trade } from '@pantherswap-libs/sdk'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useActiveWeb3React } from '../../hooks'
-import { useCurrency } from '../../hooks/Tokens'
 import { AppDispatch, AppState } from '../index'
-
 import { addTnx } from './reducer'
-import { useUserSlippageTolerance } from '../user/hooks'
-import { computeSlippageAdjustedAmounts } from '../../utils/prices'
+
 
 export function useSwapState(): AppState['tnxs'] {
   return useSelector<AppState, AppState['tnxs']>((state) => state.tnxs)

@@ -3,7 +3,6 @@ import SettingsModal from 'components/PageHeader/SettingsModal'
 import React from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
-import TranslatedText from '../TranslatedText'
 
 
 const StyledNav = styled.div`

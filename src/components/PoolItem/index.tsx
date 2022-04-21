@@ -3,15 +3,14 @@ import { Button, ChevronDownIcon, CloseIcon, Text } from '@pantherswap-libs/uiki
 import React, { useCallback, useContext, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import styled, { ThemeContext } from 'styled-components'
-import { PoolItemBaseData, nDecimals, norValue } from 'utils'
-import { BigNumber } from 'ethers'
+import { nDecimals, norValue, PoolItemBaseData } from 'utils'
+import { PTP } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
 import { DarkblueOutlineCard } from '../Card'
 import CurrencyLogo from '../CurrencyLogo'
 import Question from '../QuestionHelper'
 import { TYPE } from '../Shared'
 import StakeView from "../StakeView"
-import { PTP } from '../../constants'
 
 
 
