@@ -863,6 +863,55 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "fromToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "toToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "fromAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minimumToAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
+      }
+    ],
+    "name": "swapBasedPrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "actualToAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "haircut",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "newOwner",
         "type": "address"
       }

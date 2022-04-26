@@ -23,7 +23,6 @@ import { useAllTokens } from '../../hooks/Tokens'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
 import Question from '../../components/QuestionHelper'
 
-
 export default function Pool() {
   const allTokens = useAllTokens()
 

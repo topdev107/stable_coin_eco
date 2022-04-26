@@ -41,9 +41,6 @@ import { useCurrencyBalance } from '../../state/wallet/hooks'
 import AppBody from '../AppBody'
 
 
-
-
-
 const { main: Main } = TYPE
 
 const Swap = () => {
@@ -301,7 +298,8 @@ const Swap = () => {
     () => {
       if (!chainId || !library || !account || !selectedTokenA) return
       const tkn = selectedTokenA
-      const amount = getUnitedValue(inputValueA, tkn.decimals)
+      // const amount = getUnitedValue(inputValueA, tkn.decimals)
+      const amount = ethers.utils.parseUnits(inputValueA, tkn.decimals)
       setTnxHash(undefined)
       setSwapState((prevState) => ({ showConfirm: true, tradeToConfirm: undefined, attemptingTxn: true, swapErrorMessage: '', txHash: undefined }))
       const erc20Contract = getERC20Contract(chainId, tkn.address, library, account)
@@ -363,11 +361,8 @@ const Swap = () => {
 
       const fromToken = selectedTokenA.address
       const toToken = selectedTokenB.address
-      // const fromAmount = getUnitedValue(inputValueA, selectedTokenA.decimals).toString()
       const fromAmount = ethers.utils.parseUnits(inputValueA, selectedTokenA.decimals)
-      // const minimumToAmount = getUnitedValue(((+inputValueB) - (+inputValueB * allowedSlippage / 10000)).toString(), selectedTokenB.decimals).toString()
-      // const minimumToAmount = ethers.utils.parseUnits(((+inputValueB) - (+inputValueB * allowedSlippage / 10000)).toString(), selectedTokenB.decimals)
-      const minimumToAmount = ethers.utils.parseUnits(inputValueB, selectedTokenB.decimals).sub(ethers.utils.parseUnits(inputValueB, selectedTokenB.decimals).div(BigNumber.from(10000)))
+      const minimumToAmount = ethers.utils.parseUnits(inputValueB, selectedTokenB.decimals).sub(ethers.utils.parseUnits(inputValueB, selectedTokenB.decimals).div(BigNumber.from(10000)))           
       console.log('inputValueB: ', inputValueB)
       console.log('mininumToAmount: ', (+inputValueB) - (+inputValueB * allowedSlippage / 10000))
       console.log('allowedSlipage: ', allowedSlippage)
@@ -379,7 +374,8 @@ const Swap = () => {
       const poolContract = getPoolContract(chainId, library, account)
 
       const swapCall = async () => {
-        await poolContract.swap(fromToken, toToken, fromAmount, minimumToAmount, to, tnxDeadline)
+        // await poolContract.swap(fromToken, toToken, fromAmount, minimumToAmount, to, tnxDeadline)
+        await poolContract.swapBasedPrice(fromToken, toToken, fromAmount, minimumToAmount, to, tnxDeadline)
           .then((response) => {
             console.log('swap: ', response)
             setTnxHash(response.hash)

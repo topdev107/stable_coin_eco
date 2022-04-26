@@ -28,7 +28,7 @@
       "logoURI": "/images/coins/USDT-icon.png"
     },
     {
-      "name": "USDC",
+      "name": "USDC Token",
       "symbol": "USDC",
       "address": "0x3861e9F29fcAFF738906c7a3a495583eE7Ca4C18",
       "chainId": 97,

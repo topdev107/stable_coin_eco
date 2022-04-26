@@ -1,19 +1,25 @@
 import { ChainId, JSBI, Percent, Token, WETH } from '@pantherswap-libs/sdk'
 import { BigNumber } from 'ethers'
 
-export const ROUTER_ADDRESS = '0x24f7C33ae5f77e2A9ECeed7EA858B4ca2fa1B7eC' // mainnet
-// export const ROUTER_ADDRESS = '0x8C2CaBc62Cd026f39B816C10134035D41E5878b6' // bsc testnet
+// export const ROUTER_ADDRESS = '0x24f7C33ae5f77e2A9ECeed7EA858B4ca2fa1B7eC' // mainnet
+export const ROUTER_ADDRESS = '0x8C2CaBc62Cd026f39B816C10134035D41E5878b6' // bsc testnet
 
+/*
 export const POOL_ADDRESS = '0xb11D97dA95e653aB5A8ACb949D1AbCe66E6516Be' // bsc testnet
 export const CHAIN_LINK_PRICE_PROVIDER_ADDRESS = "0x3272a078a3A22e8D9e5cDfC80eAB6A07464fb095" // bsc testnet
-
-// export const POOL_ADDRESS = '0xd5F185dF97b0F208C373715CDbFA74572E0EAFC2' // bsc testnet
-// export const CHAIN_LINK_PRICE_PROVIDER_ADDRESS = "0x9ACbd36d580074f2F828eAdb0038720c84214572" // bsc testnet
-
 export const ASSET_DAI_ADDRESS = '0xb226c0cE7E5153e27793F10baa3c0425B2382f47' // bsc testnet
 export const ASSET_USDC_ADDRESS = '0xCbF81F1176438A70B5986324E1Bb78A6Bd3ec74E' // bsc testnet
 export const ASSET_USDT_ADDRESS = '0x4937ECa119a501072F0b4DeEe7f3C5c3A7F5ef24' // bsc testnet
 export const ASSET_BUSD_ADDRESS = '0xBB0fc3c79c579fDF28C1B92f439bAa54BA2d7c99' // bsc testnet
+*/
+
+export const POOL_ADDRESS = '0xfC14372E077be9020D2365F61B4Eb6569edA2349' // bsc testnet
+export const CHAIN_LINK_PRICE_PROVIDER_ADDRESS = "0x9ACbd36d580074f2F828eAdb0038720c84214572" // bsc testnet
+export const ASSET_DAI_ADDRESS = '0x490C9EEdE31e53928A789744Bc38b1DEb8B8851B' // bsc testnet
+export const ASSET_USDC_ADDRESS = '0xb10A88790bc148c26E1aB122A3939dAc3B6c89b3' // bsc testnet
+export const ASSET_USDT_ADDRESS = '0x70d3F050A5E817ef4BB5680246cFfe1E6505E2c5' // bsc testnet
+export const ASSET_BUSD_ADDRESS = '0x095108AB8a2428B23348600477D37fEE32743420' // bsc testnet
+
 export const PTP_ADDRESS = '0x718C5B6Da77DBF7D2DA072152111140E56311547'        // bsc testnet
 export const VEPTP_ADDRESS = '0x02d20aC850942AB283D0C577826304E4F6e66B2b'      // bsc testnet
 export const MASTER_PLATYPUS_ADDRESS = '0xF70D9bf41f027D49d12c081AfE14c8CD68152Afd'   // bsc testnet

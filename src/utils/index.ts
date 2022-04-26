@@ -190,11 +190,11 @@ export function nDecimals(n, num, thr = 0.000001) {
 }
 
 export function formatCurrency(amount, n = 2) {
-  if (amount/10**9 > 1) 
+  if (amount/10**9 >= 1) 
     return nDecimals(n, amount/10**9).toString().concat("G")
-  if (amount/10**6 > 1) 
+  if (amount/10**6 >= 1) 
     return nDecimals(n, amount/10**6).toString().concat("M")
-  if (amount/10**3 > 1) 
+  if (amount/10**3 >= 1) 
     return nDecimals(n, amount/10**3).toString().concat("K")  
   return nDecimals(n, amount).toString() 
   

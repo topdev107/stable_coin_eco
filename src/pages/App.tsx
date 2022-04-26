@@ -13,6 +13,7 @@ import { TranslationsContext } from '../hooks/TranslationsContext'
 import Pool from './Pool'
 import Staking from './Staking'
 import Swap from './Swap'
+import PoolFinder from './PoolFinder'
 
 
 const AppWrapper = styled.div`
@@ -163,6 +164,6 @@ export default function App() {
           </LanguageContext.Provider>
         </AppWrapper>
       </HashRouter>
-    </Suspense>
+    </Suspense>    
   )
 }
