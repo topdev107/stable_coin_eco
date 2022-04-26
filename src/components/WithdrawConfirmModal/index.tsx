@@ -66,11 +66,11 @@ export default function WithdrawConfirmModal({
 
   const handleMaxInput = useCallback(() => {
     if (baseData !== undefined) {      
-      setSelectedAmount(norValue(baseData.balanceOf) * 100)
-      const feeStr = calcFee(norValue(baseData.balanceOf), T_FEE, usefulCountFee)
+      setSelectedAmount(norValue(baseData.balanceOf, token?.decimals) * 100)
+      const feeStr = calcFee(norValue(baseData.balanceOf, token?.decimals), T_FEE, usefulCountFee)
       setFee(+feeStr)
     }
-  }, [baseData, usefulCountFee])
+  }, [baseData, usefulCountFee, token?.decimals])
 
   const handleClose = useCallback(
     () => {
@@ -130,14 +130,14 @@ export default function WithdrawConfirmModal({
         </div>
 
         <RowBetween className="mt-4">
-          <Text fontSize="13px" color='#888888'>{`Deposited: ${nDecimals(6, norValue(baseData?.balanceOf))} ${token?.symbol}`}</Text>
+          <Text fontSize="13px" color='#888888'>{`Deposited: ${nDecimals(6, norValue(baseData?.balanceOf, token?.decimals))} ${token?.symbol}`}</Text>
           <Text fontSize='13px' color='#888888'>Balance: {selectedCurrencyBalance?.toSignificant(6)} {token?.symbol}</Text>
         </RowBetween>
         <LightCard padding="15px 0px" className="mt-2">
           <RowBetween className="mt-1 pl-3 pr-4">
             {              
               baseData !== undefined && norValue(baseData.balanceOf) > 0 ?
-                <Text fontSize="15px" >{`${nDecimals(0, selectedAmount / norValue(baseData.balanceOf))}%`}</Text> :
+                <Text fontSize="15px" >{`${nDecimals(0, selectedAmount / norValue(baseData.balanceOf, token?.decimals))}%`}</Text> :
                 <Text fontSize="13px" color='#888888'>0</Text>
             }
             <Row style={CenterVerticalContainerStyle}>
@@ -149,7 +149,7 @@ export default function WithdrawConfirmModal({
             <Col>
               {
                 baseData !== undefined && norValue(baseData.balanceOf) > 0 ?
-                  <Slider value={selectedAmount} onChange={handleChange} max={norValue(baseData?.balanceOf) * 100} /> :
+                  <Slider value={selectedAmount} onChange={handleChange} max={norValue(baseData?.balanceOf, token?.decimals) * 100} /> :
                   <Slider value={0} onChange={handleChange} max={0} />
               }
             </Col>
@@ -183,7 +183,7 @@ export default function WithdrawConfirmModal({
           <Text fontSize="13px">My Remaining Liquidity</Text>
           {
             baseData !== undefined && norValue(baseData.balanceOf) > 0 ?
-              <Text fontSize="13px">{`${norValue(baseData.balanceOf) - selectedAmount / 100} ${token?.symbol}`}</Text> :
+              <Text fontSize="13px">{`${norValue(baseData.balanceOf, token?.decimals) - selectedAmount / 100} ${token?.symbol}`}</Text> :
               <Text fontSize="13px">{`0 ${token?.symbol}`}</Text>
           }
         </RowBetween>
@@ -191,7 +191,7 @@ export default function WithdrawConfirmModal({
           <Text fontSize="13px">My Remaining Share</Text>
           {
             baseData !== undefined && norValue(baseData.totalSupply) > 0 ?
-              <Text fontSize="13px">{`${nDecimals(2, (norValue(baseData.balanceOf) - selectedAmount / 100) / norValue(baseData.totalSupply) * 100)}%`}</Text> :
+              <Text fontSize="13px">{`${nDecimals(2, (norValue(baseData.balanceOf, token?.decimals) - selectedAmount / 100) / norValue(baseData.totalSupply, token?.decimals) * 100)}%`}</Text> :
               <Text fontSize="13px">0%</Text>
           }
         </RowBetween>

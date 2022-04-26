@@ -131,11 +131,11 @@ export default function CalcModal({
   }, [inputedVePTPValue, inputedVePTPTotalSupply])
 
   const vePTPShareFromPTP = useMemo(() => {
-    if (!vePTPTotalSupply.eq(BigNumber.from(0))) {
+    if (vePTPData !== undefined && !vePTPTotalSupply.sub(vePTPBalanceOf).add(vePTPData?.calculatedVePTP).eq(BigNumber.from(0))) {
       return vePTPData?.calculatedVePTP.mul(BigNumber.from(100)).div(vePTPTotalSupply.sub(vePTPBalanceOf).add(vePTPData?.calculatedVePTP))
     }
     return 0
-  }, [vePTPData?.calculatedVePTP, vePTPTotalSupply, vePTPBalanceOf])
+  }, [vePTPData, vePTPTotalSupply, vePTPBalanceOf])
 
   const handleTypeInputToken = useCallback(
     (val: string) => {

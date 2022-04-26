@@ -19,6 +19,7 @@ import SyrupWarningModal from 'components/SyrupWarningModal'
 import TokenWarningModal from 'components/TokenWarningModal'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
+import { BigNumber, ethers } from 'ethers'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallbackFromTrade } from 'hooks/useApproveCallback'
@@ -362,8 +363,11 @@ const Swap = () => {
 
       const fromToken = selectedTokenA.address
       const toToken = selectedTokenB.address
-      const fromAmount = getUnitedValue(inputValueA, selectedTokenA.decimals).toString()
-      const minimumToAmount = getUnitedValue(((+inputValueB) - (+inputValueB * allowedSlippage / 10000)).toString(), selectedTokenB.decimals).toString()
+      // const fromAmount = getUnitedValue(inputValueA, selectedTokenA.decimals).toString()
+      const fromAmount = ethers.utils.parseUnits(inputValueA, selectedTokenA.decimals)
+      // const minimumToAmount = getUnitedValue(((+inputValueB) - (+inputValueB * allowedSlippage / 10000)).toString(), selectedTokenB.decimals).toString()
+      // const minimumToAmount = ethers.utils.parseUnits(((+inputValueB) - (+inputValueB * allowedSlippage / 10000)).toString(), selectedTokenB.decimals)
+      const minimumToAmount = ethers.utils.parseUnits(inputValueB, selectedTokenB.decimals).sub(ethers.utils.parseUnits(inputValueB, selectedTokenB.decimals).div(BigNumber.from(10000)))
       console.log('inputValueB: ', inputValueB)
       console.log('mininumToAmount: ', (+inputValueB) - (+inputValueB * allowedSlippage / 10000))
       console.log('allowedSlipage: ', allowedSlippage)
@@ -433,10 +437,10 @@ const Swap = () => {
     const checkPotentialSwap = async () => {
       const poolContract = getPoolContract(chainId, library, account)
       const tnxDeadline = Date.now() + deadline * 1000
-      const inAmount = (+inputValueA) * (10 ** selectedTokenA?.decimals)
+      const inAmount = ethers.utils.parseUnits(inputValueA, selectedTokenA.decimals)      
       await poolContract.quotePotentialSwap(selectedTokenA?.address, selectedTokenB?.address, inAmount.toString())
         .then((response) => {
-          const expectValue = parseInt(response.potentialOutcome._hex, 16) / (10 ** 18)
+          const expectValue = parseInt(response.potentialOutcome._hex, 16) / (10 ** selectedTokenB.decimals)
           console.log('potentialSwap: ', response)
           console.log('Expected Value: ', expectValue)
           setIsInsufficientCash(false)
@@ -444,6 +448,7 @@ const Swap = () => {
         })
         .catch((e) => {
           console.log('=== potentialSwap_Exception ===')
+          console.log(e)
           if (e.data !== undefined && e.data.message !== undefined) {
             console.log(e.data.message)
             if (e.data.message === 'execution reverted: INSUFFICIENT_CASH') {
@@ -458,7 +463,7 @@ const Swap = () => {
       const erc20Contract = getERC20Contract(chainId, selectedTokenA.address, library, account)
       await erc20Contract.allowance(account, POOL_ADDRESS)
         .then((response) => {
-          const allowance = parseInt(response._hex, 16) / (10 ** 18)
+          const allowance = parseInt(response._hex, 16) / (10 ** selectedTokenA?.decimals)
           setAllowanceAmount(allowance)
           console.log('Allowanced amount: ', allowanceAmount)
         })
@@ -483,7 +488,7 @@ const Swap = () => {
     checkPotentialSwap()
     checkApproval()
 
-  }, [selectedTokenB?.address, inputValueB, allowanceAmount, selectedTokenB?.symbol, selectedTokenA?.decimals, inputValueA, account, chainId, library, deadline, selectedTokenA?.address])
+  }, [selectedTokenB?.address, selectedTokenB?.decimals, inputValueB, allowanceAmount, selectedTokenB?.symbol, selectedTokenA?.decimals, inputValueA, account, chainId, library, deadline, selectedTokenA?.address])
 
   const pendingText = 'Waiting For Confirmation.'
 

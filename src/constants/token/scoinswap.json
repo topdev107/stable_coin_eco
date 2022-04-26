@@ -14,7 +14,7 @@
     {
       "name": "BUSD Token",
       "symbol": "BUSD",
-      "address": "0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7",
+      "address": "0xcC7290a24ee520d71465b7282C4a23dFFa6055aF",
       "chainId": 97,
       "decimals": 18,
       "logoURI": "/images/coins/BUSD.png"
@@ -22,23 +22,23 @@
     {
       "name": "Tether USD",
       "symbol": "USDT",
-      "address": "0x7ef95a0fee0dd31b22626fa2e10ee6a223f8a684",
+      "address": "0x0aCBd07e458F228d4869066b998a0F55F36537B2",
       "chainId": 97,
-      "decimals": 18,
+      "decimals": 6,
       "logoURI": "/images/coins/USDT-icon.png"
     },
     {
       "name": "USDC",
       "symbol": "USDC",
-      "address": "0x64544969ed7EBf5f083679233325356EbE738930",
+      "address": "0x3861e9F29fcAFF738906c7a3a495583eE7Ca4C18",
       "chainId": 97,
-      "decimals": 18,
+      "decimals": 6,
       "logoURI": "/images/coins/USDC-icon.png"
     },
     {
       "name": "Dai Token",
       "symbol": "DAI",
-      "address": "0x8a9424745056Eb399FD19a0EC26A14316684e274",
+      "address": "0x332C7aC34580dfEF553B7726549cEc7015C4B39b",
       "chainId": 97,
       "decimals": 18,
       "logoURI": "/images/coins/DAI-icon.png"

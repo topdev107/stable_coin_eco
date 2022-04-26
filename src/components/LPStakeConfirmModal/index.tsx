@@ -22,17 +22,6 @@ const CenterVerticalContainerStyle = {
   alignItems: 'center'
 }
 
-// interface LPStakeConfirmModalProps {
-//   isOpen: boolean
-//   token: Token | undefined
-//   baseData: PoolItemBaseData | undefined
-//   onDismiss: () => void
-//   onApprove: (amount: string, token: Token | undefined) => void
-//   onStakeLP: (amount: string, token: Token | undefined) => void
-//   onRefresh: () => void
-// }
-
-
 interface LPStakeConfirmModalProps {
   isOpen: boolean
   token: Token | undefined
@@ -79,7 +68,7 @@ export default function LPStakeConfirmModal({
         </div>
         <RowBetween className="mt-4">
           <div style={CenterVerticalContainerStyle} >
-            <Text fontSize="13px" color='#888888'>{`Staked: ${nDecimals(2, norValue(baseData?.stakedLPAmount))} ${token?.symbol}`}</Text>
+            <Text fontSize="13px" color='#888888'>{`Staked: ${nDecimals(2, norValue(baseData?.stakedLPAmount, token?.decimals))} ${token?.symbol}`}</Text>
             <QuestionColorHelper
               text={`Amount of your deposited ${token?.symbol} (as LP token) which is currently staked and generating PTP`}
               color='white'
@@ -88,7 +77,7 @@ export default function LPStakeConfirmModal({
           {
             baseData?.balanceOf !== undefined && baseData?.stakedLPAmount !== undefined ? (
               <div style={CenterVerticalContainerStyle} >
-                <Text fontSize='13px' color='#888888'>{`Stakable: ${nDecimals(2, norValue(baseData?.balanceOf))} ${token?.symbol}`}</Text>
+                <Text fontSize='13px' color='#888888'>{`Stakable: ${nDecimals(2, norValue(baseData?.balanceOf, token?.decimals))} ${token?.symbol}`}</Text>
                 <QuestionColorHelper
                   text={`Amount of your deposited ${token?.symbol} (as LP token) which can be staked to generate yield in PTP`}
                   color='white'
@@ -108,7 +97,7 @@ export default function LPStakeConfirmModal({
         <Row className='mt-1'>
           <Col>
             <GreyCard style={{ textAlign: 'right' }}>
-              <Text>{nDecimals(6, norValue(baseData?.balanceOf))}</Text>                          
+              <Text>{nDecimals(6, norValue(baseData?.balanceOf, token?.decimals))}</Text>                          
             </GreyCard>
           </Col>
         </Row>
@@ -122,7 +111,7 @@ export default function LPStakeConfirmModal({
           </div>
           {
             baseData?.balanceOf !== undefined && baseData?.stakedLPAmount !== undefined ? (              
-              <Text fontSize="13px">{`${nDecimals(6, (norValue(baseData?.balanceOf) + norValue(baseData?.stakedLPAmount)))} ${token?.symbol}`}</Text>
+              <Text fontSize="13px">{`${nDecimals(6, (norValue(baseData?.balanceOf, token?.decimals) + norValue(baseData?.stakedLPAmount, token?.decimals)))} ${token?.symbol}`}</Text>
             ) : (
               <Text>0.0</Text>
             )

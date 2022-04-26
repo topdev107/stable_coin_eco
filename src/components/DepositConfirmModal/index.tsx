@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
-import { calcFee, getUsefulCount, nDecimals, norValue, PoolItemBaseData } from 'utils'
+import { calcFee, formatCurrency, getUsefulCount, nDecimals, norValue, PoolItemBaseData } from 'utils'
 import { T_FEE } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrencyBalance } from '../../state/wallet/hooks'
@@ -137,8 +137,8 @@ export default function DepositConfirmModal({
         </div>
 
         <RowBetween className="mt-4">
-          <Text fontSize="13px" color='#888888'>{`Deposited: ${nDecimals(6, norValue(baseData?.balanceOf))} ${token?.symbol}`}</Text>
-          <Text fontSize='13px' color='#888888'>Balance: {selectedCurrencyBalance?.toSignificant(6)} {token?.symbol}</Text>
+          <Text fontSize="13px" color='#888888'>{`Deposited: ${formatCurrency(nDecimals(6, norValue(baseData?.balanceOf, token?.decimals) + norValue(baseData?.stakedLPAmount, token?.decimals)), 2)} ${token?.symbol}`}</Text>
+          <Text fontSize='13px' color='#888888'>Balance: {formatCurrency(selectedCurrencyBalance?.toSignificant(6), 2)} {token?.symbol}</Text>
         </RowBetween>
         <Row className='mt-1'>
           <Col>
@@ -172,10 +172,10 @@ export default function DepositConfirmModal({
               text='Liquidity owned by you after adding liquidity.'
               color='white'
             />
-          </div>
-          <Text fontSize="13px">{`${nDecimals(6, norValue(baseData?.balanceOf))} ${token?.symbol}`}</Text>
+          </div>          
+          <Text fontSize="13px">{`${formatCurrency(nDecimals(6, norValue(baseData?.balanceOf, token?.decimals) + norValue(baseData?.stakedLPAmount, token?.decimals)), 2)} ${token?.symbol}`}</Text>
         </RowBetween>
-        <RowBetween>
+        <RowBetween>          
           <div style={CenterVerticalContainerStyle} >
             <Text fontSize="13px">Pool Share</Text>
             <QuestionColorHelper

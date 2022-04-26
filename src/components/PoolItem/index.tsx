@@ -3,7 +3,7 @@ import { Button, ChevronDownIcon, CloseIcon, Text } from '@pantherswap-libs/uiki
 import React, { useCallback, useContext, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import styled, { ThemeContext } from 'styled-components'
-import { nDecimals, norValue, PoolItemBaseData } from 'utils'
+import { formatCurrency, nDecimals, norValue, PoolItemBaseData } from 'utils'
 import { PTP } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
 import { DarkblueOutlineCard } from '../Card'
@@ -140,8 +140,8 @@ export default function PoolItem({
                             </>
                           ) : (
                             <>
-                              <Text>{`$${nDecimals(2, norValue(baseData.totalSupply) * norValue(baseData.price, 8))}`}</Text>
-                              <Text color='#888888' fontSize='12px'>{`${nDecimals(2, norValue(baseData.totalSupply))}${token?.symbol}`}</Text>
+                              <Text>{`$${formatCurrency(nDecimals(2, norValue(baseData.totalSupply, token?.decimals) * norValue(baseData.price, 8)))}`}</Text>
+                              <Text color='#888888' fontSize='12px'>{`${formatCurrency(nDecimals(2, norValue(baseData.totalSupply, token?.decimals)))}${token?.symbol}`}</Text>
                             </>
                           )
                         }
@@ -155,9 +155,9 @@ export default function PoolItem({
                         {
                           baseData === undefined ?
                             <Text>$0</Text> :
-                            <Text>{`$${nDecimals(2, baseData.volume24 * norValue(baseData.price, 8))}`}</Text>
+                            <Text>{`$${formatCurrency(nDecimals(2, baseData.volume24 * norValue(baseData.price, 8)))}`}</Text>
                         }
-                        <Text color='#888888' fontSize='12px'>{`${nDecimals(2, baseData?.volume24)}${token?.symbol}`}</Text>
+                        <Text color='#888888' fontSize='12px'>{`${formatCurrency(nDecimals(2, baseData?.volume24))}${token?.symbol}`}</Text>
                       </div>
                     </CenterContainer>
                   </Col>
@@ -170,8 +170,8 @@ export default function PoolItem({
                             <Text>$0</Text>
                           ) : (
                             <>
-                              <Text>{`$${nDecimals(2, (norValue(baseData.balanceOf) + norValue(baseData.stakedLPAmount)) * norValue(baseData.price, 8))}`}</Text>
-                              <Text color='#888888' fontSize='12px'>{`${nDecimals(2, (norValue(baseData?.balanceOf) + norValue(baseData.stakedLPAmount)))}${token?.symbol}`}</Text>
+                              <Text>{`$${formatCurrency(nDecimals(2, (norValue(baseData.balanceOf, token?.decimals) + norValue(baseData.stakedLPAmount, token?.decimals)) * norValue(baseData.price, 8)))}`}</Text>
+                              <Text color='#888888' fontSize='12px'>{`${formatCurrency(nDecimals(2, (norValue(baseData?.balanceOf, token?.decimals) + norValue(baseData.stakedLPAmount, token?.decimals))))}${token?.symbol}`}</Text>
                             </>
                           )
                         }
@@ -188,7 +188,7 @@ export default function PoolItem({
                         <Row>
                           <Button size='sm' style={borderRadius7} variant='secondary' onClick={openDepositModal}>Deposit</Button>
                           {
-                            baseData !== undefined && norValue(baseData?.balanceOf) > 0 ? (
+                            baseData !== undefined && norValue(baseData?.balanceOf, token?.decimals) > 0 ? (
                               <Button size='sm' style={borderRadius7} variant='secondary' className="ml-2" onClick={openWithdrawModal}>Withdraw</Button>
                             ) : (
                               <Button size='sm' style={borderRadius7} variant='secondary' className="ml-2" disabled>Withdraw</Button>

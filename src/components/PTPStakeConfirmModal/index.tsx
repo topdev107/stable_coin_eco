@@ -3,7 +3,8 @@ import { Button, Text } from '@pantherswap-libs/uikit'
 import { BigNumber, ethers } from 'ethers'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
-import { float2int, getUnitedValue, nDecimals, norValue, PTPStakedInfo } from 'utils'
+import { nDecimals, norValue, PTPStakedInfo } from 'utils'
+import { PTP } from '../../constants'
 import AmountInputPanel from '../AmountInputPanel'
 import CurrencyLogo from '../CurrencyLogo'
 import Modal from '../Modal'
@@ -106,7 +107,7 @@ export default function PTPStakeConfirmModal({
 
         <RowBetween className="mt-4">
           <Text fontSize="13px" color='#888888'>{`Staked: ${nDecimals(2, norValue(baseData?.ptpStakedAmount))} ${token?.symbol}`}</Text>
-          <Text fontSize='13px' color='#888888'>Stakable: {nDecimals(2, norValue(baseData?.ptpBalanceOf))} {token?.symbol}</Text>
+          <Text fontSize='13px' color='#888888'>Stakable: {nDecimals(2, norValue(baseData?.ptpBalanceOf, PTP.decimals))} {token?.symbol}</Text>
         </RowBetween>
         <Row className='mt-1'>
           <Col>

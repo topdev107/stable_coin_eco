@@ -66,11 +66,11 @@ export default function LPUnStakeConfirmModal({
           <CurrencyLogo currency={token} size="25px" />
           <Text className="ml-1" fontSize='20px'>{token?.symbol}</Text>
         </div>
-        <Text className='mt-4' fontSize="13px" color='#888888'>{`Unstakable: ${nDecimals(2, norValue(baseData?.stakedLPAmount))} ${token?.symbol}`}</Text>
+        <Text className='mt-4' fontSize="13px" color='#888888'>{`Unstakable: ${nDecimals(2, norValue(baseData?.stakedLPAmount, token?.decimals))} ${token?.symbol}`}</Text>
         <Row className='mt-1'>
           <Col>
             <GreyCard style={{ textAlign: 'right' }}>
-              <Text>{nDecimals(6, norValue(baseData?.stakedLPAmount))}</Text>
+              <Text>{nDecimals(6, norValue(baseData?.stakedLPAmount, token?.decimals))}</Text>
             </GreyCard>
           </Col>
         </Row>
