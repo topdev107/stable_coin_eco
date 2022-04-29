@@ -1,29 +1,11 @@
-import { Button, Progress, Text } from '@pantherswap-libs/uikit'
-import CalcModal from 'components/CalcModal'
-import { LightCard, YellowCard } from 'components/Card'
-import CardNav from 'components/CardNav'
-import PTPStakeModal from 'components/PTPStakeConfirmModal'
-import PTPUnStakeModal from 'components/PTPUnStakeConfirmModal'
-import { QuestionColorHelper } from 'components/QuestionHelper'
-import { RowBetween } from 'components/Row'
-import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
-import VePTPClaimModal from 'components/VePTPClaimConfirmModal'
-import { BigNumber } from 'ethers'
-import { useActiveWeb3React } from 'hooks'
-import React, { useCallback, useEffect, useState, useRef } from 'react'
+import { Text } from '@pantherswap-libs/uikit'
+import React, { useEffect, useRef, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
-import { Flex } from 'rebass'
 import styled from 'styled-components'
-import { getMasterPlatypusContract, getPTPContract, getVePTPContract, nDecimals, norValue, PTPStakedInfo } from 'utils'
 import PTP_logo from '../../assets/PTP_logo.png'
-import PTP_logo_blank from '../../assets/PTP_logo_blank.png'
-import PTP_logo_edge from '../../assets/PTP_logo_edge.png'
-import PTP_logo_edge1 from '../../assets/PTP_logo_edge1.png'
-import PTP_logo_edge2 from '../../assets/PTP_logo_edge2.png'
 import PTP_logo_edge3 from '../../assets/PTP_logo_edge3.png'
 import Roadmap from '../../assets/roadmap.png'
-import { MASTER_PLATYPUS_ADDRESS, PTP, VEPTP } from '../../constants'
 
 export default function Home() {
 
@@ -88,6 +70,7 @@ export default function Home() {
     color: ${({ hoverColor }) => hoverColor};
   }
 `
+
   const [isGoToHome, setIsGoToHome] = useState(true);
   const [isGoToInvestor, setIsGoToInvestor] = useState(false);
   const [isGoToRoadmap, setIsGoToRoadmap] = useState(false);
