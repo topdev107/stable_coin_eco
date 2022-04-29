@@ -118,7 +118,7 @@ export default function Home() {
       scrollToRef(community_ref)
       setIsGoToCommunity(false)
     }
-  }, [isGoToHome, isGoToInvestor, isGoToRoadmap, isGoToCommunity])  
+  }, [isGoToHome, isGoToInvestor, isGoToRoadmap, isGoToCommunity])
 
   const scrollToRef = (ref) => ref.current.scrollIntoView({ behavior: "smooth" })
 
@@ -168,24 +168,23 @@ export default function Home() {
               Launch App
             </RoundEdgeBtn>
           </Link>
-          <Link to='/swap'>
-            <RoundEdgeBtn
-              width='200px'
-              height='60px'
-              borderRadius='30px'
-              backgroundColor='transparent'
-              borderWidth='3px'
-              borderColor='white'
-              fontSize='20px'
-              fontWeight='semi-bold'
-              color='white'
-              hoverBorderColor='#dddddd'
-              hoverColor='#dddddd'
-              hoverBackgroundColor='#425684'
-            >
-              Join Community
-            </RoundEdgeBtn>
-          </Link>
+          <RoundEdgeBtn
+            width='200px'
+            height='60px'
+            borderRadius='30px'
+            backgroundColor='transparent'
+            borderWidth='3px'
+            borderColor='white'
+            fontSize='20px'
+            fontWeight='semi-bold'
+            color='white'
+            hoverBorderColor='#dddddd'
+            hoverColor='#dddddd'
+            hoverBackgroundColor='#425684'
+            onClick={(e) => setIsGoToCommunity(true)}
+          >
+            Join Community
+          </RoundEdgeBtn>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '250px' }}>
           <Text style={{ fontSize: '50px', color: '#ff720d' }}>The Current Problems of Other Stableswaps</Text>
@@ -284,9 +283,9 @@ export default function Home() {
             </Col>
             <Col className='col-2' />
           </Row>
-        </div>        
+        </div>
         <div ref={investor_ref} style={{ display: 'flex', justifyContent: 'center', marginTop: '150px' }}>
-          <Text style={{ fontSize: '50px', color: '#ff720d', marginTop: '100px'}}>Investors</Text>
+          <Text style={{ fontSize: '50px', color: '#ff720d', marginTop: '100px' }}>Investors</Text>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '70px', alignItems: 'center' }}>
           <img src='https://platypus.finance/static/9c59a81c41bb541263fb3ddaf4866bda/investor-01-Three-Arrows.png' width='372' height='auto' alt='img' />
@@ -322,19 +321,19 @@ export default function Home() {
           <img className='ml-5' src='https://platypus.finance/static/9c3acf561ebeb07fe53f96461fb51760/auditor-02-Omniscia.png' width='81' height='88' alt='img' />
         </div>
         <div ref={roadmap_ref} style={{ display: 'flex', justifyContent: 'center', marginTop: '150px' }}>
-          <Text style={{ fontSize: '50px', color: '#ff720d', marginTop: '100px'}}>Roadmap</Text>
+          <Text style={{ fontSize: '50px', color: '#ff720d', marginTop: '100px' }}>Roadmap</Text>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '170px', alignItems: 'center' }}>
           <img src={Roadmap} width='600' height='800' alt='img' />
         </div>
         <div ref={community_ref} style={{ display: 'flex', justifyContent: 'center', marginTop: '150px' }}>
-          <Text style={{ fontSize: '50px', color: '#ff720d', marginTop: '100px'}}>Join Our Community</Text>
+          <Text style={{ fontSize: '50px', color: '#ff720d', marginTop: '100px' }}>Join Our Community</Text>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '70px', marginBottom: '150px', alignItems: 'center' }}>
-          <img src='https://platypus.finance/sn-logo-twitter.inline.svg' width='53' height='43' alt='img' />
-          <img style={{ marginLeft: '100px' }} src='https://platypus.finance/sn-logo-telegram.inline.svg' width='50' height='50' alt='img' />
-          <img style={{ marginLeft: '100px' }} src='https://platypus.finance/sn-logo-discord.inline.svg' width='58' height='44' alt='img' />
-          <img style={{ marginLeft: '100px' }} src='https://platypus.finance/sn-logo-medium.inline.svg' width='65' height='37' alt='img' />
+          <img style={{cursor: 'pointer'}} src='https://platypus.finance/sn-logo-twitter.inline.svg' width='53' height='43' alt='img' />
+          <img style={{ marginLeft: '100px', cursor: 'pointer'}} src='https://platypus.finance/sn-logo-telegram.inline.svg' width='50' height='50' alt='img' />
+          <img style={{ marginLeft: '100px', cursor: 'pointer'}} src='https://platypus.finance/sn-logo-discord.inline.svg' width='58' height='44' alt='img' />
+          <img style={{ marginLeft: '100px', cursor: 'pointer'}} src='https://platypus.finance/sn-logo-medium.inline.svg' width='65' height='37' alt='img' />
         </div>
       </div>
     </div>
