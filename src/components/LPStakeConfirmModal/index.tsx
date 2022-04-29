@@ -4,7 +4,7 @@ import { GreyCard } from 'components/Card'
 import { BigNumber } from 'ethers'
 import React, { useCallback } from 'react'
 import { Col, Row } from 'react-bootstrap'
-import { nDecimals, norValue, PoolItemBaseData } from 'utils'
+import { formatCurrency, nDecimals, norValue, PoolItemBaseData } from 'utils'
 import CurrencyLogo from '../CurrencyLogo'
 import Modal from '../Modal'
 import { QuestionColorHelper } from '../QuestionHelper'
@@ -68,7 +68,7 @@ export default function LPStakeConfirmModal({
         </div>
         <RowBetween className="mt-4">
           <div style={CenterVerticalContainerStyle} >
-            <Text fontSize="13px" color='#888888'>{`Staked: ${nDecimals(2, norValue(baseData?.stakedLPAmount, token?.decimals))} ${token?.symbol}`}</Text>
+            <Text fontSize="13px" color='#888888'>{`Staked: ${formatCurrency(nDecimals(2, norValue(baseData?.stakedLPAmount, token?.decimals)), 2)} ${token?.symbol}`}</Text>
             <QuestionColorHelper
               text={`Amount of your deposited ${token?.symbol} (as LP token) which is currently staked and generating PTP`}
               color='white'
@@ -77,7 +77,7 @@ export default function LPStakeConfirmModal({
           {
             baseData?.balanceOf !== undefined && baseData?.stakedLPAmount !== undefined ? (
               <div style={CenterVerticalContainerStyle} >
-                <Text fontSize='13px' color='#888888'>{`Stakable: ${nDecimals(2, norValue(baseData?.balanceOf, token?.decimals))} ${token?.symbol}`}</Text>
+                <Text fontSize='13px' color='#888888'>{`Stakable: ${formatCurrency(nDecimals(2, norValue(baseData?.balanceOf, token?.decimals)),2)} ${token?.symbol}`}</Text>
                 <QuestionColorHelper
                   text={`Amount of your deposited ${token?.symbol} (as LP token) which can be staked to generate yield in PTP`}
                   color='white'
@@ -111,7 +111,7 @@ export default function LPStakeConfirmModal({
           </div>
           {
             baseData?.balanceOf !== undefined && baseData?.stakedLPAmount !== undefined ? (              
-              <Text fontSize="13px">{`${nDecimals(6, (norValue(baseData?.balanceOf, token?.decimals) + norValue(baseData?.stakedLPAmount, token?.decimals)))} ${token?.symbol}`}</Text>
+              <Text fontSize="13px">{`${formatCurrency(nDecimals(6, (norValue(baseData?.balanceOf, token?.decimals) + norValue(baseData?.stakedLPAmount, token?.decimals))),6)} ${token?.symbol}`}</Text>
             ) : (
               <Text>0.0</Text>
             )

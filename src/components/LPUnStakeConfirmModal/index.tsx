@@ -4,7 +4,7 @@ import { GreyCard } from 'components/Card'
 import { BigNumber } from 'ethers'
 import React, { useCallback } from 'react'
 import { Col, Row } from 'react-bootstrap'
-import { nDecimals, norValue, PoolItemBaseData } from 'utils'
+import { formatCurrency, nDecimals, norValue, PoolItemBaseData } from 'utils'
 import CurrencyLogo from '../CurrencyLogo'
 import Modal from '../Modal'
 import { QuestionColorHelper } from '../QuestionHelper'
@@ -66,7 +66,7 @@ export default function LPUnStakeConfirmModal({
           <CurrencyLogo currency={token} size="25px" />
           <Text className="ml-1" fontSize='20px'>{token?.symbol}</Text>
         </div>
-        <Text className='mt-4' fontSize="13px" color='#888888'>{`Unstakable: ${nDecimals(2, norValue(baseData?.stakedLPAmount, token?.decimals))} ${token?.symbol}`}</Text>
+        <Text className='mt-4' fontSize="13px" color='#888888'>{`Unstakable: ${formatCurrency(nDecimals(2, norValue(baseData?.stakedLPAmount, token?.decimals)), 2)} ${token?.symbol}`}</Text>
         <Row className='mt-1'>
           <Col>
             <GreyCard style={{ textAlign: 'right' }}>
@@ -82,7 +82,7 @@ export default function LPUnStakeConfirmModal({
               color='white'
             />
           </div>
-          <Text fontSize="13px">{`${nDecimals(6, norValue(baseData?.rewardablePTPAmount))} PTP`}</Text>
+          <Text fontSize="13px">{`${formatCurrency(nDecimals(6, norValue(baseData?.rewardablePTPAmount)), 6)} PTP`}</Text>
         </RowBetween>
         <Row className='mt-4'>
           <Col className='pl-3 pr-1'>

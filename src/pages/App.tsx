@@ -13,6 +13,7 @@ import { TranslationsContext } from '../hooks/TranslationsContext'
 import Pool from './Pool'
 import Staking from './Staking'
 import Swap from './Swap'
+import Home from './Home'
 import PoolFinder from './PoolFinder'
 
 
@@ -26,7 +27,7 @@ const MyBodyWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 32px 16px;
+  
   align-items: center;
   flex: 1;
   overflow-y: auto;
@@ -148,12 +149,13 @@ export default function App() {
             value={{ selectedLanguage, setSelectedLanguage, translatedLanguage, setTranslatedLanguage }}
           >
             <TranslationsContext.Provider value={{ translations, setTranslations }}>
-              <MyMenu />
+              {/* <MyMenu /> */}
               <MyBodyWrapper>
                 <Popups />
                 <Web3ReactManager>
                   <Switch>
-                    <Route exact strict path="/" component={Swap} />
+                    <Route exact strict path="/" component={Home} />
+                    <Route exact strict path="/swap" component={Swap} />
                     <Route exact strict path="/pool" component={Pool} />
                     <Route exact strict path="/veptp" component={Staking} />
                   </Switch>

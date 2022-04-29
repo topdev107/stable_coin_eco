@@ -2,6 +2,7 @@ import { Button, Progress, Text } from '@pantherswap-libs/uikit'
 import CalcModal from 'components/CalcModal'
 import { LightCard, YellowCard } from 'components/Card'
 import CardNav from 'components/CardNav'
+import MyMenu from 'components/MyMenu'
 import PTPStakeModal from 'components/PTPStakeConfirmModal'
 import PTPUnStakeModal from 'components/PTPUnStakeConfirmModal'
 import { QuestionColorHelper } from 'components/QuestionHelper'
@@ -18,6 +19,7 @@ import PTP_logo from '../../assets/PTP_logo.png'
 import PTP_logo_blank from '../../assets/PTP_logo_blank.png'
 import PTP_logo_disabled from '../../assets/PTP_logo_disabled.png'
 import { MASTER_PLATYPUS_ADDRESS, PTP, VEPTP } from '../../constants'
+
 
 export default function Staking() {
 
@@ -374,6 +376,7 @@ export default function Staking() {
 
   return (
     <>
+      <MyMenu/>
       <PTPStakeModal
         isOpen={isPTPStakeModalOpen}
         token={PTP}

@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { Heading } from '@pantherswap-libs/uikit'
 import ConnectWalletMenuButton from 'components/ConnectWalletMenuButton'
+import { useHistory } from 'react-router-dom'
 // import * as CSS from 'csstype';
 
 const TopBar = styled.div`
@@ -31,11 +32,16 @@ const ConnectButtonArea = styled.div`
 `
 
 const MyMenu: React.FC = () => {
+  const history = useHistory();
   
+  const handleClick = () => {
+    history.push("/");
+  }
+
   return (
     <TopBar>
       <HeadingArea>
-        <Heading size="lg">Platypus</Heading>
+        <Heading size="lg" style={{cursor: 'pointer'}} onClick={handleClick}>Platypus</Heading>
       </HeadingArea>      
       <ConnectButtonArea>       
         <ConnectWalletMenuButton/>
@@ -43,5 +49,6 @@ const MyMenu: React.FC = () => {
     </TopBar>
   )
 }
+
 
 export default MyMenu

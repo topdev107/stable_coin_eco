@@ -10,6 +10,7 @@ import { isAbsolute } from 'path'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTnxHandler } from 'state/tnxs/hooks'
 import styled from 'styled-components'
+import MyMenu from 'components/MyMenu'
 import { float2int, getAssetContract, getERC20Contract, getMasterPlatypusContract, getPoolContract, getPriceProviderContract, getVePTPContract, nDecimals, norValue, PoolItemBaseData } from 'utils'
 import CurrencyLogo from '../../components/CurrencyLogo'
 import DepositModal from '../../components/DepositConfirmModal'
@@ -22,6 +23,8 @@ import { ASSET_BUSD_ADDRESS, ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_A
 import { useAllTokens } from '../../hooks/Tokens'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
 import Question from '../../components/QuestionHelper'
+
+
 
 export default function Pool() {
   const allTokens = useAllTokens()
@@ -911,6 +914,7 @@ export default function Pool() {
 
   return (
     <>
+      <MyMenu/>
       <DepositModal
         isOpen={isDepositModalOpen}
         token={selectedToken}

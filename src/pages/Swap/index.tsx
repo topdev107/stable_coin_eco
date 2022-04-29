@@ -7,6 +7,7 @@ import { AutoColumn } from 'components/Column'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import Loader from 'components/Loader'
+import MyMenu from 'components/MyMenu'
 import PageHeader from 'components/PageHeader'
 import ProgressSteps from 'components/ProgressSteps'
 import { AutoRow, RowBetween } from 'components/Row'
@@ -490,6 +491,7 @@ const Swap = () => {
 
   return (
     <>
+      <MyMenu/>
       <TokenWarningModal
         isOpen={urlLoadedTokens.length > 0 && !dismissTokenWarning}
         tokens={urlLoadedTokens}
