@@ -5,6 +5,8 @@ import { Spinner } from '../Shared'
 import { AutoColumn } from '../Column'
 import { Wrapper, Section, ConfirmedIcon, ContentHeader } from './helpers'
 
+const BASE_URL = process.env.REACT_APP_BASE_URL
+
 type ConfirmationPendingContentProps = { onDismiss: () => void; pendingText: string }
 
 const CustomLightSpinner = styled(Spinner)<{ size: string }>`
@@ -18,7 +20,7 @@ const ConfirmationPendingContent = ({ onDismiss, pendingText }: ConfirmationPend
       <Section>
         <ContentHeader onDismiss={onDismiss}>Waiting for confirmation</ContentHeader>
         <ConfirmedIcon>
-          <CustomLightSpinner src="/images/blue-loader.svg" alt="loader" size="90px" />
+          <CustomLightSpinner src={`${BASE_URL}/images/blue-loader.svg`} alt="loader" size="90px" />
         </ConfirmedIcon>
         <AutoColumn gap="12px" justify="center">
           <AutoColumn gap="12px" justify="center">

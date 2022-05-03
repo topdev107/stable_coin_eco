@@ -7,44 +7,22 @@ import styled from 'styled-components'
 import PTP_logo from '../../assets/PTP_logo.png'
 import PTP_logo_edge3 from '../../assets/PTP_logo_edge3.png'
 import Roadmap from '../../assets/roadmap.png'
+import graphicProblemSlippage from '../../assets/graphic-problem-slippage.png'
+
+import graphicProblemBadUx from '../../assets/graphic-problem-bad-ux.png'
+import benefitGraphicSlippage from '../../assets/benefit-graphic-slippage.png'
+import benefitGraphicScalability from '../../assets/benefit-graphic-scalability.png'
+import benefitGraphicUx from '../../assets/benefit-graphic-ux.png'
+
+import auditorHacken from '../../assets/auditor-01-Hacken.png'
+import auditorOmniscia from '../../assets/auditor-02-Omniscia.png'
+import logoTwitter from '../../assets/sn-logo-twitter.inline.svg'
+import logoTelegram from '../../assets/sn-logo-telegram.inline.svg'
+import logoDiscord from '../../assets/sn-logo-discord.inline.svg'
+import logoMedium from '../../assets/sn-logo-medium.inline.svg'
 
 export default function Home() {
 
-  const MenuItem = styled.div`
-    margin-right: 25px;
-  `
-
-  const MenuItemText = styled.p`
-    margin-right: 25px;
-    color: #aaa;
-    cursor: pointer;
-    :hover {
-      color: #fff;
-    }
-  `
-
-  const LaunchBtn = styled.button<any>`
-  background-color: ${({ backgroundColor }) => backgroundColor};
-  width: ${({ width }) => width};
-  height: ${({ height }) => height};
-  border: 2px solid #ff720d;
-  border-radius: ${({ borderRadius }) => borderRadius};
-  font-size: 15px;
-  font-weight: semi-bold;
-  color: #ff720d;
-  text-align: center;
-  cursor: pointer;
-  transition-duration: 0.4s;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  margin-right: 20px;
-
-  :hover {
-    border: 2px solid #903f06;
-    color: #903f06;
-  }
-`
 
   const RoundEdgeBtn = styled.button<any>`
   background-color: ${({ backgroundColor }) => backgroundColor};
@@ -72,57 +50,11 @@ export default function Home() {
   }
 `
 
-  const [isGoToHome, setIsGoToHome] = useState(true);
-  const [isGoToInvestor, setIsGoToInvestor] = useState(false);
-  const [isGoToRoadmap, setIsGoToRoadmap] = useState(false);
-  const [isGoToCommunity, setIsGoToCommunity] = useState(false);
-
-  const home_ref = useRef(null)
-  const investor_ref = useRef(null)
-  const roadmap_ref = useRef(null)
-  const community_ref = useRef(null)
-
-  useEffect(() => {
-    if (isGoToHome === true) {
-      scrollToRef(home_ref)
-      setIsGoToHome(false)
-    }
-
-    if (isGoToInvestor === true) {
-      scrollToRef(investor_ref)
-      setIsGoToInvestor(false)
-    }
-
-    if (isGoToRoadmap === true) {
-      scrollToRef(roadmap_ref)
-      setIsGoToRoadmap(false)
-    }
-
-    if (isGoToCommunity === true) {
-      scrollToRef(community_ref)
-      setIsGoToCommunity(false)
-    }
-  }, [isGoToHome, isGoToInvestor, isGoToRoadmap, isGoToCommunity])
-
-  const scrollToRef = (ref) => ref.current.scrollIntoView({ behavior: "smooth" })
-
-
   return (
     <>
       <CardNav/>
-      <div style={{ background: '#1f2b46', zIndex: '999', position: 'fixed', left: '0px', top: '0px', flexShrink: '0', width: '100%', padding: '20px', display: 'flex', alignItems: 'center' }}>
-        <img src={PTP_logo} alt='logo' style={{ width: '50px', height: '50px' }} />
-        <Row style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
-          <MenuItem onClick={(e) => setIsGoToHome(true)}><MenuItemText>Home</MenuItemText></MenuItem>
-          {/* <MenuItem><Link to='/pool'><MenuItemText>Docs</MenuItemText></Link></MenuItem> */}
-          <MenuItem onClick={(e) => setIsGoToInvestor(true)}><MenuItemText>Investors</MenuItemText></MenuItem>
-          <MenuItem onClick={(e) => setIsGoToRoadmap(true)}><MenuItemText>Roadmap</MenuItemText></MenuItem>
-          <MenuItem onClick={(e) => setIsGoToCommunity(true)}><MenuItemText>Community</MenuItemText></MenuItem>
-          {/* <MenuItem><Link to='/pool'><MenuItemText>Research</MenuItemText></Link></MenuItem> */}
-          <Link to='/swap'><LaunchBtn width='150px' height='40px' borderRadius='20px' backgroundColor='transparent'>Launch App</LaunchBtn></Link>
-        </Row>
-      </div>
-      <div ref={home_ref} >
+      
+      <div>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <img src={PTP_logo_edge3} alt='logo' style={{ width: '500px', height: '500px', marginTop: '120px' }} />
         </div>
@@ -167,7 +99,6 @@ export default function Home() {
             hoverBorderColor='#dddddd'
             hoverColor='#dddddd'
             hoverBackgroundColor='#425684'
-            onClick={(e) => setIsGoToCommunity(true)}
           >
             Join Community
           </RoundEdgeBtn>
@@ -196,12 +127,12 @@ export default function Home() {
             <Col className='col-2' />
             <Col>
               <div style={{ paddingLeft: '70px', paddingRight: '70px' }}>
-                <img src='https://platypus.finance/graphic-problem-slippage.png' alt='img' />
+                <img src={graphicProblemSlippage} alt='img' />
               </div>
             </Col>
             <Col>
               <div style={{ paddingLeft: '70px', paddingRight: '70px' }}>
-                <img src='https://platypus.finance/graphic-problem-bad-ux.png' alt='img' />
+                <img src={graphicProblemBadUx} alt='img' />
               </div>
             </Col>
             <Col className='col-2' />
@@ -232,17 +163,17 @@ export default function Home() {
             <Col className='col-2' />
             <Col>
               <div style={{ paddingLeft: '70px', paddingRight: '70px' }}>
-                <img src='https://platypus.finance/benefit-graphic-slippage.png' alt='img' />
+                <img src={benefitGraphicSlippage} alt='img' />
               </div>
             </Col>
             <Col>
               <div style={{ paddingLeft: '70px', paddingRight: '70px' }}>
-                <img src='https://platypus.finance/benefit-graphic-scalability.png' alt='img' />
+                <img src={benefitGraphicScalability} alt='img' />
               </div>
             </Col>
             <Col>
               <div style={{ paddingLeft: '70px', paddingRight: '70px' }}>
-                <img src='https://platypus.finance/benefit-graphic-ux.png' alt='img' />
+                <img src={benefitGraphicUx} alt='img' />
               </div>
             </Col>
             <Col className='col-2' />
@@ -270,7 +201,7 @@ export default function Home() {
             <Col className='col-2' />
           </Row>
         </div>
-        <div ref={investor_ref} style={{ display: 'flex', justifyContent: 'center', marginTop: '150px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '150px' }}>
           <Text style={{ fontSize: '50px', color: '#ff720d', marginTop: '100px' }}>Investors</Text>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '70px', alignItems: 'center' }}>
@@ -303,23 +234,23 @@ export default function Home() {
           <Text style={{ fontSize: '50px', color: '#ff720d' }}>Audits</Text>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '70px', alignItems: 'center' }}>
-          <img src='https://platypus.finance/static/9faebd0c11e5945c1429e0d09d439b3f/auditor-01-Hacken.png' width='76' height='86' alt='img' />
-          <img className='ml-5' src='https://platypus.finance/static/9c3acf561ebeb07fe53f96461fb51760/auditor-02-Omniscia.png' width='81' height='88' alt='img' />
+          <img src={auditorHacken} width='76' height='86' alt='img' />
+          <img className='ml-5' src={auditorOmniscia} width='81' height='88' alt='img' />
         </div>
-        <div ref={roadmap_ref} style={{ display: 'flex', justifyContent: 'center', marginTop: '150px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '150px' }}>
           <Text style={{ fontSize: '50px', color: '#ff720d', marginTop: '100px' }}>Roadmap</Text>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '170px', alignItems: 'center' }}>
           <img src={Roadmap} width='600' height='800' alt='img' />
         </div>
-        <div ref={community_ref} style={{ display: 'flex', justifyContent: 'center', marginTop: '150px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '150px' }}>
           <Text style={{ fontSize: '50px', color: '#ff720d', marginTop: '100px' }}>Join Our Community</Text>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '70px', marginBottom: '150px', alignItems: 'center' }}>
-          <img style={{cursor: 'pointer'}} src='https://platypus.finance/sn-logo-twitter.inline.svg' width='53' height='43' alt='img' />
-          <img style={{ marginLeft: '100px', cursor: 'pointer'}} src='https://platypus.finance/sn-logo-telegram.inline.svg' width='50' height='50' alt='img' />
-          <img style={{ marginLeft: '100px', cursor: 'pointer'}} src='https://platypus.finance/sn-logo-discord.inline.svg' width='58' height='44' alt='img' />
-          <img style={{ marginLeft: '100px', cursor: 'pointer'}} src='https://platypus.finance/sn-logo-medium.inline.svg' width='65' height='37' alt='img' />
+          <img style={{cursor: 'pointer'}} src={logoTwitter} width='53' height='43' alt='img' />
+          <img style={{ marginLeft: '100px', cursor: 'pointer'}} src={logoTwitter} width='50' height='50' alt='img' />
+          <img style={{ marginLeft: '100px', cursor: 'pointer'}} src={logoDiscord} width='58' height='44' alt='img' />
+          <img style={{ marginLeft: '100px', cursor: 'pointer'}} src={logoMedium} width='65' height='37' alt='img' />
         </div>
       </div>
     </>

@@ -1,3 +1,4 @@
+
 import { Currency, ETHER, Token } from '@pantherswap-libs/sdk'
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
@@ -6,9 +7,7 @@ import { WrappedTokenInfo } from '../../state/lists/hooks'
 import Logo from '../Logo'
 import CoinLogo from '../pancake/CoinLogo'
 
-const BASE_URL_LOCAL = 'http://localhost:3000'
-const BASE_URL_SERVER = 'http://134.209.22.166/scoindex'
-const BASE_URL = BASE_URL_SERVER
+const BASE_URL = process.env.REACT_APP_BASE_URL
 
 const getTokenLogoURL = (address: string) =>
   `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/${address}/logo.png`
