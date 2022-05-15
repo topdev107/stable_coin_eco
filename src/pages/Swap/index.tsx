@@ -447,7 +447,7 @@ const Swap = () => {
           console.log('=== potentialSwap_Exception ===')
           console.log(e)
           if (e.data !== undefined && e.data.message !== undefined) {
-            console.log(e.data.message)
+            // console.log(e.data.message)
             if (e.data.message === 'execution reverted: INSUFFICIENT_CASH') {
               setIsInsufficientCash(true)
             }
@@ -491,7 +491,7 @@ const Swap = () => {
 
   return (
     <>
-      <MyMenu/>
+      {/* <MyMenu/> */}
       <TokenWarningModal
         isOpen={urlLoadedTokens.length > 0 && !dismissTokenWarning}
         tokens={urlLoadedTokens}
@@ -502,7 +502,7 @@ const Swap = () => {
         transactionType={syrupTransactionType}
         onConfirm={handleConfirmSyrupWarning}
       />
-      <CardNav />
+      <CardNav activeIndex={1} />
       <AppBody>
         <Wrapper id="swap-page">
           <TransactionConfirmationModal

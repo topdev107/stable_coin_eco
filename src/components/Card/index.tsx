@@ -13,6 +13,16 @@ const Card = styled.div<any>`
 `
 export default Card
 
+const RCard = styled.div<any>`
+  width: 100%;
+  border-radius: 7px;
+  padding: 10px;
+  padding: ${({ padding }) => padding};
+  border: ${({ border }) => border};
+  border-radius: ${({ borderRadius }) => borderRadius};
+  height: ${({height}) => height};
+`
+
 export const LightCard = styled(Card)`
   border: 1px solid ${({ theme }) => theme.colors.invertedContrast};
   background-color: ${({ theme }) => theme.colors.invertedContrast};
@@ -58,3 +68,45 @@ export const BlueCard = ({ children, ...rest }: any) => {
     </BlueCardStyled>
   )
 }
+
+export const LightRCard = styled(RCard)`
+  border: 1px solid ${({ theme }) => theme.colors.invertedContrast};
+  background-color: ${({ theme }) => theme.colors.invertedContrast};
+`
+
+export const DarkblueOutlineRCard = styled(RCard)`
+  border: 1px solid ${({ theme }) => theme.colors.primaryDark};
+  background-color: ${({ theme }) => theme.colors.invertedContrast};
+  margin: ${({margin}) => margin};
+`
+
+export const GreyRCard = styled(RCard)`
+  background-color: ${({ theme }) => theme.colors.tertiary};
+`
+export const GreyOutlineRCard = styled(RCard)`
+  border: 1px solid ${({ theme }) => theme.colors.primaryDark};
+  background-color: ${({ theme }) => theme.colors.tertiary};
+`
+
+export const OutlineRCard = styled(RCard)`
+  border: 1px solid ${({ theme }) => theme.colors.tertiary};
+`
+
+export const YellowRCard = styled(RCard)`
+  background-color: rgba(243, 132, 30, 0.05);
+  color: ${({ theme }) => theme.colors.binance};
+  font-weight: 500;
+`
+
+export const PinkRCard = styled(RCard)`
+  background-color: rgba(255, 0, 122, 0.03);
+  color: ${({ theme }) => theme.colors.primary};
+  font-weight: 500;
+`
+
+export const BlueRCardStyled = styled(RCard)`
+  background-color: ${({ theme }) => theme.colors.primaryDark};
+  color: ${({ theme }) => theme.colors.primary};
+  border-radius: 12px;
+  width: fit-content;
+`

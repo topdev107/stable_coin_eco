@@ -17,7 +17,7 @@ import lock_icon from '../../assets/lock.png'
 import PTP_logo from '../../assets/PTP_logo.png'
 import timer_icon from '../../assets/timer.png'
 import vePTP_logo from '../../assets/vePTP_logo.png'
-import { ASSET_BUSD_ADDRESS, ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_ADDRESS, BUSD_LP_ID, DAI_LP_ID, USDC_LP_ID, USDT_LP_ID, VEPTP, PTP } from '../../constants'
+import { ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_ADDRESS, DAI_LP_ID, USDC_LP_ID, USDT_LP_ID, VEPTP, PTP } from '../../constants'
 import CurrencyLogo from '../CurrencyLogo'
 import { RowBetween } from '../Row'
 import WideModal from '../WideModal'
@@ -318,14 +318,12 @@ export default function CalcModal({
       const tokenAddress =
         selectedToken.symbol === 'DAI' ? ASSET_DAI_ADDRESS :
           selectedToken.symbol === 'USDC' ? ASSET_USDC_ADDRESS :
-            selectedToken.symbol === 'USDT' ? ASSET_USDT_ADDRESS :
-              selectedToken.symbol === 'BUSD' ? ASSET_BUSD_ADDRESS : '0x'
+            selectedToken.symbol === 'USDT' ? ASSET_USDT_ADDRESS : '0x'
 
       const lpID =
         selectedToken.symbol === 'DAI' ? DAI_LP_ID :
           selectedToken.symbol === 'USDC' ? USDC_LP_ID :
-            selectedToken.symbol === 'USDT' ? USDT_LP_ID :
-              selectedToken.symbol === 'BUSD' ? BUSD_LP_ID : '0'
+            selectedToken.symbol === 'USDT' ? USDT_LP_ID : '0'
 
       const stakingTimeSecond =
         selectedPeriodId === 0 ? 2 * 30 * 24 * 3600 :
@@ -538,8 +536,8 @@ export default function CalcModal({
 
           <div className='mt-4' style={{ display: 'flex', justifyContent: 'center' }}>
             <ButtonMenu activeIndex={tabIdx} size="sm" onClick={handleTabClick}>
-              <ButtonMenuItem>VePTP</ButtonMenuItem>
-              <ButtonMenuItem>PTP</ButtonMenuItem>
+              <ButtonMenuItem>veMARKET</ButtonMenuItem>
+              <ButtonMenuItem>MARKET</ButtonMenuItem>
             </ButtonMenu>
           </div>
 
@@ -551,7 +549,7 @@ export default function CalcModal({
                   <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
                     <div style={{ display: 'flex', justifyContent: 'center', backgroundColor: '#121827', paddingLeft: '15px', paddingRight: '0px' }}>
                       <img src={vePTP_logo} alt='logo' style={{ width: '23px', height: '23px', marginRight: '3px' }} />
-                      <Text className="mr-3">My vePTP</Text>
+                      <Text className="mr-3">My veMARKET</Text>
                     </div>
                   </div>
                 </div>
@@ -575,7 +573,7 @@ export default function CalcModal({
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
                       {/* <CurrencyLogo currency={VEPTP} size="24px" style={{ marginRight: '8px' }} /> */}
                       <img src={vePTP_logo} alt='logo' style={{ width: '23px', height: '23px', marginRight: '3px' }} />
-                      <Text>Total vePTP Supply</Text>
+                      <Text>Total veMARKET Supply</Text>
                     </div>
                     <Row className='mt-1'>
                       <Col>
@@ -594,9 +592,9 @@ export default function CalcModal({
                 <div className='mt-2'>
                   <RowBetween>
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                      <Text>vePTP Share</Text>
+                      <Text>veMARKET Share</Text>
                       <QuestionColorHelper
-                        text='The percentage of vePTP you would own.'
+                        text='The percentage of veMARKET you would own.'
                         color='white'
                       />
                     </div>
@@ -615,7 +613,7 @@ export default function CalcModal({
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                       <Text>Base APR</Text>
                       <QuestionColorHelper
-                        text='The base APR is independent of your vePTP balance.'
+                        text='The base APR is independent of your veMARKET balance.'
                         color='white'
                       />
                     </div>
@@ -633,7 +631,7 @@ export default function CalcModal({
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                       <Text>Current Boosted APR</Text>
                       <QuestionColorHelper
-                        text='The current boosted APR of PTP emission you are earning at.'
+                        text='The current boosted APR of MARKET emission you are earning at.'
                         color='white'
                       />
                     </div>
@@ -651,7 +649,7 @@ export default function CalcModal({
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                       <Text>Estimated Boosted APR</Text>
                       <QuestionColorHelper
-                        text='An estimate of the Boosted APR based on the vePTP balance you would have. The actual value is also affected by the distribution of vePTP.'
+                        text='An estimate of the Boosted APR based on the veMARKET balance you would have. The actual value is also affected by the distribution of veMARKET.'
                         color='white'
                       />
                     </div>
@@ -670,7 +668,7 @@ export default function CalcModal({
                   <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
                     <div style={{ display: 'flex', justifyContent: 'center', backgroundColor: '#121827', paddingLeft: '15px', paddingRight: '0px' }}>
                       <img src={PTP_logo} alt='logo' style={{ width: '23px', height: '23px', marginRight: '3px' }} />
-                      <Text className="mr-3">My Staked PTP</Text>
+                      <Text className="mr-3">My Staked MARKET</Text>
                     </div>
                   </div>
                 </div>
@@ -722,7 +720,7 @@ export default function CalcModal({
                 </div>
                 <div className='mt-2'>
                   <RowBetween>
-                    <Text>Estimated vePTP balance</Text>
+                    <Text>Estimated veMARKET balance</Text>
                     <Text>{nDecimals(2, norValue(vePTPData?.calculatedVePTP.add(vePTPBalanceOf)))}</Text>
                   </RowBetween>
                 </div>
@@ -731,7 +729,7 @@ export default function CalcModal({
                   <YellowCard>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
                       <CurrencyLogo currency={VEPTP} size="24px" style={{ marginRight: '8px' }} />
-                      <Text>Total vePTP Supply</Text>
+                      <Text>Total veMARKET Supply</Text>
                     </div>
                   </YellowCard>
                 </div>
@@ -739,7 +737,7 @@ export default function CalcModal({
                 <div className='mt-2'>
                   <RowBetween>
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                      <Text>vePTP Share</Text>
+                      <Text>veMARKET Share</Text>
                       <QuestionColorHelper
                         text='The percentage of vePTP you would own.'
                         color='white'
@@ -760,7 +758,7 @@ export default function CalcModal({
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                       <Text>Base APR</Text>
                       <QuestionColorHelper
-                        text='The base APR is independent of your vePTP balance.'
+                        text='The base APR is independent of your veMARKET balance.'
                         color='white'
                       />
                     </div>
@@ -778,7 +776,7 @@ export default function CalcModal({
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                       <Text>Current Boosted APR</Text>
                       <QuestionColorHelper
-                        text='The current boosted APR of PTP emission you are earning at.'
+                        text='The current boosted APR of MARKET emission you are earning at.'
                         color='white'
                       />
                     </div>
@@ -796,7 +794,7 @@ export default function CalcModal({
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                       <Text>Estimated Boosted APR</Text>
                       <QuestionColorHelper
-                        text='An estimate of the Boosted APR based on the vePTP balance you would have. The actual value is also affected by the distribution of vePTP.'
+                        text='An estimate of the Boosted APR based on the veMARKET balance you would have. The actual value is also affected by the distribution of veMARKET.'
                         color='white'
                       />
                     </div>

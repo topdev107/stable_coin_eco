@@ -376,7 +376,7 @@ export default function Staking() {
 
   return (
     <>
-      <MyMenu/>
+      {/* <MyMenu/> */}
       <PTPStakeModal
         isOpen={isPTPStakeModalOpen}
         token={PTP}
@@ -427,11 +427,11 @@ export default function Staking() {
         onDismiss={closeCalcModal}
       />
 
-      <CardNav activeIndex={2} />
+      <CardNav activeIndex={3} />
       <MaxWidthDiv>
         <LightCard className="mt-2 p-3">
           <div className='mt-3' style={{ display: 'flex', justifyContent: 'center' }}>
-            <Text fontSize='30px'>Stake PTP to Boost Yield</Text>
+            <Text fontSize='30px'>Stake MARKET to Boost Yield</Text>
           </div>
           <div style={{ display: 'flex', justifyContent: 'center' }} className='mt-4'>
             {
@@ -457,14 +457,14 @@ export default function Staking() {
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                       <Text color='#888' fontSize='14px'>{`Total vePTP supply: ${nDecimals(2, norValue(baseData.veTotalSupply) / (10 ** 6))}M`}</Text>
                       <QuestionColorHelper
-                        text='Total vePTP balance of all users'
+                        text='Total veMARKET balance of all users'
                         color='white'
                       />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                       <Text color='#888' fontSize='14px'>{`Max vePTP to Earn: ${nDecimals(2, norValue(baseData.ptpStakedAmount) * 100)}`}</Text>
                       <QuestionColorHelper
-                        text='Max vePTP you can earn is 100 times of your staked PTP'
+                        text='Max veMARKET you can earn is 100 times of your staked MARKET'
                         color='white'
                       />
                     </div>
@@ -479,19 +479,19 @@ export default function Staking() {
                       <img src={PTP_logo_blank} alt='logo' style={{ width: '40px', height: '40px' }} />
                       <div className='ml-2'>
                         <Text color='#888'>0.00</Text>
-                        <Text color='#888'>Staked PTP</Text>
+                        <Text color='#888'>Staked MARKET</Text>
                       </div>
                     </div>
                   </Col>
                   <Col style={{ display: 'flex', justifyContent: 'center' }}>
                     <div>
                       <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <Text color='#888'>0 vePTP/hour</Text>
+                        <Text color='#888'>0 veMARKET/hour</Text>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                        <Text color='#888'>vePTP Mine Rate</Text>
+                        <Text color='#888'>veMARKET Mine Rate</Text>
                         <QuestionColorHelper
-                          text='Each staked PTP generates 0.0 vePTP per second'
+                          text='Each staked MARKET generates 0.0 veMARKET per second'
                           color='white'
                         />
                       </div>
@@ -506,7 +506,7 @@ export default function Staking() {
                             <div style={{ display: 'flex', justifyContent: 'center' }}>
                               <Text color='#888'>0.0</Text>
                             </div>
-                            <Text color='#888'>vePTP Mined</Text>
+                            <Text color='#888'>veMARKET Mined</Text>
                           </div>
                         </div>
                       </Col>
@@ -522,7 +522,7 @@ export default function Staking() {
             <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
               <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', backgroundColor: '#0a0e17', paddingLeft: '10px', paddingRight: '10px' }}>
                 <img src={PTP_logo} alt='logo' style={{ width: '25px', height: '25px' }} />
-                <Text className='ml-1'>vePTP boosts PTP APR (</Text>
+                <Text className='ml-1'>veMARKET boosts MARKET APR (</Text>
                 {
                   account ?
                     <Text className='textBtn' style={{ color: '#ff720d', cursor: 'pointer' }} onClick={openCalcModal}>Booster Calculator</Text> :
@@ -540,9 +540,9 @@ export default function Staking() {
                     <Col>
                       <div style={{ display: 'flex', justifyContent: 'center' }}>
                         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                          <Text>Claimable vePTP</Text>
+                          <Text>Claimable veMARKET</Text>
                           <QuestionColorHelper
-                            text='Each staked PTP generates 0.0 vePTP per second'
+                            text='Each staked MARKET generates 0.0 veMARKET per second'
                             color='white'
                           />
                         </div>
@@ -553,7 +553,7 @@ export default function Staking() {
                     </Col>
                     <Col>
                       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        <Button variant='success' size='sm' onClick={openVePTPClaimModal}>Claim vePTP</Button>
+                        <Button variant='success' size='sm' onClick={openVePTPClaimModal}>Claim veMARKET</Button>
                       </div>
                     </Col>
                   </Row>
@@ -566,19 +566,19 @@ export default function Staking() {
                         <img src={PTP_logo_blank} alt='logo' style={{ width: '40px', height: '40px' }} />
                         <div className='ml-2'>
                           <Text>{nDecimals(2, norValue(baseData.ptpStakedAmount))}</Text>
-                          <Text color='#888'>Staked PTP</Text>
+                          <Text color='#888'>Staked MARKET</Text>
                         </div>
                       </div>
                     </Col>
                     <Col style={{ display: 'flex', justifyContent: 'center' }}>
                       <div>
                         <div style={{ display: 'flex', justifyContent: 'center' }}>
-                          <Text>{`${nDecimals(2, norValue(baseData.calcVePTPAmount))} vePTP/hour`}</Text>
+                          <Text>{`${nDecimals(2, norValue(baseData.calcVePTPAmount))} veMARKET/hour`}</Text>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                          <Text color='#888'>vePTP Mine Rate</Text>
+                          <Text color='#888'>veMARKET Mine Rate</Text>
                           <QuestionColorHelper
-                            text={`Each staked PTP generates ${nDecimals(8, norValue(baseData.calcVePTPAmount) / norValue(baseData.ptpStakedAmount) / 3600)} vePTP per second`}
+                            text={`Each staked MARKET generates ${nDecimals(8, norValue(baseData.calcVePTPAmount) / norValue(baseData.ptpStakedAmount) / 3600)} veMARKET per second`}
                             color='white'
                           />
                         </div>

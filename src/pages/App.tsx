@@ -13,7 +13,7 @@ import { TranslationsContext } from '../hooks/TranslationsContext'
 import Pool from './Pool'
 import Staking from './Staking'
 import Swap from './Swap'
-import Home from './Home'
+import Home from './Home/index'
 import PoolFinder from './PoolFinder'
 
 
@@ -149,7 +149,7 @@ export default function App() {
             value={{ selectedLanguage, setSelectedLanguage, translatedLanguage, setTranslatedLanguage }}
           >
             <TranslationsContext.Provider value={{ translations, setTranslations }}>
-              {/* <MyMenu /> */}
+              <MyMenu />
               <MyBodyWrapper>
                 <Popups />
                 <Web3ReactManager>

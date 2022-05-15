@@ -1,7 +1,7 @@
 import { Token } from '@pantherswap-libs/sdk'
 import { Button, Text } from '@pantherswap-libs/uikit'
 import Slider from 'components/Slider'
-import { BigNumber } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import { calcFee, float2int, getUnitedValue, getUsefulCount, nDecimals, norValue, PoolItemBaseData } from 'utils'
@@ -13,8 +13,6 @@ import CurrencyLogo from '../CurrencyLogo'
 import Modal from '../Modal'
 import { QuestionColorHelper } from '../QuestionHelper'
 import { RowBetween } from '../Row'
-
-
 
 const CenterContainerStyle = {
   display: 'flex',
@@ -201,8 +199,9 @@ export default function WithdrawConfirmModal({
           </Col>
           <Col className='pl-1 pr-3'>
             {
-              avaliable && token !== undefined?              
-                <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleWithdraw(e, BigNumber.from(float2int(getUnitedValue((selectedAmount / 100 - fee).toString(), token?.decimals).toString())), token)}>Withdraw</Button> :
+              avaliable && token !== undefined? 
+                // <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleWithdraw(e, BigNumber.from(float2int(getUnitedValue((selectedAmount / 100 - fee).toString(), token?.decimals).toString())), token)}>Withdraw</Button> :
+                <Button variant='primary' style={{ borderRadius: '5px' }} fullWidth onClick={(e) => handleWithdraw(e, ethers.utils.parseUnits((Math.floor(selectedAmount) / 100).toString(), token.decimals), token)}>Withdraw</Button> :
                 <Button variant='primary' style={{ borderRadius: '5px' }} disabled fullWidth>Withdraw</Button>
             }
           </Col>

@@ -16,9 +16,9 @@ const Nav = ({ activeIndex = 0 }: { activeIndex?: number }) => {
   return (
     <StyledNav>
       <ButtonMenu activeIndex={activeIndex} size="sm" variant="subtle">
-        {/* <ButtonMenuItem id="swap-nav-link" to="/" as={Link}>
+        <ButtonMenuItem id="swap-nav-link" to="/" as={Link}>
           Main
-        </ButtonMenuItem> */}
+        </ButtonMenuItem>
         <ButtonMenuItem id="swap-nav-link" to="/swap" as={Link}>
           Swap
         </ButtonMenuItem>
@@ -26,14 +26,14 @@ const Nav = ({ activeIndex = 0 }: { activeIndex?: number }) => {
           Pool
         </ButtonMenuItem>
         <ButtonMenuItem id="staking-nav-link" to="/veptp" as={Link}>
-          VePTP
+          veMARKET
         </ButtonMenuItem>
       </ButtonMenu>
-      <div style={{display: 'inline-block', position: 'relative', top: '5px'}}>
+      {/* <div style={{display: 'inline-block', position: 'relative', top: '5px'}}>
         <IconButton size='sm' className="ml-3" variant="primary" onClick={onPresentSettings} title="Settings">
           <CogIcon />
         </IconButton>
-      </div>
+      </div> */}
     </StyledNav>
   )
 }

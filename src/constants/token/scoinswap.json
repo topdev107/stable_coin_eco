@@ -10,15 +10,7 @@
   "logoURI": "/images/coins/wbnb.png",
   "keywords": ["pancake", "default"],
   "tokens": [
-   
-    {
-      "name": "BUSD Token",
-      "symbol": "BUSD",
-      "address": "0xcC7290a24ee520d71465b7282C4a23dFFa6055aF",
-      "chainId": 97,
-      "decimals": 18,
-      "logoURI": "/images/coins/BUSD.png"
-    },
+      
     {
       "name": "Tether USD",
       "symbol": "USDT",
@@ -28,20 +20,20 @@
       "logoURI": "/images/coins/USDT-icon.png"
     },
     {
-      "name": "USDC Token",
-      "symbol": "USDC",
-      "address": "0x3861e9F29fcAFF738906c7a3a495583eE7Ca4C18",
-      "chainId": 97,
-      "decimals": 6,
-      "logoURI": "/images/coins/USDC-icon.png"
-    },
-    {
       "name": "Dai Token",
       "symbol": "DAI",
       "address": "0x332C7aC34580dfEF553B7726549cEc7015C4B39b",
       "chainId": 97,
       "decimals": 18,
       "logoURI": "/images/coins/DAI-icon.png"
-    }
+    },
+    {
+      "name": "USDC Token",
+      "symbol": "USDC",
+      "address": "0x3861e9F29fcAFF738906c7a3a495583eE7Ca4C18",
+      "chainId": 97,
+      "decimals": 6,
+      "logoURI": "/images/coins/USDC-icon.png"
+    }    
   ]
 }

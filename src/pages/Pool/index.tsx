@@ -11,6 +11,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useTnxHandler } from 'state/tnxs/hooks'
 import styled from 'styled-components'
 import MyMenu from 'components/MyMenu'
+import AutoProModal from 'components/AutoProModal'
 import { float2int, getAssetContract, getERC20Contract, getMasterPlatypusContract, getPoolContract, getPriceProviderContract, getVePTPContract, nDecimals, norValue, PoolItemBaseData } from 'utils'
 import CurrencyLogo from '../../components/CurrencyLogo'
 import DepositModal from '../../components/DepositConfirmModal'
@@ -19,7 +20,7 @@ import LPUnStakeModal from '../../components/LPUnStakeConfirmModal'
 import PTPClaimModal from '../../components/PTPClaimConfirmModal'
 import TransactionConfirmationModal, { TransactionErrorContent } from '../../components/TransactionConfirmationModal'
 import WithdrawModal from '../../components/WithdrawConfirmModal'
-import { ASSET_BUSD_ADDRESS, ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_ADDRESS, BUSD_LP_ID, DAI_LP_ID, DEFAULT_DEADLINE_FROM_NOW, MASTER_PLATYPUS_ADDRESS, POOL_ADDRESS, PTP, T_FEE, USDC_LP_ID, USDT_LP_ID } from '../../constants'
+import { ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_ADDRESS, DAI_LP_ID, DEFAULT_DEADLINE_FROM_NOW, MASTER_PLATYPUS_ADDRESS, POOL_ADDRESS, PTP, T_FEE, USDC_LP_ID, USDT_LP_ID } from '../../constants'
 import { useAllTokens } from '../../hooks/Tokens'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
 import Question from '../../components/QuestionHelper'
@@ -39,6 +40,7 @@ export default function Pool() {
   const [isLPStakeModalOpen, setIsLPStakeModalOpen] = useState<boolean>(false);
   const [isLPUnStakeModalOpen, setIsLPUnStakeModalOpen] = useState<boolean>(false);
   const [isPTPClaimModalOpen, setIsPTPClaimModalOpen] = useState<boolean>(false);
+  const [isAutoProModalOpen, setIsAutoProModalOpen] = useState<boolean>(false);
   const [isNeedRefresh, setIsNeedRefresh] = useState<boolean>(true)
   const [totalRewardablePTPAmount, setTotalRewardablePTPAmount] = useState<number>(0)
 
@@ -100,6 +102,9 @@ export default function Pool() {
   }
 
   const closePTPClaimModal = useCallback(() => setIsPTPClaimModalOpen(false), [setIsPTPClaimModalOpen]);
+
+  const openAutoProModal = useCallback(() => {if (account !== null && account !== undefined) setIsAutoProModalOpen(true)}, [account, setIsAutoProModalOpen]);
+  const closeAutoProModal = useCallback(() => setIsAutoProModalOpen(false), [setIsAutoProModalOpen]);
 
   // const volume24_url = 'http://localhost:5000/api/v1/tnxs/'
   const volume24_url = 'https://fathomless-savannah-95001.herokuapp.com/api/v1/tnxs/'
@@ -195,13 +200,14 @@ export default function Pool() {
       const poolContract = getPoolContract(chainId, library, account)
       const deadline = Date.now() + DEFAULT_DEADLINE_FROM_NOW * 1000
 
-      const minAmount = (+amount) - (+amount) * T_FEE
-      const minimumAmount = BigNumber.from(float2int(minAmount.toString()))
+      // const minAmount = (+amount) - (+amount) * T_FEE
+      const minAmount = amount.sub(amount.div(BigNumber.from(1/T_FEE)))
+      // const minimumAmount = BigNumber.from(float2int(minAmount.toString()))
       console.log('Withdraw Amount: ', amount.toString())
-      console.log('Withdraw minimumAmount: ', minimumAmount.toString())
+      // console.log('Withdraw minimumAmount: ', minimumAmount.toString())
 
       let tnx_hash = ''
-      await poolContract.withdraw(tkn.address, amount, minimumAmount.toString(), account, deadline)
+      await poolContract.withdraw(tkn.address, amount, minAmount, account, deadline)
         .then((response) => {
           setAttemptingTxn(false)
           console.log('Withdraw: ', response)
@@ -332,8 +338,7 @@ export default function Pool() {
       const tokenAddress =
         token.symbol === 'DAI' ? ASSET_DAI_ADDRESS :
           token.symbol === 'USDC' ? ASSET_USDC_ADDRESS :
-            token.symbol === 'USDT' ? ASSET_USDT_ADDRESS :
-              token.symbol === 'BUSD' ? ASSET_BUSD_ADDRESS : '0x'
+            token.symbol === 'USDT' ? ASSET_USDT_ADDRESS : '0x'
       setShowConfirm(true)
       setAttemptingTxn(true)
       const assetContract = getAssetContract(chainId, tokenAddress, library, account)
@@ -391,8 +396,7 @@ export default function Pool() {
       const tokenAddress =
         token.symbol === 'DAI' ? ASSET_DAI_ADDRESS :
           token.symbol === 'USDC' ? ASSET_USDC_ADDRESS :
-            token.symbol === 'USDT' ? ASSET_USDT_ADDRESS :
-              token.symbol === 'BUSD' ? ASSET_BUSD_ADDRESS : '0x'
+            token.symbol === 'USDT' ? ASSET_USDT_ADDRESS : '0x'
       setShowConfirm(true)
       setAttemptingTxn(true)
       const assetContract = getAssetContract(chainId, tokenAddress, library, account)
@@ -456,8 +460,7 @@ export default function Pool() {
       const lpID =
         token.symbol === 'DAI' ? DAI_LP_ID :
           token.symbol === 'USDC' ? USDC_LP_ID :
-            token.symbol === 'USDT' ? USDT_LP_ID :
-              token.symbol === 'BUSD' ? BUSD_LP_ID : '0'
+            token.symbol === 'USDT' ? USDT_LP_ID : '0'
 
       await masterPlatypusContract.stakingLP(lpID, amount)
         .then((response) => {
@@ -517,8 +520,7 @@ export default function Pool() {
       const lpID =
         token.symbol === 'DAI' ? DAI_LP_ID :
           token.symbol === 'USDC' ? USDC_LP_ID :
-            token.symbol === 'USDT' ? USDT_LP_ID :
-              token.symbol === 'BUSD' ? BUSD_LP_ID : '0'
+            token.symbol === 'USDT' ? USDT_LP_ID : '0'
 
       console.log('Unstake LP Amount: ', amount)
       await masterPlatypusContract.unStakingLP(lpID, amount)
@@ -579,8 +581,7 @@ export default function Pool() {
       const lpID =
         token.symbol === 'DAI' ? DAI_LP_ID :
           token.symbol === 'USDC' ? USDC_LP_ID :
-            token.symbol === 'USDT' ? USDT_LP_ID :
-              token.symbol === 'BUSD' ? BUSD_LP_ID : '0'
+            token.symbol === 'USDT' ? USDT_LP_ID : '0'
 
       await masterPlatypusContract.claimPTP(lpID)
         .then((response) => {
@@ -702,14 +703,12 @@ export default function Pool() {
         const tokenAddress =
           token.symbol === 'DAI' ? ASSET_DAI_ADDRESS :
             token.symbol === 'USDC' ? ASSET_USDC_ADDRESS :
-              token.symbol === 'USDT' ? ASSET_USDT_ADDRESS :
-                token.symbol === 'BUSD' ? ASSET_BUSD_ADDRESS : '0x'
+              token.symbol === 'USDT' ? ASSET_USDT_ADDRESS : '0x'
 
         const lpID =
           token.symbol === 'DAI' ? DAI_LP_ID :
             token.symbol === 'USDC' ? USDC_LP_ID :
-              token.symbol === 'USDT' ? USDT_LP_ID :
-                token.symbol === 'BUSD' ? BUSD_LP_ID : '0'
+              token.symbol === 'USDT' ? USDT_LP_ID : '0'
 
         const assetContract = getAssetContract(chainId, tokenAddress, library, account)
         const priceProviderContract = getPriceProviderContract(chainId, library, account)
@@ -819,7 +818,7 @@ export default function Pool() {
             }
             return bData
           })
-        
+
       }))
         .then(response => {
           return response
@@ -914,7 +913,7 @@ export default function Pool() {
 
   return (
     <>
-      <MyMenu/>
+      {/* <MyMenu/> */}
       <DepositModal
         isOpen={isDepositModalOpen}
         token={selectedToken}
@@ -964,6 +963,12 @@ export default function Pool() {
         onRefresh={handleRefresh}
       />
 
+      <AutoProModal
+        isOpen={isAutoProModalOpen}
+        baseData={baseData}
+        onDismiss={closeAutoProModal}        
+      />
+
       <TransactionConfirmationModal
         isOpen={showConfirm}
         onDismiss={handleDismissConfirmation}
@@ -978,36 +983,40 @@ export default function Pool() {
         pendingText={pendingText}
       />
 
-      <CardNav activeIndex={1} />
+      <CardNav activeIndex={2} />
       <MaxWidthDiv>
-        <LightCard className="mt-2 ml-1">
-          <RowBetween>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Button size='sm' onClick={openAutoProModal}>Get Started Investing In MARKET</Button>
+        </div>
+        <LightCard className="mt-4 ml-1">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               {
                 totalRewardablePTPAmount > 0.01 ? (
                   <div>
                     <CenterContainer>
-                      <Text style={verticalCenterContainerStyle}>Pools Earning: <CurrencyLogo currency={PTP} size="20px" style={{ marginLeft: '5px', marginRight: '5px' }} /> {`${nDecimals(6, totalRewardablePTPAmount)} PTP`}</Text>
+                      <Text style={verticalCenterContainerStyle}>Pools Earning: <CurrencyLogo currency={PTP} size="20px" style={{ marginLeft: '5px', marginRight: '5px' }} /> {`${nDecimals(6, totalRewardablePTPAmount)} MARKET`}</Text>
                       <Question
-                        text={`${totalRewardablePTPAmount} PTP`}
+                        text={`${totalRewardablePTPAmount} MARKET`}
                       />
                     </CenterContainer>
                   </div>
                 ) : (
                   <div>
                     <CenterContainer>
-                      <Text style={verticalCenterContainerStyle}>Pools Earning: <CurrencyLogo currency={PTP} size="20px" style={{ marginLeft: '5px', marginRight: '5px' }} /> {`< 0.01 PTP`}</Text>
+                      <Text style={verticalCenterContainerStyle}>Pools Earning: <CurrencyLogo currency={PTP} size="20px" style={{ marginLeft: '5px', marginRight: '5px' }} /> {`< 0.01 MARKET`}</Text>
                       <Question
-                        text={`${totalRewardablePTPAmount} PTP`}
+                        text={`${totalRewardablePTPAmount} MARKET`}
                       />
                     </CenterContainer>
                   </div>
                 )
               }
             </div>
-            <Button variant='secondary' size='sm' style={borderRadius7} onClick={handleMultiClaimPTP}>Claim PTP</Button>            
-          </RowBetween>
+            <Button variant='secondary' size='sm' style={borderRadius7} onClick={handleMultiClaimPTP}>Claim MARKET</Button>
+          </div>
         </LightCard>
+
         {
           Object.values(allTokens).map((onetoken, index) => {
             return (

@@ -98,8 +98,8 @@ export default function StakeView({
                           <Text fontSize='11px' color='darkOrange'>{radio === 'stake' ? 'Staked' : 'Stakable'}</Text>
                           <Question
                             text={radio === 'stake' ?
-                              `Amount of your deposited ${token.symbol} (as LP token) which is currently staked and generating PTP` :
-                              `Amount of your deposited ${token.symbol} (as LP token) which can be staked to generate yield in PTP`
+                              `Amount of your deposited ${token.symbol} (as LP token) which is currently staked and generating MARKET` :
+                              `Amount of your deposited ${token.symbol} (as LP token) which can be staked to generate yield in MARKET`
                             }
                           />
                         </CenterVerticalContainer>
@@ -107,8 +107,8 @@ export default function StakeView({
                           <Text fontSize='11px' >{radio === 'stake' ? 'Stakable' : 'Staked'}</Text>
                           <QuestionColorHelper
                             text={radio === 'stake' ?
-                              `Amount of your deposited ${token.symbol} (as LP token) which can be staked to generate yield in PTP` :
-                              `Amount of your deposited ${token.symbol} (as LP token) which is currently staked and generating PTP`
+                              `Amount of your deposited ${token.symbol} (as LP token) which can be staked to generate yield in MARKET` :
+                              `Amount of your deposited ${token.symbol} (as LP token) which is currently staked and generating MARKET`
                             }
                             color='white'
                           />
@@ -124,7 +124,7 @@ export default function StakeView({
                         <Row>
                           <Col style={verticalCenterContainerStyle100}>
                             <Text className='text-right w-100' >{formattedClaimableAmount}</Text>
-                            <Text fontSize='11px' className='text-right ml-1'> PTP</Text>
+                            <Text fontSize='11px' className='text-right ml-1'> MARKET</Text>
                           </Col>
                         </Row>
                       </div>
@@ -155,7 +155,7 @@ export default function StakeView({
               ) : (
                 radio === 'stake' ? (
                   <div>
-                    <Text fontSize='10px'>Earned PTP will be automatically claimed on staking</Text>
+                    <Text fontSize='10px'>Earned MARKET will be automatically claimed on staking</Text>
                     {
                       stakableAmount > 0.000001 ? (
                         <Button style={borderRadius7} fullWidth onClick={openLPStakeModal}>Stake All</Button>
@@ -166,7 +166,7 @@ export default function StakeView({
                   </div>
                 ) : (
                   <div>
-                    <Text fontSize='10px'>Earned PTP will be automatically claimed on unstaking</Text>
+                    <Text fontSize='10px'>Earned MARKET will be automatically claimed on unstaking</Text>
                     {
                       stakedAmount > 0.000001 ? (
                         <Button style={borderRadius7} fullWidth onClick={openLPUnStakeModal}>Unstake All</Button>

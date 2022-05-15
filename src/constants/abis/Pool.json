@@ -99,6 +99,31 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "prevM",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newM",
+        "type": "address"
+      }
+    ],
+    "name": "MasterPlatypusV3Updated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "previousOracle",
         "type": "address"
       },
@@ -129,6 +154,31 @@
       }
     ],
     "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "preP",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newP",
+        "type": "address"
+      }
+    ],
+    "name": "PTPV2Updated",
     "type": "event"
   },
   {
@@ -180,6 +230,31 @@
       }
     ],
     "name": "RetentionRatioUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "prevRate",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newRate",
+        "type": "uint256"
+      }
+    ],
+    "name": "ScoinPerMARKETUpdated",
     "type": "event"
   },
   {
@@ -402,6 +477,59 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token1",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "token2",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "token3",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount1",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount2",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount3",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "isAutoAllocation",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "investPercent",
+        "type": "uint256"
+      }
+    ],
+    "name": "depositAuto",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "getC1",
     "outputs": [
@@ -442,12 +570,38 @@
   },
   {
     "inputs": [],
+    "name": "getMasterPlatypusV3",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getMaxPriceDeviation",
     "outputs": [
       {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getPTPV2",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -469,6 +623,19 @@
   {
     "inputs": [],
     "name": "getRetentionRatio",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getScoinPerMARKET",
     "outputs": [
       {
         "internalType": "uint256",
@@ -575,30 +742,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "initialToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "wantedToken",
-        "type": "address"
-      }
-    ],
-    "name": "quoteMaxInitialAssetWithdrawable",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "maxInitialAssetAmount",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "fromToken",
         "type": "address"
       },
@@ -667,40 +810,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "initialToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "wantedToken",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "liquidity",
-        "type": "uint256"
-      }
-    ],
-    "name": "quotePotentialWithdrawFromOtherAsset",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "fee",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "key",
         "type": "address"
       }
@@ -746,12 +855,38 @@
   {
     "inputs": [
       {
+        "internalType": "contract MasterPlatypusV3",
+        "name": "mv",
+        "type": "address"
+      }
+    ],
+    "name": "setMasterPlatypusV3",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "maxPriceDeviation_",
         "type": "uint256"
       }
     ],
     "name": "setMaxPriceDeviation",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract PTPV2",
+        "name": "newP",
+        "type": "address"
+      }
+    ],
+    "name": "setPTPV2",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -778,6 +913,19 @@
       }
     ],
     "name": "setRetentionRatio",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "rate",
+        "type": "uint256"
+      }
+    ],
+    "name": "setScoinPerMARKET",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -957,50 +1105,6 @@
       }
     ],
     "name": "withdraw",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "initialToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "wantedToken",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "liquidity",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "minimumAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "deadline",
-        "type": "uint256"
-      }
-    ],
-    "name": "withdrawFromOtherAsset",
     "outputs": [
       {
         "internalType": "uint256",

@@ -52,8 +52,7 @@ export default function Home() {
 
   return (
     <>
-      <CardNav/>
-      
+      <CardNav/>      
       <div>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <img src={PTP_logo_edge3} alt='logo' style={{ width: '500px', height: '500px', marginTop: '120px' }} />
