@@ -55,13 +55,14 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
   }
 
   // if the account context isn't active, and there's an error on the network context, it's an irrecoverable error
-  if (!active && networkError) {
+  if (!active || networkError) {
     return (
       <MessageWrapper>
-        <Message>{t('unknownError')}</Message>
+        <Message>Please switch network to bsc testnet</Message>
       </MessageWrapper>
     )
   }
+
 
   // if neither context is active, spin
   if (!active && !networkActive) {
