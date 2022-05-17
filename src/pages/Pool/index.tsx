@@ -195,7 +195,6 @@ export default function Pool() {
   const handleWithdraw = useCallback(
     async (amount: BigNumber, tkn: Token | undefined) => {
       if (!chainId || !library || !account || !tkn) return
-      console.log('Withdraw Amount: ', amount.toString())
       setShowConfirm(true)
       setIsWithdrawModalOpen(false)
       setAttemptingTxn(true)
@@ -206,7 +205,8 @@ export default function Pool() {
       const minAmount = amount.sub(amount.div(BigNumber.from(1/T_FEE)))
       // const minimumAmount = BigNumber.from(float2int(minAmount.toString()))
       console.log('Withdraw Amount: ', amount.toString())
-      // console.log('Withdraw minimumAmount: ', minimumAmount.toString())
+      console.log('Withdraw miniAmount: ', minAmount.toString())
+
 
       let tnx_hash = ''
       await poolContract.withdraw(tkn.address, amount, minAmount, account, deadline)
@@ -772,7 +772,7 @@ export default function Pool() {
             const medianBoostedAPR = BigNumber.from(response[16]._hex)
             const coverageRatio = BigNumber.from(response[17]._hex)
 
-            setTotalRewardablePTPAmount(norValue(multiRewardablePTPAmount))
+            setTotalRewardablePTPAmount(norValue(multiRewardablePTPAmount)*10**PTP.decimals)            
 
             const bData: PoolItemBaseData = {
               'symbol': token.symbol,

@@ -25,7 +25,7 @@ export const ASSET_USDC_ADDRESS = '0x0e4866F1858C366903efca829dBD95FbAd630248' /
 
 export const PTP_ADDRESS = '0x90Da020FAE2afEA1D97cb4AF9cAe6fb963bBB5e8'        // fantom testnet
 export const VEPTP_ADDRESS = '0x60FA10712054C8408540055030Db5B92aC373996'      // fantom testnet
-export const MASTER_PLATYPUS_ADDRESS = '0x69391E4A8520F5Bf2CaEF1256A6d4e04623EDa7A'   // fantom testnet
+export const MASTER_PLATYPUS_ADDRESS = '0x849B8f61878747B436782652a272c3D699c4F849'   // fantom testnet
 // ====================
 
 export const USDT_LP_ID = 0
