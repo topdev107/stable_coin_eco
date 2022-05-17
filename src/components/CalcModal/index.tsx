@@ -621,7 +621,7 @@ export default function CalcModal({
                       selectedToken === undefined || baseData === undefined ? (
                         <Text>0.0%</Text>
                       ) : (
-                        <Text>{`${nDecimals(2, parseInt(baseData.baseAPR.toHexString(), 16) / (10 ** 5 * 10 ** 18))}%`}</Text>
+                        <Text>{`${nDecimals(2, parseInt(baseData.baseAPR.toHexString(), 16) / (10 ** 18))}%`}</Text>
                       )
                     }
                   </RowBetween>

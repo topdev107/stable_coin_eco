@@ -77,6 +77,7 @@ function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): C
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
     const calls = callKeys.map((key) => parseCallKey(key))
+    
     dispatch(
       addMulticallListeners({
         chainId,
@@ -103,7 +104,7 @@ function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): C
         if (!chainId || !call) return INVALID_RESULT
 
         const result = callResults[chainId]?.[toCallKey(call)]        
-        const data = result?.data && result?.data !== '0x' ? result.data : null        
+        const data = result?.data && result?.data !== '0x' ? result.data : null 
         return { valid: true, data, blockNumber: result?.blockNumber }
       }),
     [callResults, calls, chainId]
@@ -200,7 +201,6 @@ export function useMultipleContractSingleData(
   options?: ListenerOptions
 ): CallState[] {
 
-  
   const fragment = useMemo(() => contractInterface.getFunction(methodName), [contractInterface, methodName])
   const callData: string | undefined = useMemo(
     () =>

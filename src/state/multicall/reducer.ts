@@ -40,7 +40,8 @@ export default createReducer(initialState, builder =>
     .addCase(addMulticallListeners, (state, { payload: { calls, chainId, options: { blocksPerFetch = 1 } = {} } }) => {
       const listeners: MulticallState['callListeners'] = state.callListeners
         ? state.callListeners
-        : (state.callListeners = {})
+        : (state.callListeners = {})      
+        
       listeners[chainId] = listeners[chainId] ?? {}
       calls.forEach(call => {
         const callKey = toCallKey(call)
