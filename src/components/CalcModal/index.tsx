@@ -318,12 +318,12 @@ export default function CalcModal({
       const tokenAddress =
         selectedToken.symbol === 'DAI' ? ASSET_DAI_ADDRESS :
           selectedToken.symbol === 'USDC' ? ASSET_USDC_ADDRESS :
-            selectedToken.symbol === 'USDT' ? ASSET_USDT_ADDRESS : '0x'
+            selectedToken.symbol === 'fUSDT' ? ASSET_USDT_ADDRESS : '0x'
 
       const lpID =
         selectedToken.symbol === 'DAI' ? DAI_LP_ID :
           selectedToken.symbol === 'USDC' ? USDC_LP_ID :
-            selectedToken.symbol === 'USDT' ? USDT_LP_ID : '0'
+            selectedToken.symbol === 'fUSDT' ? USDT_LP_ID : '0'
 
       const stakingTimeSecond =
         selectedPeriodId === 0 ? 2 * 30 * 24 * 3600 :

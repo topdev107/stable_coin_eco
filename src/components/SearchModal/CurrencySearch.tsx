@@ -64,12 +64,12 @@ export function CurrencySearch({
   const audioPlay = useSelector<AppState, AppState['user']['audioPlay']>((state) => state.user.audioPlay)
 
   const filteredTokens: Token[] = useMemo(() => {
-    if (isAddressSearch) return searchToken ? [searchToken] : []
+    // if (isAddressSearch) return searchToken ? [searchToken] : []
     return filterTokens(Object.values(allTokens), searchQuery)
-  }, [isAddressSearch, searchToken, allTokens, searchQuery])
+  }, [allTokens, searchQuery])
 
   const filteredSortedTokens: Token[] = useMemo(() => {
-    if (searchToken) return [searchToken]
+    // if (searchToken) return [searchToken]
     const sorted = filteredTokens.sort(tokenComparator)
     const symbolMatch = searchQuery
       .toLowerCase()
@@ -78,12 +78,12 @@ export function CurrencySearch({
     if (symbolMatch.length > 1) return sorted
 
     return [
-      ...(searchToken ? [searchToken] : []),
+      // ...(searchToken ? [searchToken] : []),
       // sort any exact symbol matches first
       ...sorted.filter((token) => token.symbol?.toLowerCase() === symbolMatch[0]),
       ...sorted.filter((token) => token.symbol?.toLowerCase() !== symbolMatch[0]),
     ]
-  }, [filteredTokens, searchQuery, searchToken, tokenComparator])
+  }, [filteredTokens, searchQuery, tokenComparator])
 
   const handleCurrencySelect = useCallback(
     (currency: Currency) => {
@@ -143,7 +143,7 @@ export function CurrencySearch({
             <QuestionHelper
               text={TranslateString(
                 130,
-                'Find a token by searching for its name or symbol or by pasting its address below.'
+                'Find a token by searching for its name or symbol below.'
               )}
             />
           </Text>
@@ -158,9 +158,7 @@ export function CurrencySearch({
           onChange={handleInput}
           onKeyDown={handleEnter}
         />
-        {showCommonBases && (
-          <CommonBases chainId={chainId} onSelect={handleCurrencySelect} selectedCurrency={selectedCurrency} />
-        )}
+        
         <RowBetween>
           <Text fontSize="14px">
             <TranslatedText translationId={126}>Token name</TranslatedText>

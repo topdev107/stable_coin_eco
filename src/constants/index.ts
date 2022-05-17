@@ -4,15 +4,29 @@ import { BigNumber } from 'ethers'
 // export const ROUTER_ADDRESS = '0x24f7C33ae5f77e2A9ECeed7EA858B4ca2fa1B7eC' // mainnet
 export const ROUTER_ADDRESS = '0x8C2CaBc62Cd026f39B816C10134035D41E5878b6' // bsc testnet
 
-export const POOL_ADDRESS = '0x17c4985c8d4Cd08129944a118b872916C6D52256' // bsc testnet
-export const CHAIN_LINK_PRICE_PROVIDER_ADDRESS = "0x9ACbd36d580074f2F828eAdb0038720c84214572" // bsc testnet
-export const ASSET_DAI_ADDRESS = '0x8d2e6a6B6c82BebDc4E47C955B7f56c99976C82B' // bsc testnet
-export const ASSET_USDC_ADDRESS = '0x5Cf76a9D4Ad8fEeEf70eF9235632B79166AC2663' // bsc testnet
-export const ASSET_USDT_ADDRESS = '0xA6eeA000AE43D8D9930d6D687c3D9a2Dac913B3D' // bsc testnet
+// bsc testnet ===============
+// export const POOL_ADDRESS = '0x17c4985c8d4Cd08129944a118b872916C6D52256' // bsc testnet
+// export const CHAIN_LINK_PRICE_PROVIDER_ADDRESS = "0x9ACbd36d580074f2F828eAdb0038720c84214572" // bsc testnet
+// export const ASSET_USDT_ADDRESS = '0xA6eeA000AE43D8D9930d6D687c3D9a2Dac913B3D' // bsc testnet
+// export const ASSET_DAI_ADDRESS = '0x8d2e6a6B6c82BebDc4E47C955B7f56c99976C82B' // bsc testnet
+// export const ASSET_USDC_ADDRESS = '0x5Cf76a9D4Ad8fEeEf70eF9235632B79166AC2663' // bsc testnet
 
-export const PTP_ADDRESS = '0xC5d6fF52236B46276bc1050a0f6022Fc2d4c62cB'        // bsc testnet
-export const VEPTP_ADDRESS = '0x02d20aC850942AB283D0C577826304E4F6e66B2b'      // bsc testnet
-export const MASTER_PLATYPUS_ADDRESS = '0x12272Bddd47221985065FdcEB60BE7740f06D94E'   // bsc testnet
+// export const PTP_ADDRESS = '0xC5d6fF52236B46276bc1050a0f6022Fc2d4c62cB'        // bsc testnet
+// export const VEPTP_ADDRESS = '0x02d20aC850942AB283D0C577826304E4F6e66B2b'      // bsc testnet
+// export const MASTER_PLATYPUS_ADDRESS = '0x12272Bddd47221985065FdcEB60BE7740f06D94E'   // bsc testnet
+// ===================
+
+// fantom testnet =========
+export const POOL_ADDRESS = '0x01B96825D19df4370664d47443945264e2510cCE' // fantom testnet
+export const CHAIN_LINK_PRICE_PROVIDER_ADDRESS = "0x35138B073dbb954950ec2d9B98f1aa1e57a22222" // fantom testnet
+export const ASSET_USDT_ADDRESS = '0x3b2E43D2e525178c2ea7c688A5707957b97dD78A' // fantom testnet
+export const ASSET_DAI_ADDRESS = '0x134fC1Cf0a2966B0431b79EA371741042E56e023' // fantom testnet
+export const ASSET_USDC_ADDRESS = '0x0e4866F1858C366903efca829dBD95FbAd630248' // fantom testnet
+
+export const PTP_ADDRESS = '0x90Da020FAE2afEA1D97cb4AF9cAe6fb963bBB5e8'        // fantom testnet
+export const VEPTP_ADDRESS = '0x60FA10712054C8408540055030Db5B92aC373996'      // fantom testnet
+export const MASTER_PLATYPUS_ADDRESS = '0x69391E4A8520F5Bf2CaEF1256A6d4e04623EDa7A'   // fantom testnet
+// ====================
 
 export const USDT_LP_ID = 0
 export const DAI_LP_ID = 1
@@ -20,19 +34,15 @@ export const USDC_LP_ID = 2
 
 export const T_FEE = 0.0001 // 0.01%
 
+
 // a list of tokens by chain
 type ChainTokenList = {
   readonly [chainId in ChainId]: Token[]
 }
 
-export const PTP = new Token(ChainId.BSCTESTNET, PTP_ADDRESS, 18, 'MARKET', 'MARKET Token')
-export const VEPTP = new Token(ChainId.BSCTESTNET, VEPTP_ADDRESS, 18, 'veMARKET', 'veMARKET Token')
 
-/*
-export const USDC = new Token(ChainId.BSCTESTNET, '0x3861e9F29fcAFF738906c7a3a495583eE7Ca4C18', 6, 'USDC', 'USDC Token')
-export const USDT = new Token(ChainId.BSCTESTNET, '0x0aCBd07e458F228d4869066b998a0F55F36537B2', 6, 'USDT', 'Tether USD')
-export const DAI = new Token(ChainId.BSCTESTNET, '0x332C7aC34580dfEF553B7726549cEc7015C4B39b', 18, 'DAI', 'Dai Token')
-*/
+export const PTP = new Token(4002, PTP_ADDRESS, 18, 'MARKET', 'MARKET Token')
+export const VEPTP = new Token(4002, VEPTP_ADDRESS, 18, 'veMARKET', 'veMARKET Token')
 
 
 export const DAI = new Token(ChainId.MAINNET, '0x1af3f329e8be154074d8769d1ffa4ee058b1dbc3', 18, 'DAI', 'Dai Stablecoin')

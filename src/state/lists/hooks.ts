@@ -1,4 +1,4 @@
-import { ChainId, Token } from '@pantherswap-libs/sdk'
+import {  Token } from '@pantherswap-libs/sdk'
 import { Tags, TokenInfo, TokenList } from '@uniswap/token-lists'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
@@ -7,6 +7,11 @@ import { AppState } from '../index'
 type TagDetails = Tags[keyof Tags]
 export interface TagInfo extends TagDetails {
   id: string
+}
+
+export enum ChainId {
+  MAINNET = 250,
+  BSCTESTNET = 4002
 }
 
 /**
@@ -27,6 +32,7 @@ export class WrappedTokenInfo extends Token {
     return this.tokenInfo.logoURI
   }
 }
+
 
 export type TokenAddressMap = Readonly<{ [chainId in ChainId]: Readonly<{ [tokenAddress: string]: WrappedTokenInfo }> }>
 

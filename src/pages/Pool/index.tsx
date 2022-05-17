@@ -108,6 +108,8 @@ export default function Pool() {
 
   // const volume24_url = 'http://localhost:5000/api/v1/tnxs/'
   const volume24_url = 'https://fathomless-savannah-95001.herokuapp.com/api/v1/tnxs/'
+  // const volume24_url = 'http://134.209.22.166:5000/api/v1/tnxs/'
+  
 
   const handleDeposit = useCallback(
     async (amount: BigNumber, tkn: Token | undefined) => {
@@ -338,7 +340,7 @@ export default function Pool() {
       const tokenAddress =
         token.symbol === 'DAI' ? ASSET_DAI_ADDRESS :
           token.symbol === 'USDC' ? ASSET_USDC_ADDRESS :
-            token.symbol === 'USDT' ? ASSET_USDT_ADDRESS : '0x'
+            token.symbol === 'fUSDT' ? ASSET_USDT_ADDRESS : '0x'
       setShowConfirm(true)
       setAttemptingTxn(true)
       const assetContract = getAssetContract(chainId, tokenAddress, library, account)
@@ -396,7 +398,7 @@ export default function Pool() {
       const tokenAddress =
         token.symbol === 'DAI' ? ASSET_DAI_ADDRESS :
           token.symbol === 'USDC' ? ASSET_USDC_ADDRESS :
-            token.symbol === 'USDT' ? ASSET_USDT_ADDRESS : '0x'
+            token.symbol === 'fUSDT' ? ASSET_USDT_ADDRESS : '0x'
       setShowConfirm(true)
       setAttemptingTxn(true)
       const assetContract = getAssetContract(chainId, tokenAddress, library, account)
@@ -460,7 +462,7 @@ export default function Pool() {
       const lpID =
         token.symbol === 'DAI' ? DAI_LP_ID :
           token.symbol === 'USDC' ? USDC_LP_ID :
-            token.symbol === 'USDT' ? USDT_LP_ID : '0'
+            token.symbol === 'fUSDT' ? USDT_LP_ID : '0'
 
       await masterPlatypusContract.stakingLP(lpID, amount)
         .then((response) => {
@@ -520,7 +522,7 @@ export default function Pool() {
       const lpID =
         token.symbol === 'DAI' ? DAI_LP_ID :
           token.symbol === 'USDC' ? USDC_LP_ID :
-            token.symbol === 'USDT' ? USDT_LP_ID : '0'
+            token.symbol === 'fUSDT' ? USDT_LP_ID : '0'
 
       console.log('Unstake LP Amount: ', amount)
       await masterPlatypusContract.unStakingLP(lpID, amount)
@@ -581,7 +583,7 @@ export default function Pool() {
       const lpID =
         token.symbol === 'DAI' ? DAI_LP_ID :
           token.symbol === 'USDC' ? USDC_LP_ID :
-            token.symbol === 'USDT' ? USDT_LP_ID : '0'
+            token.symbol === 'fUSDT' ? USDT_LP_ID : '0'
 
       await masterPlatypusContract.claimPTP(lpID)
         .then((response) => {
@@ -703,22 +705,30 @@ export default function Pool() {
         const tokenAddress =
           token.symbol === 'DAI' ? ASSET_DAI_ADDRESS :
             token.symbol === 'USDC' ? ASSET_USDC_ADDRESS :
-              token.symbol === 'USDT' ? ASSET_USDT_ADDRESS : '0x'
+              token.symbol === 'fUSDT' ? ASSET_USDT_ADDRESS : '0x'
 
         const lpID =
           token.symbol === 'DAI' ? DAI_LP_ID :
             token.symbol === 'USDC' ? USDC_LP_ID :
-              token.symbol === 'USDT' ? USDT_LP_ID : '0'
+              token.symbol === 'fUSDT' ? USDT_LP_ID : '0'
 
         const assetContract = getAssetContract(chainId, tokenAddress, library, account)
         const priceProviderContract = getPriceProviderContract(chainId, library, account)
         const erc20Contract = getERC20Contract(chainId, token.address, library, account)
         const masterPlatypusContract = getMasterPlatypusContract(chainId, library, account)
         const vePTPContract = getVePTPContract(chainId, library, account)
+
         const getVolume24h = async () => {
           const res = await fetch(volume24_url.concat('get_tnx_amount_24h/').concat(token.address))
           return res.json()
         }
+
+        // const getVolume24h = async () => {
+        //   const res = await fetch(volume24_url.concat('get_tnx_amount_24h/').concat(token.address), {
+        //     headers: {'Access-Control-Allow-Origin' : null}
+        //   })
+        //   return res.json()
+        // }
 
         return Promise.all([
           assetContract.totalSupply(),

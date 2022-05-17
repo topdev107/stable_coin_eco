@@ -51,9 +51,11 @@ export const NEVER_RELOAD: ListenerOptions = {
 // the lowest level call for subscribing to contract data
 function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): CallResult[] {
   const { chainId } = useActiveWeb3React()
+  
   const callResults = useSelector<AppState, AppState['multicall']['callResults']>(
     (state) => state.multicall.callResults
   )
+
   const dispatch = useDispatch<AppDispatch>()
 
   const serializedCallKeys: string = useMemo(
@@ -70,7 +72,9 @@ function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): C
   // update listeners when there is an actual change that persists for at least 100ms
   useEffect(() => {
     const callKeys: string[] = JSON.parse(serializedCallKeys)
+    
     if (!chainId || callKeys.length === 0) return undefined
+
     // eslint-disable-next-line @typescript-eslint/no-shadow
     const calls = callKeys.map((key) => parseCallKey(key))
     dispatch(
@@ -98,9 +102,8 @@ function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): C
       calls.map<CallResult>((call) => {
         if (!chainId || !call) return INVALID_RESULT
 
-        const result = callResults[chainId]?.[toCallKey(call)]
-        const data = result?.data && result?.data !== '0x' ? result.data : null
-
+        const result = callResults[chainId]?.[toCallKey(call)]        
+        const data = result?.data && result?.data !== '0x' ? result.data : null        
         return { valid: true, data, blockNumber: result?.blockNumber }
       }),
     [callResults, calls, chainId]
@@ -196,6 +199,8 @@ export function useMultipleContractSingleData(
   callInputs?: OptionalMethodInputs,
   options?: ListenerOptions
 ): CallState[] {
+
+  
   const fragment = useMemo(() => contractInterface.getFunction(methodName), [contractInterface, methodName])
   const callData: string | undefined = useMemo(
     () =>
