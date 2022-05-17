@@ -772,7 +772,7 @@ export default function Pool() {
             const medianBoostedAPR = BigNumber.from(response[16]._hex)
             const coverageRatio = BigNumber.from(response[17]._hex)
 
-            setTotalRewardablePTPAmount(norValue(multiRewardablePTPAmount))
+            setTotalRewardablePTPAmount(norValue(multiRewardablePTPAmount)*10**18)
 
             const bData: PoolItemBaseData = {
               'symbol': token.symbol,
