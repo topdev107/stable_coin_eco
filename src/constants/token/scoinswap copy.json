@@ -13,7 +13,7 @@
     {
       "name": "Frapped USDT",
       "symbol": "fUSDT",
-      "address": "0x5D81337908b232800E4099CFc3F6251E5EE21a12",
+      "address": "0x2690F22B6535F3680E2F9c3042d1af1396924B11",
       "chainId": 4002,
       "decimals": 18,
       "logoURI": "/images/coins/USDT-icon.png"
@@ -21,7 +21,7 @@
     {
       "name": "Dai Token",
       "symbol": "DAI",
-      "address": "0xC0f48e24e3e6bd3DD407C44f8573252940e10453",
+      "address": "0x220449d90D2bea8aEFa801E4AdC37959fA782F58",
       "chainId": 4002,
       "decimals": 18,
       "logoURI": "/images/coins/DAI-icon.png"
@@ -29,7 +29,7 @@
     {
       "name": "USDC Token",
       "symbol": "USDC",
-      "address": "0x9eC1189B78b0fEB7C6F70bCF777a26f4CBB537D4",
+      "address": "0x5E1899591108BaA2DbeDf2F7C9d6807b97bF88Bb",
       "chainId": 4002,
       "decimals": 18,
       "logoURI": "/images/coins/USDC-icon.png"
