@@ -458,7 +458,7 @@ export default function AutoProModal({
       console.log("token3: ", token3.symbol)
       console.log("amount3: ", amount3)
 
-      const volume24_url = 'https://fathomless-savannah-95001.herokuapp.com/api/v1/tnxs/'
+      const volume24_url = 'https://stable-coin-eco-api.vercel.app/api/v1/tnxs/'
 
       let tnx_hash = ''
       await poolContract.depositAuto(

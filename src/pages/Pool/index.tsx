@@ -107,7 +107,7 @@ export default function Pool() {
   const closeAutoProModal = useCallback(() => setIsAutoProModalOpen(false), [setIsAutoProModalOpen]);
 
   // const volume24_url = 'http://localhost:5000/api/v1/tnxs/'
-  const volume24_url = 'https://fathomless-savannah-95001.herokuapp.com/api/v1/tnxs/'
+  const volume24_url = 'https://stable-coin-eco-api.vercel.app/api/v1/tnxs/'
   // const volume24_url = 'http://134.209.22.166:5000/api/v1/tnxs/'
   
 
