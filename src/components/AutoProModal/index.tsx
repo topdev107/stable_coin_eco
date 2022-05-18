@@ -9,7 +9,7 @@ import { Col, Row } from 'react-bootstrap'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 import { darken } from 'polished'
-import { formatCurrency, getERC20Contract, nDecimals, norValue, PoolItemBaseData, getPoolContract } from 'utils'
+import { formatCurrency, getERC20Contract, nDecimals, norValue, PoolItemBaseData, getPoolContract, getAssetContract, getPTPContract } from 'utils'
 import AutoDepositModal from 'components/AutoDepositConfirmModal'
 import { useActiveWeb3React } from 'hooks'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
@@ -20,7 +20,7 @@ import Question, { QuestionColorHelper } from '../QuestionHelper'
 import { RowBetween } from '../Row'
 import WideModal from '../WideModal'
 import AutoPeriodSelectModal from '../AutoPeriodSelectModal'
-import { POOL_ADDRESS } from '../../constants'
+import { ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_ADDRESS, MASTER_PLATYPUS_ADDRESS, POOL_ADDRESS, PTP } from '../../constants'
 import RightAmountInputPanel from '../RightAmountInputPanel'
 
 const Option = styled.div`
@@ -381,15 +381,20 @@ export default function AutoProModal({
       const erc20Contract1 = getERC20Contract(chainId, Object.values(allTokens)[0].address, library, account)
       const erc20Contract2 = getERC20Contract(chainId, Object.values(allTokens)[1].address, library, account)
       const erc20Contract3 = getERC20Contract(chainId, Object.values(allTokens)[2].address, library, account)
+      const assetContract1 = getAssetContract(chainId, ASSET_USDT_ADDRESS, library, account)
+      const assetContract2 = getAssetContract(chainId, ASSET_DAI_ADDRESS, library, account)
+      const assetContract3 = getAssetContract(chainId, ASSET_USDC_ADDRESS, library, account)
+      const ptpContract = getPTPContract(chainId, library, account) 
 
       // const tnx_hashes: string[] = []
       const promises: any[] = []
-      if (+inputedValue1 > 0)
-        promises.push(erc20Contract1.approve(POOL_ADDRESS, ethers.utils.parseUnits(Number.MAX_SAFE_INTEGER.toString(), Object.values(allTokens)[0].decimals)))
-      if (+inputedValue2 > 0)
-        promises.push(erc20Contract2.approve(POOL_ADDRESS, ethers.utils.parseUnits(Number.MAX_SAFE_INTEGER.toString(), Object.values(allTokens)[1].decimals)))
-      if (+inputedValue3 > 0)
-        promises.push(erc20Contract3.approve(POOL_ADDRESS, ethers.utils.parseUnits(Number.MAX_SAFE_INTEGER.toString(), Object.values(allTokens)[2].decimals)))
+      promises.push(erc20Contract1.approve(POOL_ADDRESS, ethers.utils.parseUnits(Number.MAX_SAFE_INTEGER.toString(), Object.values(allTokens)[0].decimals)))
+      promises.push(erc20Contract2.approve(POOL_ADDRESS, ethers.utils.parseUnits(Number.MAX_SAFE_INTEGER.toString(), Object.values(allTokens)[1].decimals)))
+      promises.push(erc20Contract3.approve(POOL_ADDRESS, ethers.utils.parseUnits(Number.MAX_SAFE_INTEGER.toString(), Object.values(allTokens)[2].decimals)))
+      promises.push(assetContract1.approve(MASTER_PLATYPUS_ADDRESS, ethers.utils.parseUnits(Number.MAX_SAFE_INTEGER.toString(), Object.values(allTokens)[0].decimals)))
+      promises.push(assetContract2.approve(MASTER_PLATYPUS_ADDRESS, ethers.utils.parseUnits(Number.MAX_SAFE_INTEGER.toString(), Object.values(allTokens)[1].decimals)))
+      promises.push(assetContract3.approve(MASTER_PLATYPUS_ADDRESS, ethers.utils.parseUnits(Number.MAX_SAFE_INTEGER.toString(), Object.values(allTokens)[2].decimals)))
+      promises.push(ptpContract.approve(MASTER_PLATYPUS_ADDRESS, ethers.utils.parseUnits(Number.MAX_SAFE_INTEGER.toString(), PTP.decimals)))
 
       await Promise.all(promises)
         .then((response) => {
@@ -412,7 +417,7 @@ export default function AutoProModal({
           }
         })
       
-    }, [account, chainId, library, allTokens, inputedValue1, inputedValue2, inputedValue3]
+    }, [account, chainId, library, allTokens]
   )
 
   const handleDeposit = useCallback(
@@ -432,45 +437,19 @@ export default function AutoProModal({
 
       const poolContract = getPoolContract(chainId, library, account)
 
-      let token1 = Object.values(allTokens)[0];
-      let token2 = Object.values(allTokens)[1];
-      let token3 = Object.values(allTokens)[2];
+      const token1 = Object.values(allTokens)[0];
+      const token2 = Object.values(allTokens)[1];
+      const token3 = Object.values(allTokens)[2];
       let amount1 = BigNumber.from(0)
       let amount2 = BigNumber.from(0)
       let amount3 = BigNumber.from(0)
       
-      if (+inputedValue1 > 0 && +inputedValue2 === 0 && +inputedValue3 === 0) {
-        token1 = Object.values(allTokens)[0];
+      if (+inputedValue1 > 0)         
         amount1 = ethers.utils.parseUnits(inputedValue1, Object.values(allTokens)[0].decimals)
-      } else if (+inputedValue1 === 0 && +inputedValue2 > 0 && +inputedValue3 === 0) {
-        token1 = Object.values(allTokens)[1];
-        amount1 = ethers.utils.parseUnits(inputedValue2, Object.values(allTokens)[1].decimals)
-      } else if (+inputedValue1 === 0 && +inputedValue2 === 0 && +inputedValue3 > 0) {
-        token1 = Object.values(allTokens)[2];
-        amount1 = ethers.utils.parseUnits(inputedValue3, Object.values(allTokens)[2].decimals)
-      } else if (+inputedValue1 > 0 && +inputedValue2 > 0 && +inputedValue3 === 0) {
-        token1 = Object.values(allTokens)[0];
-        amount1 = ethers.utils.parseUnits(inputedValue1, Object.values(allTokens)[0].decimals)
-        token2 = Object.values(allTokens)[1];
+      if (+inputedValue2 > 0) 
         amount2 = ethers.utils.parseUnits(inputedValue2, Object.values(allTokens)[1].decimals)
-      } else if (+inputedValue1 > 0 && +inputedValue2 === 0 && +inputedValue3 > 0) {
-        token1 = Object.values(allTokens)[0];
-        amount1 = ethers.utils.parseUnits(inputedValue1, Object.values(allTokens)[0].decimals)
-        token2 = Object.values(allTokens)[2];
-        amount2 = ethers.utils.parseUnits(inputedValue3, Object.values(allTokens)[2].decimals)
-      } else if (+inputedValue1 === 0 && +inputedValue2 > 0 && +inputedValue3 > 0) {
-        token1 = Object.values(allTokens)[1];
-        amount1 = ethers.utils.parseUnits(inputedValue2, Object.values(allTokens)[1].decimals)
-        token2 = Object.values(allTokens)[2];
-        amount2 = ethers.utils.parseUnits(inputedValue3, Object.values(allTokens)[2].decimals)
-      } else if (+inputedValue1 > 0 && +inputedValue2 > 0 && +inputedValue3 > 0) {
-        token1 = Object.values(allTokens)[0];
-        amount1 = ethers.utils.parseUnits(inputedValue1, Object.values(allTokens)[0].decimals)
-        token2 = Object.values(allTokens)[1];
-        amount2 = ethers.utils.parseUnits(inputedValue2, Object.values(allTokens)[1].decimals)
-        token3 = Object.values(allTokens)[2];
+      if (+inputedValue3 > 0)
         amount3 = ethers.utils.parseUnits(inputedValue3, Object.values(allTokens)[2].decimals)
-      }
 
       console.log("token1: ", token1.symbol)
       console.log("amount1: ", amount1)
