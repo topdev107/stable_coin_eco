@@ -12,7 +12,7 @@ import { useTnxHandler } from 'state/tnxs/hooks'
 import styled from 'styled-components'
 import MyMenu from 'components/MyMenu'
 import AutoProModal from 'components/AutoProModal'
-import { float2int, getAssetContract, getERC20Contract, getMasterPlatypusContract, getPoolContract, getPriceProviderContract, getPTPContract, getVePTPContract, nDecimals, norValue, PoolItemBaseData } from 'utils'
+import { float2int, formatCurrency, getAssetContract, getERC20Contract, getMasterPlatypusContract, getPoolContract, getPriceProviderContract, getPTPContract, getVePTPContract, nDecimals, norValue, PoolItemBaseData } from 'utils'
 import CurrencyLogo from '../../components/CurrencyLogo'
 import DepositModal from '../../components/DepositConfirmModal'
 import LPStakeModal from '../../components/LPStakeConfirmModal'
@@ -230,7 +230,7 @@ export default function Pool() {
           // we only care if the error is something _other_ than the user rejected the tx          
           if (e?.code !== 4001) {
             console.error(e)
-            setErrMessage(e.message)
+            setErrMessage(e.data.message)
           } else {
             setShowConfirm(false)
           }
@@ -881,7 +881,7 @@ export default function Pool() {
 
   const MaxWidthDiv = styled.div`
     width: 100%;
-    max-width: 900px;
+    max-width: 950px;
   `
   const borderRadius7 = {
     borderRadius: '5px',
@@ -985,7 +985,7 @@ export default function Pool() {
                 totalRewardablePTPAmount > 0.01 ? (
                   <div>
                     <CenterContainer>
-                      <Text style={verticalCenterContainerStyle}>Pools Earning: <CurrencyLogo currency={PTP} size="20px" style={{ marginLeft: '5px', marginRight: '5px' }} /> {`${nDecimals(6, totalRewardablePTPAmount)} MARKET`}</Text>
+                      <Text style={verticalCenterContainerStyle}>Pools Earning: <CurrencyLogo currency={PTP} size="20px" style={{ marginLeft: '5px', marginRight: '5px' }} /> {`${formatCurrency(nDecimals(6, totalRewardablePTPAmount), 2)} MARKET`}</Text>
                       <Question
                         text={`${totalRewardablePTPAmount} MARKET`}
                       />

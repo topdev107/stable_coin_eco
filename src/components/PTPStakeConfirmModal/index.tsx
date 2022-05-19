@@ -3,7 +3,7 @@ import { Button, Text } from '@pantherswap-libs/uikit'
 import { BigNumber, ethers } from 'ethers'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
-import { nDecimals, norValue, PTPStakedInfo } from 'utils'
+import { formatCurrency, nDecimals, norValue, PTPStakedInfo } from 'utils'
 import { PTP } from '../../constants'
 import AmountInputPanel from '../AmountInputPanel'
 import CurrencyLogo from '../CurrencyLogo'
@@ -106,8 +106,8 @@ export default function PTPStakeConfirmModal({
         </div>
 
         <RowBetween className="mt-4">
-          <Text fontSize="13px" color='#888888'>{`Staked: ${nDecimals(2, norValue(baseData?.ptpStakedAmount))} ${token?.symbol}`}</Text>
-          <Text fontSize='13px' color='#888888'>Stakable: {nDecimals(2, norValue(baseData?.ptpBalanceOf, PTP.decimals))} {token?.symbol}</Text>
+          <Text fontSize="13px" color='#888888'>{`Staked: ${formatCurrency(nDecimals(2, norValue(baseData?.ptpStakedAmount)), 2)} ${token?.symbol}`}</Text>
+          <Text fontSize='13px' color='#888888'>Stakable: {formatCurrency(nDecimals(2, norValue(baseData?.ptpBalanceOf, PTP.decimals)), 2)} {token?.symbol}</Text>
         </RowBetween>
         <Row className='mt-1'>
           <Col>
@@ -125,7 +125,7 @@ export default function PTPStakeConfirmModal({
           {
             baseData?.ptpBalanceOf !== undefined && baseData?.ptpStakedAmount !== undefined ? (
               <div style={CenterVerticalContainerStyle} >                
-                <Text fontSize='13px' color='#888888'>{`${nDecimals(2, norValue(baseData?.ptpBalanceOf.add(baseData.ptpStakedAmount)))} ${token?.symbol}`}</Text>                              
+                <Text fontSize='13px' color='#888888'>{`${formatCurrency(nDecimals(2, norValue(baseData?.ptpBalanceOf.add(baseData.ptpStakedAmount))), 2)} ${token?.symbol}`}</Text>                              
               </div>
             ) : (
               <div style={CenterVerticalContainerStyle} >

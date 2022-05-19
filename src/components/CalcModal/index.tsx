@@ -739,7 +739,7 @@ export default function CalcModal({
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                       <Text>veMARKET Share</Text>
                       <QuestionColorHelper
-                        text='The percentage of vePTP you would own.'
+                        text='The percentage of veMARKET you would own.'
                         color='white'
                       />
                     </div>

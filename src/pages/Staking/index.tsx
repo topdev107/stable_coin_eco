@@ -14,7 +14,7 @@ import { useActiveWeb3React } from 'hooks'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import styled from 'styled-components'
-import { getMasterPlatypusContract, getPTPContract, getVePTPContract, nDecimals, norValue, PTPStakedInfo } from 'utils'
+import { formatCurrency, getMasterPlatypusContract, getPTPContract, getVePTPContract, nDecimals, norValue, PTPStakedInfo } from 'utils'
 import PTP_logo from '../../assets/PTP_logo.png'
 import PTP_logo_blank from '../../assets/PTP_logo_blank.png'
 import PTP_logo_disabled from '../../assets/PTP_logo_disabled.png'
@@ -448,21 +448,21 @@ export default function Staking() {
                 <YellowCard>
                   <RowBetween>
                     <Text>My balance</Text>
-                    <Text color='#ff720d'>{`${nDecimals(2, norValue(baseData.vePTPBalanceOf))} vePTP`}</Text>
+                    <Text color='#ff720d'>{`${formatCurrency(nDecimals(2, norValue(baseData.vePTPBalanceOf)), 2)} veMARKET`}</Text>
                   </RowBetween>
                   <div className='mt-3'>
                     <Progress primaryStep={norValue(baseData.vePTPBalanceOf) / norValue(baseData.ptpStakedAmount)} />
                   </div>
                   <RowBetween className='mt-3'>
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                      <Text color='#888' fontSize='14px'>{`Total vePTP supply: ${nDecimals(2, norValue(baseData.veTotalSupply) / (10 ** 6))}M`}</Text>
+                      <Text color='#888' fontSize='14px'>{`Total veMARKET supply: ${formatCurrency(nDecimals(2, norValue(baseData.veTotalSupply)), 2)}`}</Text>
                       <QuestionColorHelper
                         text='Total veMARKET balance of all users'
                         color='white'
                       />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                      <Text color='#888' fontSize='14px'>{`Max vePTP to Earn: ${nDecimals(2, norValue(baseData.ptpStakedAmount) * 100)}`}</Text>
+                      <Text color='#888' fontSize='14px'>{`Max veMARKET to Earn: ${formatCurrency(nDecimals(2, norValue(baseData.ptpStakedAmount) * 100), 2)}`}</Text>
                       <QuestionColorHelper
                         text='Max veMARKET you can earn is 100 times of your staked MARKET'
                         color='white'
@@ -542,13 +542,13 @@ export default function Staking() {
                         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                           <Text>Claimable veMARKET</Text>
                           <QuestionColorHelper
-                            text='Each staked MARKET generates 0.0 veMARKET per second'
+                            text={`Each staked MARKET generates ${nDecimals(8, norValue(baseData.calcVePTPAmount) / norValue(baseData.ptpStakedAmount) / 3600)} veMARKET per second`}
                             color='white'
                           />
                         </div>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <Text color='#ff720d' fontSize='25px'>{nDecimals(2, norValue(baseData.vePTPrewardableAmount))}</Text>
+                        <Text color='#ff720d' fontSize='25px'>{formatCurrency(nDecimals(2, norValue(baseData.vePTPrewardableAmount)), 2)}</Text>
                       </div>
                     </Col>
                     <Col>
@@ -565,7 +565,7 @@ export default function Staking() {
                       <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                         <img src={PTP_logo_blank} alt='logo' style={{ width: '40px', height: '40px' }} />
                         <div className='ml-2'>
-                          <Text>{nDecimals(2, norValue(baseData.ptpStakedAmount))}</Text>
+                          <Text>{formatCurrency(nDecimals(2, norValue(baseData.ptpStakedAmount)), 2)}</Text>
                           <Text color='#888'>Staked MARKET</Text>
                         </div>
                       </div>
@@ -573,7 +573,7 @@ export default function Staking() {
                     <Col style={{ display: 'flex', justifyContent: 'center' }}>
                       <div>
                         <div style={{ display: 'flex', justifyContent: 'center' }}>
-                          <Text>{`${nDecimals(2, norValue(baseData.calcVePTPAmount))} veMARKET/hour`}</Text>
+                          <Text>{`${formatCurrency(nDecimals(2, norValue(baseData.calcVePTPAmount)), 2)} veMARKET/hour`}</Text>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                           <Text color='#888'>veMARKET Mine Rate</Text>

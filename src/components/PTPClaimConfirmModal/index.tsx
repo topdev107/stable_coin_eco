@@ -4,7 +4,7 @@ import { GreyCard } from 'components/Card'
 import { BigNumber } from 'ethers'
 import React, { useCallback } from 'react'
 import { Col, Row } from 'react-bootstrap'
-import { nDecimals, norValue, PoolItemBaseData } from 'utils'
+import { formatCurrency, nDecimals, norValue, PoolItemBaseData } from 'utils'
 import { PTP } from '../../constants'
 import CurrencyLogo from '../CurrencyLogo'
 import Modal from '../Modal'
@@ -56,7 +56,7 @@ export default function PTPClaimConfirmModal({
           <CurrencyLogo currency={PTP} size="25px" />
           <Text className="ml-1" fontSize='20px'>{PTP.symbol}</Text>
         </div>
-        <Text fontSize="13px" className='mt-4' color='#888888'>{`Claimable: ${nDecimals(2, norValue(baseData?.rewardablePTPAmount))} MARKET`}</Text>
+        <Text fontSize="13px" className='mt-4' color='#888888'>{`Claimable: ${formatCurrency(nDecimals(2, norValue(baseData?.rewardablePTPAmount)), 2)} MARKET`}</Text>
         <Row className='mt-1'>
           <Col>
             <GreyCard style={{ textAlign: 'right' }}>

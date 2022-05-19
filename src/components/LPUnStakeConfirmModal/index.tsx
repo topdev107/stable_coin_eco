@@ -78,11 +78,11 @@ export default function LPUnStakeConfirmModal({
           <div style={CenterVerticalContainerStyle} >
             <Text fontSize="13px">Auto Claim</Text>
             <QuestionColorHelper
-              text='This amount of PTP reward will be automatically claimed in this transaction'
+              text='This amount of MARKET reward will be automatically claimed in this transaction'
               color='white'
             />
           </div>
-          <Text fontSize="13px">{`${formatCurrency(nDecimals(6, norValue(baseData?.rewardablePTPAmount)), 6)} PTP`}</Text>
+          <Text fontSize="13px">{`${formatCurrency(nDecimals(6, norValue(baseData?.rewardablePTPAmount)), 6)} MARKET`}</Text>
         </RowBetween>
         <Row className='mt-4'>
           <Col className='pl-3 pr-1'>

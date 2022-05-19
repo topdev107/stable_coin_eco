@@ -257,7 +257,7 @@ export default function PoolItem({
                           <>
                             <Text fontSize='11px'>0.0%</Text>
                             <Question
-                              text={`The median boosted APR of this pool for the users who have staked ${token?.symbol} and hold vePTP. Half of the users get higher than the median APR. It does not include the Base APR.`}
+                              text={`The median boosted APR of this pool for the users who have staked ${token?.symbol} and hold veMARKET. Half of the users get higher than the median APR. It does not include the Base APR.`}
                             />
                           </>
                         ) : (
@@ -265,7 +265,7 @@ export default function PoolItem({
                             {/* <Text fontSize='11px'>{`${nDecimals(2, parseInt(baseData.cash.toHexString(), 16) / parseInt(baseData.liability.toHexString(), 16) * parseInt(baseData.rewardFactorVePTP.toHexString(), 16) * 365 * 86400 * 100 / (10 ** 18) / (10 ** 3))}%`}</Text> */}
                             <Text fontSize='11px'>{`${nDecimals(2, parseInt(baseData.medianBoostedAPR.toHexString(), 16) / (10**18))}%`}</Text>
                             <Question
-                              text={`The median boosted APR of this pool for the users who have staked ${token?.symbol} and hold vePTP. Half of the users get higher than the median APR. It does not include the Base APR.`}
+                              text={`The median boosted APR of this pool for the users who have staked ${token?.symbol} and hold veMARKET. Half of the users get higher than the median APR. It does not include the Base APR.`}
                             />
                           </>
                         )
@@ -284,7 +284,7 @@ export default function PoolItem({
                           <>
                             <Text fontSize='11px'>0.0%</Text>
                             <Question
-                              text={`The exact boosted APR you are currently earning at. The value depends on your vePTP balance and staked ${token?.symbol} amount.`}
+                              text={`The exact boosted APR you are currently earning at. The value depends on your veMARKET balance and staked ${token?.symbol} amount.`}
                             />
                           </>
                         ) : (
@@ -292,7 +292,7 @@ export default function PoolItem({
                             {/* <Text fontSize='11px'>{`${nDecimals(2, parseInt(baseData.vePTPBalance.toHexString(), 16) / parseInt(baseData.stakedPTPAmount.toHexString(), 16) * 100)}%`}</Text> */}
                             <Text fontSize='11px'>{`${nDecimals(2, parseInt(baseData.boostAPR.toHexString(), 16) / (10**18))}%`}</Text>
                             <Question
-                              text={`The exact boosted APR you are currently earning at. The value depends on your vePTP balance and staked ${token?.symbol} amount.`}
+                              text={`The exact boosted APR you are currently earning at. The value depends on your veMARKET balance and staked ${token?.symbol} amount.`}
                             />
                           </>
                         )

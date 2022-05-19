@@ -3,7 +3,7 @@ import { Button, Text } from '@pantherswap-libs/uikit'
 import { BigNumber, ethers } from 'ethers'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
-import { float2int, getUnitedValue, nDecimals, norValue, PTPStakedInfo } from 'utils'
+import { float2int, formatCurrency, getUnitedValue, nDecimals, norValue, PTPStakedInfo } from 'utils'
 import AmountInputPanel from '../AmountInputPanel'
 import CurrencyLogo from '../CurrencyLogo'
 import Modal from '../Modal'
@@ -95,8 +95,7 @@ export default function PTPUnStakeConfirmModal({
         </div>
 
         <RowBetween className="mt-4">
-          <Text fontSize="13px" color='#888888'>{`UnStakable: ${nDecimals(2, norValue(baseData?.ptpStakedAmount))} ${token?.symbol}`}</Text>
-          {/* <Text fontSize='13px' color='#888888'>Stakable: {nDecimals(2, norValue(baseData?.ptpBalanceOf))} {token?.symbol}</Text> */}
+          <Text fontSize="13px" color='#888888'>{`UnStakable: ${formatCurrency(nDecimals(2, norValue(baseData?.ptpStakedAmount)), 2)} ${token?.symbol}`}</Text>
         </RowBetween>
         <Row className='mt-1'>
           <Col>
@@ -116,8 +115,8 @@ export default function PTPUnStakeConfirmModal({
               <div style={CenterVerticalContainerStyle} >
                 {
                   inputedValue !== '' ?
-                    <Text fontSize='13px' color='#888888'>{`${nDecimals(2, norValue(baseData?.ptpStakedAmount.sub(ethers.utils.parseUnits(inputedValue, token?.decimals))))} ${token?.symbol}`}</Text> :
-                    <Text fontSize='13px' color='#888888'>{`${nDecimals(2, norValue(baseData.ptpStakedAmount))}`}</Text>
+                    <Text fontSize='13px' color='#888888'>{`${formatCurrency(nDecimals(2, norValue(baseData?.ptpStakedAmount.sub(ethers.utils.parseUnits(inputedValue, token?.decimals)))), 2)} ${token?.symbol}`}</Text> :
+                    <Text fontSize='13px' color='#888888'>{`${formatCurrency(nDecimals(2, norValue(baseData.ptpStakedAmount)), 2)}`}</Text>
                 }
               </div>
             ) : (
@@ -128,8 +127,8 @@ export default function PTPUnStakeConfirmModal({
           }
         </RowBetween>
         <RowBetween className='mt-3'>
-          <Text fontSize="13px">Auto Claimable vePTP</Text>
-          <Text fontSize="13px">{`${norValue(baseData?.vePTPrewardableAmount)}`}</Text>
+          <Text fontSize="13px">Auto Claimable veMARKET</Text>
+          <Text fontSize="13px">{`${formatCurrency(norValue(baseData?.vePTPrewardableAmount), 2)}`}</Text>
         </RowBetween>
         <Row className='mt-4'>
           <Col className='pl-3 pr-1'>

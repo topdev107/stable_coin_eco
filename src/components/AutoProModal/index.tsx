@@ -287,24 +287,37 @@ export default function AutoProModal({
 
   const handleMax1 = useCallback(
     () => {
-      if (selectedCurrencyBalances !== undefined && selectedCurrencyBalances[0] !== undefined)
-        setInputedValue1(selectedCurrencyBalances[0]?.toExact())
+      if (selectedCurrencyBalances !== undefined && selectedCurrencyBalances[0] !== undefined) {
+
+        // setInputedValue1(selectedCurrencyBalances[0]?.toExact())
+        console.log('toExact: ', selectedCurrencyBalances[0]?.toExact())
+        console.log('toFixed: ', selectedCurrencyBalances[0]?.toFixed(0))
+        const maxableAmount = BigNumber.from(selectedCurrencyBalances[0]?.toFixed(0)).mul(BigNumber.from(995)).div(BigNumber.from(1000))
+        setInputedValue1(maxableAmount.toString())
+        console.log('maxable: ', maxableAmount.toString())
+      }
     },
     [selectedCurrencyBalances]
   )
 
   const handleMax2 = useCallback(
     () => {
-      if (selectedCurrencyBalances !== undefined && selectedCurrencyBalances[1] !== undefined)
-        setInputedValue2(selectedCurrencyBalances[1]?.toExact())
+      if (selectedCurrencyBalances !== undefined && selectedCurrencyBalances[1] !== undefined) {
+        // setInputedValue2(selectedCurrencyBalances[1]?.toExact())
+        const maxableAmount = BigNumber.from(selectedCurrencyBalances[1]?.toFixed(0)).mul(BigNumber.from(995)).div(BigNumber.from(1000))
+        setInputedValue2(maxableAmount.toString())
+      }
     },
     [selectedCurrencyBalances]
   )
 
   const handleMax3 = useCallback(
     () => {
-      if (selectedCurrencyBalances !== undefined && selectedCurrencyBalances[2] !== undefined)
-        setInputedValue3(selectedCurrencyBalances[2]?.toExact())
+      if (selectedCurrencyBalances !== undefined && selectedCurrencyBalances[2] !== undefined) {
+        // setInputedValue3(selectedCurrencyBalances[2]?.toExact())
+        const maxableAmount = BigNumber.from(selectedCurrencyBalances[2]?.toFixed(0)).mul(BigNumber.from(995)).div(BigNumber.from(1000))
+        setInputedValue3(maxableAmount.toString())
+      }
     },
     [selectedCurrencyBalances]
   )
@@ -534,7 +547,7 @@ export default function AutoProModal({
           // we only care if the error is something _other_ than the user rejected the tx          
           if (e?.code !== 4001) {
             console.error(e)
-            setErrMessage(e.message)
+            setErrMessage(e.data.message)
           } else {
             setShowConfirm(false)
           }
