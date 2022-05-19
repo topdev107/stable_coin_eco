@@ -191,7 +191,8 @@ export default function Pool() {
       const poolContract = getPoolContract(chainId, library, account)
       const deadline = Date.now() + DEFAULT_DEADLINE_FROM_NOW * 1000
       
-      const minAmount = amount.sub(amount.div(BigNumber.from(1/T_FEE)))
+      // const minAmount = amount.sub(amount.div(BigNumber.from(1/T_FEE)))
+      const minAmount = BigNumber.from(0)
       console.log('Withdraw Amount: ', amount.toString())
       console.log('Withdraw miniAmount: ', minAmount.toString())
 

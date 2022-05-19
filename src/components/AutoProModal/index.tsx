@@ -292,7 +292,7 @@ export default function AutoProModal({
         // setInputedValue1(selectedCurrencyBalances[0]?.toExact())
         console.log('toExact: ', selectedCurrencyBalances[0]?.toExact())
         console.log('toFixed: ', selectedCurrencyBalances[0]?.toFixed(0))
-        const maxableAmount = BigNumber.from(selectedCurrencyBalances[0]?.toFixed(0)).mul(BigNumber.from(995)).div(BigNumber.from(1000))
+        const maxableAmount = BigNumber.from(selectedCurrencyBalances[0]?.toFixed(0)).mul(BigNumber.from(990)).div(BigNumber.from(1000))
         setInputedValue1(maxableAmount.toString())
         console.log('maxable: ', maxableAmount.toString())
       }
@@ -304,7 +304,7 @@ export default function AutoProModal({
     () => {
       if (selectedCurrencyBalances !== undefined && selectedCurrencyBalances[1] !== undefined) {
         // setInputedValue2(selectedCurrencyBalances[1]?.toExact())
-        const maxableAmount = BigNumber.from(selectedCurrencyBalances[1]?.toFixed(0)).mul(BigNumber.from(995)).div(BigNumber.from(1000))
+        const maxableAmount = BigNumber.from(selectedCurrencyBalances[1]?.toFixed(0)).mul(BigNumber.from(990)).div(BigNumber.from(1000))
         setInputedValue2(maxableAmount.toString())
       }
     },
@@ -315,7 +315,7 @@ export default function AutoProModal({
     () => {
       if (selectedCurrencyBalances !== undefined && selectedCurrencyBalances[2] !== undefined) {
         // setInputedValue3(selectedCurrencyBalances[2]?.toExact())
-        const maxableAmount = BigNumber.from(selectedCurrencyBalances[2]?.toFixed(0)).mul(BigNumber.from(995)).div(BigNumber.from(1000))
+        const maxableAmount = BigNumber.from(selectedCurrencyBalances[2]?.toFixed(0)).mul(BigNumber.from(990)).div(BigNumber.from(1000))
         setInputedValue3(maxableAmount.toString())
       }
     },
