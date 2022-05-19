@@ -228,6 +228,7 @@ export interface PoolItemBaseData {
   boostAPR: BigNumber
   medianBoostedAPR: BigNumber
   coverageRatio: BigNumber
+  allowance_ptp_master: BigNumber
 }
 
 export interface PTPStakedInfo {

@@ -179,40 +179,45 @@ export default function AutoProModal({
 
   const isNeedApprove = useMemo(() => {
 
+    const ENOUGH = BigNumber.from(Number.MAX_SAFE_INTEGER.toString())   
+
     if (baseData !== undefined && baseData[0] !== undefined && baseData[1] !== undefined && baseData[2] !== undefined) {
+      const allowance_master = baseData[0].allowance_lp_master.lt(ENOUGH) || baseData[1].allowance_lp_master.lt(ENOUGH) || baseData[2].allowance_lp_master.lt(ENOUGH) || baseData[0].allowance_ptp_master.lt(ENOUGH)
       if (+inputedValue1 > 0 && +inputedValue2 === 0 && +inputedValue3 === 0) {
         const inAmount = ethers.utils.parseUnits(inputedValue1, Object.values(allTokens)[0].decimals)
-        return inAmount.gt(baseData[0].allowance)
+        return inAmount.gt(baseData[0].allowance) || allowance_master
       }
       if (+inputedValue1 === 0 && +inputedValue2 > 0 && +inputedValue3 === 0) {
         const inAmount = ethers.utils.parseUnits(inputedValue2, Object.values(allTokens)[1].decimals)
-        return inAmount.gt(baseData[1].allowance)
+        return inAmount.gt(baseData[1].allowance) || allowance_master
       }
       if (+inputedValue1 === 0 && +inputedValue2 === 0 && +inputedValue3 > 0) {
         const inAmount = ethers.utils.parseUnits(inputedValue3, Object.values(allTokens)[2].decimals)
-        return inAmount.gt(baseData[2].allowance)
+        return inAmount.gt(baseData[2].allowance) || allowance_master
       }
       if (+inputedValue1 > 0 && +inputedValue2 > 0 && +inputedValue3 === 0) {
         const inAmount1 = ethers.utils.parseUnits(inputedValue1, Object.values(allTokens)[0].decimals)
         const inAmount2 = ethers.utils.parseUnits(inputedValue2, Object.values(allTokens)[1].decimals)
-        return inAmount1.gt(baseData[0].allowance) || inAmount2.gt(baseData[1].allowance)
+        return (inAmount1.gt(baseData[0].allowance) || inAmount2.gt(baseData[1].allowance)) || allowance_master
       }
       if (+inputedValue1 > 0 && +inputedValue2 === 0 && +inputedValue3 > 0) {
         const inAmount1 = ethers.utils.parseUnits(inputedValue1, Object.values(allTokens)[0].decimals)
         const inAmount3 = ethers.utils.parseUnits(inputedValue3, Object.values(allTokens)[2].decimals)
-        return inAmount1.gt(baseData[0].allowance) || inAmount3.gt(baseData[2].allowance)
+        return (inAmount1.gt(baseData[0].allowance) || inAmount3.gt(baseData[2].allowance)) || allowance_master
       }
       if (+inputedValue1 === 0 && +inputedValue2 > 0 && +inputedValue3 > 0) {
         const inAmount2 = ethers.utils.parseUnits(inputedValue2, Object.values(allTokens)[1].decimals)
         const inAmount3 = ethers.utils.parseUnits(inputedValue3, Object.values(allTokens)[2].decimals)
-        return inAmount2.gt(baseData[1].allowance) || inAmount3.gt(baseData[2].allowance)
+        return (inAmount2.gt(baseData[1].allowance) || inAmount3.gt(baseData[2].allowance)) || allowance_master
       }
       if (+inputedValue1 > 0 && +inputedValue2 > 0 && +inputedValue3 > 0) {
         const inAmount1 = ethers.utils.parseUnits(inputedValue1, Object.values(allTokens)[0].decimals)
         const inAmount2 = ethers.utils.parseUnits(inputedValue2, Object.values(allTokens)[1].decimals)
         const inAmount3 = ethers.utils.parseUnits(inputedValue3, Object.values(allTokens)[2].decimals)
-        return inAmount1.gt(baseData[0].allowance) || inAmount2.gt(baseData[1].allowance) || inAmount3.gt(baseData[2].allowance)
+        return (inAmount1.gt(baseData[0].allowance) || inAmount2.gt(baseData[1].allowance) || inAmount3.gt(baseData[2].allowance)) || allowance_master
       }
+      
+      
       return undefined
     }
 

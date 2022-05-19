@@ -12,7 +12,7 @@ import { useTnxHandler } from 'state/tnxs/hooks'
 import styled from 'styled-components'
 import MyMenu from 'components/MyMenu'
 import AutoProModal from 'components/AutoProModal'
-import { float2int, getAssetContract, getERC20Contract, getMasterPlatypusContract, getPoolContract, getPriceProviderContract, getVePTPContract, nDecimals, norValue, PoolItemBaseData } from 'utils'
+import { float2int, getAssetContract, getERC20Contract, getMasterPlatypusContract, getPoolContract, getPriceProviderContract, getPTPContract, getVePTPContract, nDecimals, norValue, PoolItemBaseData } from 'utils'
 import CurrencyLogo from '../../components/CurrencyLogo'
 import DepositModal from '../../components/DepositConfirmModal'
 import LPStakeModal from '../../components/LPStakeConfirmModal'
@@ -106,10 +106,7 @@ export default function Pool() {
   const openAutoProModal = useCallback(() => {if (account !== null && account !== undefined) setIsAutoProModalOpen(true)}, [account, setIsAutoProModalOpen]);
   const closeAutoProModal = useCallback(() => setIsAutoProModalOpen(false), [setIsAutoProModalOpen]);
 
-  // const volume24_url = 'http://localhost:5000/api/v1/tnxs/'
-  const volume24_url = 'https://stable-coin-eco-api.vercel.app/api/v1/tnxs/'
-  // const volume24_url = 'http://134.209.22.166:5000/api/v1/tnxs/'
-  
+  const volume24_url = 'https://stable-coin-eco-api.vercel.app/api/v1/tnxs/'  
 
   const handleDeposit = useCallback(
     async (amount: BigNumber, tkn: Token | undefined) => {
@@ -717,18 +714,12 @@ export default function Pool() {
         const erc20Contract = getERC20Contract(chainId, token.address, library, account)
         const masterPlatypusContract = getMasterPlatypusContract(chainId, library, account)
         const vePTPContract = getVePTPContract(chainId, library, account)
+        const PTPContract = getPTPContract(chainId, library, account)
 
         const getVolume24h = async () => {
           const res = await fetch(volume24_url.concat('get_tnx_amount_24h/').concat(token.address))
           return res.json()
         }
-
-        // const getVolume24h = async () => {
-        //   const res = await fetch(volume24_url.concat('get_tnx_amount_24h/').concat(token.address), {
-        //     headers: {'Access-Control-Allow-Origin' : null}
-        //   })
-        //   return res.json()
-        // }
 
         return Promise.all([
           assetContract.totalSupply(),
@@ -748,7 +739,8 @@ export default function Pool() {
           masterPlatypusContract.baseAPR(lpID),
           masterPlatypusContract.boostedAPR(lpID, account),
           masterPlatypusContract.medianBoostedAPR(lpID),
-          masterPlatypusContract.coverageRatio(lpID)
+          masterPlatypusContract.coverageRatio(lpID),
+          PTPContract.allowance(account, MASTER_PLATYPUS_ADDRESS)
         ])
           .then(response => {
             const totalSupply = BigNumber.from(response[0]._hex)
@@ -771,6 +763,7 @@ export default function Pool() {
             const boostAPR = BigNumber.from(response[15]._hex)
             const medianBoostedAPR = BigNumber.from(response[16]._hex)
             const coverageRatio = BigNumber.from(response[17]._hex)
+            const allowance_ptp_master = BigNumber.from(response[18]._hex)
 
             setTotalRewardablePTPAmount(norValue(multiRewardablePTPAmount)*10**PTP.decimals)            
 
@@ -796,7 +789,8 @@ export default function Pool() {
               'baseAPR': baseAPR,
               'boostAPR': boostAPR,
               'medianBoostedAPR': medianBoostedAPR,
-              'coverageRatio': coverageRatio
+              'coverageRatio': coverageRatio,
+              'allowance_ptp_master': allowance_ptp_master
             }
             return bData
           })
@@ -824,7 +818,8 @@ export default function Pool() {
               'baseAPR': BigNumber.from(0),
               'boostAPR': BigNumber.from(0),
               'medianBoostedAPR': BigNumber.from(0),
-              'coverageRatio': BigNumber.from(0)
+              'coverageRatio': BigNumber.from(0),
+              'allowance_ptp_master': BigNumber.from(0)
             }
             return bData
           })
