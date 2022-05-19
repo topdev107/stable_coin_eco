@@ -179,7 +179,7 @@ export default function AutoProModal({
 
   const isNeedApprove = useMemo(() => {
 
-    const ENOUGH = BigNumber.from(Number.MAX_SAFE_INTEGER.toString())   
+    const ENOUGH = BigNumber.from(Number.MAX_SAFE_INTEGER.toString())
 
     if (baseData !== undefined && baseData[0] !== undefined && baseData[1] !== undefined && baseData[2] !== undefined) {
       const allowance_master = baseData[0].allowance_lp_master.lt(ENOUGH) || baseData[1].allowance_lp_master.lt(ENOUGH) || baseData[2].allowance_lp_master.lt(ENOUGH) || baseData[0].allowance_ptp_master.lt(ENOUGH)
@@ -216,15 +216,15 @@ export default function AutoProModal({
         const inAmount3 = ethers.utils.parseUnits(inputedValue3, Object.values(allTokens)[2].decimals)
         return (inAmount1.gt(baseData[0].allowance) || inAmount2.gt(baseData[1].allowance) || inAmount3.gt(baseData[2].allowance)) || allowance_master
       }
-      
-      
+
+
       return undefined
     }
 
     return undefined
   }, [allTokens, baseData, inputedValue1, inputedValue2, inputedValue3])
 
-  const [isApproving, setIsApproving] = useState(false)  
+  const [isApproving, setIsApproving] = useState(false)
 
   const [isCheckAutoAllocation, setIsCheckAutoAllocation] = useState<boolean>(true)
   const [isCheckInvest, setIsCheckInvest] = useState<boolean>(true)
@@ -284,6 +284,32 @@ export default function AutoProModal({
   )
 
   const handleTypeInputs = [handleTypeInput1, handleTypeInput2, handleTypeInput3]
+
+  const handleMax1 = useCallback(
+    () => {
+      if (selectedCurrencyBalances !== undefined && selectedCurrencyBalances[0] !== undefined)
+        setInputedValue1(selectedCurrencyBalances[0]?.toExact())
+    },
+    [selectedCurrencyBalances]
+  )
+
+  const handleMax2 = useCallback(
+    () => {
+      if (selectedCurrencyBalances !== undefined && selectedCurrencyBalances[1] !== undefined)
+        setInputedValue2(selectedCurrencyBalances[1]?.toExact())
+    },
+    [selectedCurrencyBalances]
+  )
+
+  const handleMax3 = useCallback(
+    () => {
+      if (selectedCurrencyBalances !== undefined && selectedCurrencyBalances[2] !== undefined)
+        setInputedValue3(selectedCurrencyBalances[2]?.toExact())
+    },
+    [selectedCurrencyBalances]
+  )
+
+  const handleMax = [handleMax1, handleMax2, handleMax3]
 
   const isInputedValue = useMemo(() => {
     return +inputedValue1 > 0 || +inputedValue2 > 0 || +inputedValue3 > 0
@@ -389,7 +415,7 @@ export default function AutoProModal({
       const assetContract1 = getAssetContract(chainId, ASSET_USDT_ADDRESS, library, account)
       const assetContract2 = getAssetContract(chainId, ASSET_DAI_ADDRESS, library, account)
       const assetContract3 = getAssetContract(chainId, ASSET_USDC_ADDRESS, library, account)
-      const ptpContract = getPTPContract(chainId, library, account) 
+      const ptpContract = getPTPContract(chainId, library, account)
 
       // const tnx_hashes: string[] = []
       const promises: any[] = []
@@ -421,24 +447,15 @@ export default function AutoProModal({
             setIsApproving(false)
           }
         })
-      
+
     }, [account, chainId, library, allTokens]
   )
 
   const handleDeposit = useCallback(
     async () => {
-      if (!chainId || !library || !account ) return
+      if (!chainId || !library || !account) return
       setShowConfirm(true)
       setAttemptingTxn(true)
-
-      setInputedValue1('')
-      setInputedValue2('')
-      setInputedValue3('')
-      setIsCheckAutoAllocation(true)
-      setIsCheckInvest(true)
-      setIsCheckAutoBalance(false)
-      setIsCheckAutoCompound(false)
-      setIsCheckLock(false)
 
       const poolContract = getPoolContract(chainId, library, account)
 
@@ -448,20 +465,13 @@ export default function AutoProModal({
       let amount1 = BigNumber.from(0)
       let amount2 = BigNumber.from(0)
       let amount3 = BigNumber.from(0)
-      
-      if (+inputedValue1 > 0)         
+
+      if (+inputedValue1 > 0)
         amount1 = ethers.utils.parseUnits(inputedValue1, Object.values(allTokens)[0].decimals)
-      if (+inputedValue2 > 0) 
+      if (+inputedValue2 > 0)
         amount2 = ethers.utils.parseUnits(inputedValue2, Object.values(allTokens)[1].decimals)
       if (+inputedValue3 > 0)
         amount3 = ethers.utils.parseUnits(inputedValue3, Object.values(allTokens)[2].decimals)
-
-      console.log("token1: ", token1.symbol)
-      console.log("amount1: ", amount1)
-      console.log("token2: ", token2.symbol)
-      console.log("amount2: ", amount2)
-      console.log("token3: ", token3.symbol)
-      console.log("amount3: ", amount3)
 
       const volume24_url = 'https://stable-coin-eco-api.vercel.app/api/v1/tnxs/'
 
@@ -475,7 +485,7 @@ export default function AutoProModal({
         amount3,
         account,
         isCheckAutoAllocation,
-        isCheckInvest? +investPercent*100 : 0
+        isCheckInvest ? +investPercent * 100 : 0
       )
         .then((response) => {
           setAttemptingTxn(false)
@@ -483,27 +493,41 @@ export default function AutoProModal({
           setTxHash(response.hash)
           tnx_hash = response.hash
 
-          const requestOptions1 = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token_address: token1.address, amount: amount1.toNumber() / (10**token1.decimals), timestamp: Date.now() })
-          };
-          fetch(volume24_url.concat('add_tnx/'), requestOptions1)
+          if (+inputedValue1 > 0) {
+            const requestOptions1 = {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token_address: token1.address, amount: inputedValue1, timestamp: Date.now() })
+            };
+            fetch(volume24_url.concat('add_tnx/'), requestOptions1)
+          }
 
-          const requestOptions2 = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token_address: token2.address, amount: amount2.toNumber() / (10**token2.decimals), timestamp: Date.now() })
-          };
-          fetch(volume24_url.concat('add_tnx/'), requestOptions2)
+          if (+inputedValue2 > 0) {
+            const requestOptions2 = {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token_address: token2.address, amount: inputedValue2, timestamp: Date.now() })
+            };
+            fetch(volume24_url.concat('add_tnx/'), requestOptions2)
+          }
 
-          const requestOptions3 = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token_address: token3.address, amount: amount3.toNumber() / (10**token3.decimals), timestamp: Date.now() })
-          };
-          fetch(volume24_url.concat('add_tnx/'), requestOptions3)
-            
+          if (+inputedValue3 > 0) {
+            const requestOptions3 = {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token_address: token3.address, amount: inputedValue3, timestamp: Date.now() })
+            };
+            fetch(volume24_url.concat('add_tnx/'), requestOptions3)
+          }
+
+          setInputedValue1('')
+          setInputedValue2('')
+          setInputedValue3('')
+          setIsCheckAutoAllocation(true)
+          setIsCheckInvest(true)
+          setIsCheckAutoBalance(false)
+          setIsCheckAutoCompound(false)
+          setIsCheckLock(false)
         })
         .catch((e) => {
           setAttemptingTxn(false)
@@ -514,7 +538,7 @@ export default function AutoProModal({
           } else {
             setShowConfirm(false)
           }
-        })      
+        })
 
     }, [account, chainId, library, allTokens, inputedValue1, inputedValue2, inputedValue3, investPercent, isCheckAutoAllocation, isCheckInvest]
   )
@@ -617,6 +641,7 @@ export default function AutoProModal({
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                           <Text style={{ fontSize: '12px', color: '#aaa' }}>Balance:</Text>
                           <Text style={{ marginLeft: '10px', fontSize: '12px', color: '#aaa' }}>{formatCurrency(selectedCurrencyBalances[index]?.toExact(), 2)}</Text>
+                          <Text style={{ marginLeft: '10px', color: '#ff720d', cursor: 'pointer' }} onClick={handleMax[index]}>MAX</Text>
                         </div>
                         <Text style={{ marginLeft: '10px', fontSize: '12px', color: '#aaa' }}>{`$${usddeposits[index]} (${coindeposits[index]} ${onetoken.symbol})`}</Text>
                       </RowBetween>

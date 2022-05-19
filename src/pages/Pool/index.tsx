@@ -140,7 +140,6 @@ export default function Pool() {
                   const volume24h = baseData[idx].volume24
                   baseData[idx].volume24 = data1.status === 'success' ? data1.volume24 : volume24h
                   setIsNeedRefresh(true)
-                  console.log('setIsNeedRefresh: ', 'true')
                 })
             })
             .catch(e => {
@@ -161,12 +160,6 @@ export default function Pool() {
       const checkTnx = async () => {
         if (tnx_hash === '') return
         poolContract.once('Deposit', (sender, token, depositAmount, liquidity, to) => {
-          console.log('== Deposit ==')
-          console.log('Sender: ', sender)
-          console.log('Token: ', token)
-          console.log('Amount: ', parseInt(depositAmount._hex, 16) / (10 ** 18))
-          console.log('Liquidity: ', parseInt(liquidity._hex, 16) / (10 ** 18))
-          console.log('To: ', to)
 
           poolContract.provider
             .getTransactionReceipt(tnx_hash)
@@ -197,10 +190,8 @@ export default function Pool() {
       setAttemptingTxn(true)
       const poolContract = getPoolContract(chainId, library, account)
       const deadline = Date.now() + DEFAULT_DEADLINE_FROM_NOW * 1000
-
-      // const minAmount = (+amount) - (+amount) * T_FEE
+      
       const minAmount = amount.sub(amount.div(BigNumber.from(1/T_FEE)))
-      // const minimumAmount = BigNumber.from(float2int(minAmount.toString()))
       console.log('Withdraw Amount: ', amount.toString())
       console.log('Withdraw miniAmount: ', minAmount.toString())
 
@@ -248,12 +239,6 @@ export default function Pool() {
       const checkTnx = async () => {
         if (tnx_hash === '') return
         poolContract.once('Withdraw', (sender, token, withdrawAmount, liquidity, to) => {
-          console.log('== Withdraw ==')
-          console.log('Sender: ', sender)
-          console.log('Token: ', token)
-          console.log('Amount: ', parseInt(withdrawAmount._hex, 16) / (10 ** 18))
-          console.log('Liquidity: ', parseInt(liquidity._hex, 16) / (10 ** 18))
-          console.log('To: ', to)
 
           poolContract.provider
             .getTransactionReceipt(tnx_hash)

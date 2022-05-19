@@ -4,7 +4,7 @@ import Slider from 'components/Slider'
 import { BigNumber, ethers } from 'ethers'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
-import { calcFee, float2int, getUnitedValue, getUsefulCount, nDecimals, norValue, PoolItemBaseData } from 'utils'
+import { calcFee, float2int, formatCurrency, getUnitedValue, getUsefulCount, nDecimals, norValue, PoolItemBaseData } from 'utils'
 import { T_FEE } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrencyBalance } from '../../state/wallet/hooks'
@@ -128,8 +128,8 @@ export default function WithdrawConfirmModal({
         </div>
 
         <RowBetween className="mt-4">
-          <Text fontSize="13px" color='#888888'>{`Deposited: ${nDecimals(6, norValue(baseData?.balanceOf, token?.decimals))} ${token?.symbol}`}</Text>
-          <Text fontSize='13px' color='#888888'>Balance: {selectedCurrencyBalance?.toSignificant(6)} {token?.symbol}</Text>
+          <Text fontSize="13px" color='#888888'>{`Deposited: ${formatCurrency(nDecimals(6, norValue(baseData?.balanceOf, token?.decimals)), 2)} ${token?.symbol}`}</Text>
+          <Text fontSize='13px' color='#888888'>Balance: {formatCurrency(selectedCurrencyBalance?.toSignificant(6), 2)} {token?.symbol}</Text>
         </RowBetween>
         <LightCard padding="15px 0px" className="mt-2">
           <RowBetween className="mt-1 pl-3 pr-4">
@@ -155,7 +155,7 @@ export default function WithdrawConfirmModal({
         </LightCard>
         <RowBetween className='mt-3'>
           <Text fontSize="13px">Amount Withdrawing</Text>
-          <Text fontSize="13px">{`${selectedAmount / 100} ${token?.symbol}`}</Text>
+          <Text fontSize="13px">{`${formatCurrency(selectedAmount / 100, 2)} ${token?.symbol}`}</Text>
         </RowBetween>
         <RowBetween>
           <div style={CenterVerticalContainerStyle} >
@@ -165,7 +165,7 @@ export default function WithdrawConfirmModal({
               color='white'
             />
           </div>
-          <Text fontSize="13px">{`${fee} ${token?.symbol}`}</Text>
+          <Text fontSize="13px">{`${formatCurrency(fee, 2)} ${token?.symbol}`}</Text>
         </RowBetween>
         <RowBetween>
           <div style={CenterVerticalContainerStyle} >
@@ -175,13 +175,13 @@ export default function WithdrawConfirmModal({
               color='white'
             />
           </div>
-          <Text fontSize="13px">{`${selectedAmount / 100 - fee} ${token?.symbol}`}</Text>
+          <Text fontSize="13px">{`${formatCurrency(selectedAmount / 100 - fee, 2)} ${token?.symbol}`}</Text>
         </RowBetween>
         <RowBetween className='mt-3'>
           <Text fontSize="13px">My Remaining Liquidity</Text>
           {
             baseData !== undefined && norValue(baseData.balanceOf) > 0 ?
-              <Text fontSize="13px">{`${norValue(baseData.balanceOf, token?.decimals) - selectedAmount / 100} ${token?.symbol}`}</Text> :
+              <Text fontSize="13px">{`${formatCurrency(norValue(baseData.balanceOf, token?.decimals) - selectedAmount / 100, 2)} ${token?.symbol}`}</Text> :
               <Text fontSize="13px">{`0 ${token?.symbol}`}</Text>
           }
         </RowBetween>

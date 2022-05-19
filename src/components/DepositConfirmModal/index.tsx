@@ -136,6 +136,7 @@ export default function DepositConfirmModal({
           <Text className="ml-1" fontSize='20px'>{token?.symbol}</Text>
         </div>
 
+
         <RowBetween className="mt-4">
           <Text fontSize="13px" color='#888888'>{`Deposited: ${formatCurrency(nDecimals(6, norValue(baseData?.balanceOf, token?.decimals) + norValue(baseData?.stakedLPAmount, token?.decimals)), 2)} ${token?.symbol}`}</Text>
           <Text fontSize='13px' color='#888888'>Balance: {formatCurrency(selectedCurrencyBalance?.toSignificant(6), 2)} {token?.symbol}</Text>
