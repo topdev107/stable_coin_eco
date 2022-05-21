@@ -454,7 +454,7 @@ export default function AutoProModal({
           // we only care if the error is something _other_ than the user rejected the tx          
           if (e?.code !== 4001) {
             console.error(e)
-            setErrMessage(e.message)
+            setErrMessage(e.data.message)
           } else {
             setShowConfirm(false)
             setIsApproving(false)
