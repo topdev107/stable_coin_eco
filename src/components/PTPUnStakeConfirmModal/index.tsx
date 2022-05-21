@@ -3,6 +3,7 @@ import { Button, Text } from '@pantherswap-libs/uikit'
 import { BigNumber, ethers } from 'ethers'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
+import { Flex } from 'rebass'
 import { float2int, formatCurrency, getUnitedValue, nDecimals, norValue, PTPStakedInfo } from 'utils'
 import AmountInputPanel from '../AmountInputPanel'
 import CurrencyLogo from '../CurrencyLogo'
@@ -94,6 +95,12 @@ export default function PTPUnStakeConfirmModal({
           <Text className="ml-1" fontSize='20px'>{token?.symbol}</Text>
         </div>
 
+        <Flex justifyContent="center" className='mt-2'>
+          <Text style={{ color: 'red' }}>Warning</Text>
+        </Flex>
+        <Flex justifyContent="center">
+          <Text style={{ color: 'red', fontSize: '13px', textAlign: 'center' }}>You will lose all of your accumulated veMARKET {`(${formatCurrency(norValue(baseData?.vePTPBalanceOf), 2)})`} and pending veMARKET {`(${formatCurrency(norValue(baseData?.vePTPrewardableAmount), 2)})`} after unstaking MARKET</Text>
+        </Flex>
         <RowBetween className="mt-4">
           <Text fontSize="13px" color='#888888'>{`UnStakable: ${formatCurrency(nDecimals(2, norValue(baseData?.ptpStakedAmount)), 2)} ${token?.symbol}`}</Text>
         </RowBetween>
@@ -126,10 +133,10 @@ export default function PTPUnStakeConfirmModal({
             )
           }
         </RowBetween>
-        <RowBetween className='mt-3'>
+        {/* <RowBetween className='mt-3'>
           <Text fontSize="13px">Auto Claimable veMARKET</Text>
           <Text fontSize="13px">{`${formatCurrency(norValue(baseData?.vePTPrewardableAmount), 2)}`}</Text>
-        </RowBetween>
+        </RowBetween> */}
         <Row className='mt-4'>
           <Col className='pl-3 pr-1'>
             <Button variant='secondary' style={{ borderRadius: '5px' }} fullWidth onClick={handleClose}>Cancel</Button>

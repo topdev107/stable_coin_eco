@@ -134,6 +134,10 @@ export default function PTPStakeConfirmModal({
             )
           }
         </RowBetween>
+        <RowBetween className='mt-3'>
+          <Text fontSize="13px">Auto Claimable veMARKET</Text>
+          <Text fontSize="13px">{`${formatCurrency(norValue(baseData?.vePTPrewardableAmount), 2)}`}</Text>
+        </RowBetween>
         {/* <RowBetween className='mt-3'>
           <Text fontSize="13px">Token Price</Text>
           <Text fontSize="13px">{`$${norValue(baseData?.price, 8)}`}</Text>
