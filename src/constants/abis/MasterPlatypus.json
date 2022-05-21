@@ -335,7 +335,7 @@
     "name": "PTP",
     "outputs": [
       {
-        "internalType": "contract PTPV2",
+        "internalType": "contract MARKET",
         "name": "",
         "type": "address"
       }
@@ -348,7 +348,7 @@
     "name": "VePTP",
     "outputs": [
       {
-        "internalType": "contract VePTPV3",
+        "internalType": "contract veMARKET",
         "name": "",
         "type": "address"
       }
@@ -760,6 +760,29 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pid",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "stakingLPFromOther",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
@@ -773,20 +796,19 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "pid",
-        "type": "uint256"
-      }
-    ],
-    "name": "sumSqrtLPVe",
-    "outputs": [
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "amount",
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
+    "name": "stakingPTPFromOther",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -862,7 +884,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract PTPV2",
+        "internalType": "contract MARKET",
         "name": "newPtp",
         "type": "address"
       }
@@ -901,7 +923,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract VePTPV3",
+        "internalType": "contract veMARKET",
         "name": "newVePtp",
         "type": "address"
       }

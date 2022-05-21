@@ -28,15 +28,15 @@ export const ROUTER_ADDRESS = '0x8C2CaBc62Cd026f39B816C10134035D41E5878b6' // bs
 // export const MASTER_PLATYPUS_ADDRESS = '0x849B8f61878747B436782652a272c3D699c4F849'   // fantom testnet
 // ====================
 
-export const POOL_ADDRESS = '0xFcb9c86fC85FE4B5546CFC8A211e8F0Ad3dD53a6' // fantom testnet
+export const POOL_ADDRESS = '0xcD4074A959EB8Bd5FCBAdA65104c83C2B7d103BA' // fantom testnet
 export const CHAIN_LINK_PRICE_PROVIDER_ADDRESS = "0x934B5B9Aaa1D4699d9d561ac0030a7639c31ABaC" // fantom testnet
 export const ASSET_USDT_ADDRESS = '0xED3b35c97Ea491E18237a74376DCe1754f9A6dA6' // fantom testnet
 export const ASSET_DAI_ADDRESS = '0x31949BFC1Be22e1411Ff8fEbDA7f6262BDfE4f44' // fantom testnet
 export const ASSET_USDC_ADDRESS = '0x8969A004EA0129969f7Fe9154d970865Cc295944' // fantom testnet
 
 export const PTP_ADDRESS = '0x34eCAc0e3335D432Cdc2a92E7F33D3dAcFc9D646'        // fantom testnet
-export const VEPTP_ADDRESS = '0x795deCFD04f200756F970578Dd3A0BD2a65E7fb7'      // fantom testnet
-export const MASTER_PLATYPUS_ADDRESS = '0x7BFAD361027783577893b122B19aC1F32566499C'   // fantom testnet
+export const VEPTP_ADDRESS = '0xFE89d83BbBDcb0A507A96B3D83F3E9373cb1edf2'      // fantom testnet
+export const MASTER_PLATYPUS_ADDRESS = '0xe7943486e24B44c8E4a9333DA20709A253f460E0'   // fantom testnet
 
 export const USDT_LP_ID = 0
 export const DAI_LP_ID = 1
