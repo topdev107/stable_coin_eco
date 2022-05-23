@@ -335,7 +335,7 @@
     "name": "PTP",
     "outputs": [
       {
-        "internalType": "contract IMARKET",
+        "internalType": "contract MARKET",
         "name": "",
         "type": "address"
       }
@@ -348,7 +348,7 @@
     "name": "VePTP",
     "outputs": [
       {
-        "internalType": "contract IveMARKET",
+        "internalType": "contract veMARKET",
         "name": "",
         "type": "address"
       }
@@ -884,7 +884,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract IMARKET",
+        "internalType": "contract MARKET",
         "name": "newPtp",
         "type": "address"
       }
@@ -923,7 +923,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract IveMARKET",
+        "internalType": "contract veMARKET",
         "name": "newVePtp",
         "type": "address"
       }

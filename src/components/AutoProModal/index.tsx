@@ -180,6 +180,7 @@ export default function AutoProModal({
   const isNeedApprove = useMemo(() => {
 
     const ENOUGH = BigNumber.from(Number.MAX_SAFE_INTEGER.toString())
+    console.log('ENOUGH: ', ENOUGH.toString())
 
     if (baseData !== undefined && baseData[0] !== undefined && baseData[1] !== undefined && baseData[2] !== undefined) {
       const allowance_master = baseData[0].allowance_lp_master.lt(ENOUGH) || baseData[1].allowance_lp_master.lt(ENOUGH) || baseData[2].allowance_lp_master.lt(ENOUGH) || baseData[0].allowance_ptp_master.lt(ENOUGH)
@@ -454,7 +455,7 @@ export default function AutoProModal({
           // we only care if the error is something _other_ than the user rejected the tx          
           if (e?.code !== 4001) {
             console.error(e)
-            setErrMessage(e.data.message)
+            setErrMessage(e.data.message?? e.message)
           } else {
             setShowConfirm(false)
             setIsApproving(false)
