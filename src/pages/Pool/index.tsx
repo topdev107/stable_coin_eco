@@ -12,6 +12,7 @@ import { useTnxHandler } from 'state/tnxs/hooks'
 import styled from 'styled-components'
 import MyMenu from 'components/MyMenu'
 import AutoProModal from 'components/AutoProModal'
+import { useAddPopup, useRemovePopup } from 'state/application/hooks'
 import { float2int, formatCurrency, getAssetContract, getERC20Contract, getMasterPlatypusContract, getPoolContract, getPriceProviderContract, getPTPContract, getVePTPContract, nDecimals, norValue, PoolItemBaseData } from 'utils'
 import CurrencyLogo from '../../components/CurrencyLogo'
 import DepositModal from '../../components/DepositConfirmModal'
@@ -30,9 +31,28 @@ import Question from '../../components/QuestionHelper'
 export default function Pool() {
   const allTokens = useAllTokens()
 
+  const addPopup = useAddPopup()
+  const removePopup = useRemovePopup()
+
+  const showPop = useCallback((descr) => {
+    addPopup(
+      {
+        info: {
+          desc: descr
+        }
+      },
+      'someKey'
+    )
+  }, [addPopup])
+
+  const removePop = useCallback(() => {
+    removePopup('someKey')
+  }, [removePopup])
+
   const { account, chainId, library } = useActiveWeb3React()
 
   const [baseData, setBaseData] = useState<PoolItemBaseData[]>([])
+  const [preBaseData, setPreBaseData] = useState<PoolItemBaseData[]>([])
   const [selectedToken, setSelectedToken] = useState<Token | undefined>();
   const [selectedData, setSelectedData] = useState<PoolItemBaseData | undefined>()
   const [isDepositModalOpen, setIsDepositModalOpen] = useState<boolean>(false);
@@ -103,10 +123,10 @@ export default function Pool() {
 
   const closePTPClaimModal = useCallback(() => setIsPTPClaimModalOpen(false), [setIsPTPClaimModalOpen]);
 
-  const openAutoProModal = useCallback(() => {if (account !== null && account !== undefined) setIsAutoProModalOpen(true)}, [account, setIsAutoProModalOpen]);
+  const openAutoProModal = useCallback(() => { if (account !== null && account !== undefined) setIsAutoProModalOpen(true) }, [account, setIsAutoProModalOpen]);
   const closeAutoProModal = useCallback(() => setIsAutoProModalOpen(false), [setIsAutoProModalOpen]);
 
-  const volume24_url = 'https://stable-coin-eco-api.vercel.app/api/v1/tnxs/'  
+  const volume24_url = 'https://stable-coin-eco-api.vercel.app/api/v1/tnxs/'
 
   const handleDeposit = useCallback(
     async (amount: BigNumber, tkn: Token | undefined) => {
@@ -124,6 +144,7 @@ export default function Pool() {
           console.log('deposit: ', response)
           setTxHash(response.hash)
           tnx_hash = response.hash
+          showPop(popupDesc)
 
           const requestOptions = {
             method: 'POST',
@@ -173,13 +194,14 @@ export default function Pool() {
               console.log('finally called')
               setIsNeedRefresh(true)
               setAttemptingTxn(false)
+              removePop()
             })
         })
       }
 
       checkTnx()
 
-    }, [account, chainId, library, baseData]
+    }, [account, chainId, library, baseData, showPop, removePop]
   )
 
   const handleWithdraw = useCallback(
@@ -190,7 +212,7 @@ export default function Pool() {
       setAttemptingTxn(true)
       const poolContract = getPoolContract(chainId, library, account)
       const deadline = Date.now() + DEFAULT_DEADLINE_FROM_NOW * 1000
-      
+
       // const minAmount = amount.sub(amount.div(BigNumber.from(1/T_FEE)))
       const minAmount = BigNumber.from(0)
       console.log('Withdraw Amount: ', amount.toString())
@@ -680,6 +702,26 @@ export default function Pool() {
     setIsNeedRefresh(true)
   }, [account, library, chainId])
 
+  // /////
+  // const [toasts, setToasts] = useState([]);
+
+  // const handleClick = (description = "") => {
+  //   const now = Date.now();
+  //   const randomToast = {
+  //     id: `id-${now}`,
+  //     title: `Title: ${now}`,
+  //     description,
+  //     type: alertVariants[sample(Object.keys(alertVariants))],
+  //   };
+
+  //   setToasts((prevToasts) => [randomToast, ...prevToasts]);
+  // };
+
+  // const handleRemove = (id: string) => {
+  //   setToasts((prevToasts) => prevToasts.filter((prevToast) => prevToast.id !== id));
+  // };
+  // //////////////
+
   useEffect(() => {
     // if (!isNeedRefresh) return undefined
     const getBaseData = async () => {
@@ -751,7 +793,7 @@ export default function Pool() {
             const coverageRatio = BigNumber.from(response[17]._hex)
             const allowance_ptp_master = BigNumber.from(response[18]._hex)
 
-            setTotalRewardablePTPAmount(norValue(multiRewardablePTPAmount)*10**PTP.decimals)            
+            setTotalRewardablePTPAmount(norValue(multiRewardablePTPAmount) * 10 ** PTP.decimals)
 
             const bData: PoolItemBaseData = {
               'symbol': token.symbol,
@@ -879,6 +921,7 @@ export default function Pool() {
   }, [])
 
   const pendingText = 'Waiting For Confirmation.'
+  const popupDesc = 'Your deposited tokens will appear in the Pool as soon as Pool has had a chance to read the updated blockchain.'
 
   const MaxWidthDiv = styled.div`
     width: 100%;
@@ -957,7 +1000,11 @@ export default function Pool() {
       <AutoProModal
         isOpen={isAutoProModalOpen}
         baseData={baseData}
-        onDismiss={closeAutoProModal}        
+        preBaseData={preBaseData}
+        setPreBaseData={setPreBaseData}
+        onDismiss={closeAutoProModal}
+        onShowPopup={showPop}
+        onRemovePopup={removePop}
       />
 
       <TransactionConfirmationModal
@@ -977,7 +1024,7 @@ export default function Pool() {
       <CardNav activeIndex={2} />
       <MaxWidthDiv>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Button size='sm' onClick={openAutoProModal}>Get Started Investing In MARKET</Button>
+          <Button size='sm' onClick={openAutoProModal}>Get Started Investing In MARKET</Button>          
         </div>
         <LightCard className="mt-4 ml-1">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

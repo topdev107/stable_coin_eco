@@ -7,6 +7,7 @@ import { PopupContent } from '../../state/application/actions'
 import { useRemovePopup } from '../../state/application/hooks'
 import ListUpdatePopup from './ListUpdatePopup'
 import TransactionPopup from './TransactionPopup'
+import InfoPopup from './InfoPopup'
 
 export const StyledClose = styled(X)`
   position: absolute;
@@ -17,7 +18,7 @@ export const StyledClose = styled(X)`
     cursor: pointer;
   }
 `
-export const Popup = styled.div`
+export const Popup = styled.div`  
   display: inline-block;
   width: 100%;
   padding: 1em;
@@ -79,6 +80,11 @@ export default function PopupItem({
       listUpdate: { listUrl, oldList, newList, auto }
     } = content
     popupContent = <ListUpdatePopup popKey={popKey} listUrl={listUrl} oldList={oldList} newList={newList} auto={auto} />
+  } else if ('info' in content) {
+    const {
+      info: {desc}
+    } = content
+    popupContent = <InfoPopup desc={desc}/>
   }
 
   const faderStyle = useSpring({
@@ -89,7 +95,7 @@ export default function PopupItem({
 
   return (
     <Popup>
-      <StyledClose color={theme.colors.textSubtle} onClick={removeThisPopup} />
+      {/* <StyledClose color={theme.colors.textSubtle} onClick={removeThisPopup} /> */}
       {popupContent}
       {removeAfterMs !== null ? <AnimatedFader style={faderStyle} /> : null}
     </Popup>

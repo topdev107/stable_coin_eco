@@ -11,7 +11,7 @@ const TopBar = styled.div`
   background-color: #0e1a35;
   border-bottom: 2px solid #ff720d;
   position: relative;
-  display: inline-block;
+  display: inline-block;  
 `
 const HeadingArea = styled.div`
   margin: 0;

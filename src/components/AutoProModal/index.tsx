@@ -51,13 +51,21 @@ const PeriodSelect = styled.div<{ selected: boolean }>`
 interface AutoProModalProps {
   isOpen: boolean
   baseData: PoolItemBaseData[]
+  preBaseData: PoolItemBaseData[]
+  setPreBaseData: (data: PoolItemBaseData[]) => void
   onDismiss: () => void
+  onShowPopup: (dsc: string) => void
+  onRemovePopup: () => void
 }
 
 export default function AutoProModal({
   isOpen,
   baseData,
-  onDismiss
+  preBaseData,
+  setPreBaseData,
+  onDismiss,
+  onShowPopup,
+  onRemovePopup
 }: AutoProModalProps) {
 
   const allTokens = useAllTokens()
@@ -382,6 +390,17 @@ export default function AutoProModal({
     setInvestPercent(inputValue)
   }
 
+  const isLpStakedAmountChanged = useMemo(() => {
+    let isUpdated = false
+    if (preBaseData !== undefined && preBaseData.length === 3) {
+      if (!baseData[0].stakedLPAmount.eq(preBaseData[0].stakedLPAmount)) isUpdated = true
+      if (!baseData[1].stakedLPAmount.eq(preBaseData[1].stakedLPAmount)) isUpdated = true
+      if (!baseData[2].stakedLPAmount.eq(preBaseData[2].stakedLPAmount)) isUpdated = true
+    }
+    setPreBaseData(baseData)
+    return isUpdated
+  }, [baseData, preBaseData, setPreBaseData])
+  
   useEffect(() => {
     try {
 
@@ -407,7 +426,9 @@ export default function AutoProModal({
       setIsApproving(false)
     }
 
-  }, [investPercent, setError, allTokens, baseData, isApproving, isNeedApprove])
+    if(isLpStakedAmountChanged) onRemovePopup()
+
+  }, [investPercent, setError, allTokens, baseData, isApproving, isNeedApprove, isLpStakedAmountChanged, onRemovePopup])
 
   const handleDismissConfirmation = useCallback(() => {
     setShowConfirm(false)
@@ -455,7 +476,7 @@ export default function AutoProModal({
           // we only care if the error is something _other_ than the user rejected the tx          
           if (e?.code !== 4001) {
             console.error(e)
-            setErrMessage(e.data.message?? e.message)
+            setErrMessage(e.data.message ?? e.message)
           } else {
             setShowConfirm(false)
             setIsApproving(false)
@@ -465,11 +486,14 @@ export default function AutoProModal({
     }, [account, chainId, library, allTokens]
   )
 
+  const popupDesc = 'Your deposited tokens will appear in the Pool as soon as Pool has had a chance to read the updated blockchain.'    
+
   const handleDeposit = useCallback(
     async () => {
       if (!chainId || !library || !account) return
       setShowConfirm(true)
       setAttemptingTxn(true)
+      onDismiss()
 
       const poolContract = getPoolContract(chainId, library, account)
 
@@ -506,6 +530,7 @@ export default function AutoProModal({
           console.log('deposit: ', response)
           setTxHash(response.hash)
           tnx_hash = response.hash
+          onShowPopup(popupDesc)
 
           if (+inputedValue1 > 0) {
             const requestOptions1 = {
@@ -554,7 +579,30 @@ export default function AutoProModal({
           }
         })
 
-    }, [account, chainId, library, allTokens, inputedValue1, inputedValue2, inputedValue3, investPercent, isCheckAutoAllocation, isCheckInvest]
+      // const checkTnx = async () => {
+      //   if (tnx_hash === '') return
+      //   poolContract.once('Deposit', (sender, token, depositAmount, liquidity, to) => {
+
+      //     poolContract.provider
+      //       .getTransactionReceipt(tnx_hash)
+      //       .then((res) => {
+      //         console.log('getTransactionReceipt: ', res)
+      //       })
+      //       .catch(e => {
+      //         console.log('tnx_receipt_exception: ', e)
+      //       })
+      //       .finally(() => {
+      //         console.log('finally called')
+      //         setIsNeedRefresh(true)
+      //         setAttemptingTxn(false)
+      //         removePop()
+      //       })
+      //   })
+      // }
+
+      // checkTnx()
+
+    }, [account, chainId, library, allTokens, inputedValue1, inputedValue2, inputedValue3, investPercent, isCheckAutoAllocation, isCheckInvest, onShowPopup, onDismiss]
   )
 
   return (

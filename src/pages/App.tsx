@@ -10,11 +10,10 @@ import Web3ReactManager from '../components/Web3ReactManager'
 import { allLanguages, EN } from '../constants/localisation/languageCodes'
 import { LanguageContext } from '../hooks/LanguageContext'
 import { TranslationsContext } from '../hooks/TranslationsContext'
+import Home from './Home/index'
 import Pool from './Pool'
 import Staking from './Staking'
 import Swap from './Swap'
-import Home from './Home/index'
-import PoolFinder from './PoolFinder'
 
 
 const AppWrapper = styled.div`
@@ -26,7 +25,7 @@ const AppWrapper = styled.div`
 const MyBodyWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 100%; 
   
   align-items: center;
   flex: 1;
@@ -85,6 +84,9 @@ const BodyWrapper = styled.div`
 
 const Marginer = styled.div`
   margin-top: 5rem;
+`
+const Spacer = styled.div`
+  margin-top: 1rem;
 `
 
 export default function App() {
@@ -149,9 +151,10 @@ export default function App() {
             value={{ selectedLanguage, setSelectedLanguage, translatedLanguage, setTranslatedLanguage }}
           >
             <TranslationsContext.Provider value={{ translations, setTranslations }}>
-              <MyMenu />
+              <MyMenu />              
               <MyBodyWrapper>
-                <Popups />
+                <Spacer />
+                <Popups/>                      
                 <Web3ReactManager>
                   <Switch>
                     <Route exact strict path="/" component={Home} />
