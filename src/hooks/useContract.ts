@@ -12,16 +12,6 @@ import { MULTICALL_ABI, MULTICALL_NETWORKS } from '../constants/multicall'
 import { getContract } from '../utils'
 import { useActiveWeb3React } from './index'
 
-// import MULTICALL_ABI from '../constants/multicall/abi.json'
-
-// const MULTICALL_NETWORKS: { [chainId in ChainId]: string } = {
-//   [ChainId.MAINNET]: '0x1Ee38d535d541c55C9dae27B12edf090C608E6Fb', // TODO
-//   [ChainId.BSCTESTNET]: '0xFb925D9032953398F928789a2BD728eFEA049214' // '0x301907b5835a2d723Fe3e9E8C5Bc5375d5c1236A'
-// }
-
-// export { MULTICALL_ABI, MULTICALL_NETWORKS }
-
-const MULTICALL_CONTRACT = '0xFb925D9032953398F928789a2BD728eFEA049214'
 
 // returns null on errors
 function useContract(address: string | undefined, ABI: any, withSignerIfPossible = true): Contract | null {
@@ -72,7 +62,7 @@ export function usePairContract(pairAddress?: string, withSignerIfPossible?: boo
 
 export function useMulticallContract(): Contract | null {
   const { chainId } = useActiveWeb3React()
-  return useContract(chainId && MULTICALL_CONTRACT, MULTICALL_ABI, false)
+  return useContract(chainId && MULTICALL_NETWORKS[chainId], MULTICALL_ABI, false)
 }
 
 export function useSocksController(): Contract | null {

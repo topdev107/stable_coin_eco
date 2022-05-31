@@ -106,7 +106,7 @@ export default function AddressInputPanel({
               </Black>
               {address && chainId && (
                 <ExternalLink href={getBscScanLink(chainId, name ?? address, 'address')} style={{ fontSize: '14px' }}>
-                  (View on FantomScan)
+                  (View on BscScan)
                 </ExternalLink>
               )}
             </RowBetween>

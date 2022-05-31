@@ -58,7 +58,7 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
   if (!active || networkError) {
     return (
       <MessageWrapper>
-        <Message>Please switch network to fantom testnet</Message>
+        <Message>Please switch network to Bsc testnet</Message>
       </MessageWrapper>
     )
   }

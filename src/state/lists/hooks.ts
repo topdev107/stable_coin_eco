@@ -10,8 +10,8 @@ export interface TagInfo extends TagDetails {
 }
 
 export enum ChainId {
-  MAINNET = 250,
-  BSCTESTNET = 4002
+  MAINNET = 56,
+  BSCTESTNET = 97
 }
 
 /**
