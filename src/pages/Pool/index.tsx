@@ -345,7 +345,7 @@ export default function Pool() {
       const tokenAddress =
         token.symbol === 'DAI' ? ASSET_DAI_ADDRESS :
           token.symbol === 'USDC' ? ASSET_USDC_ADDRESS :
-            token.symbol === 'fUSDT' ? ASSET_USDT_ADDRESS : '0x'
+            token.symbol === 'USDT' ? ASSET_USDT_ADDRESS : '0x'
       setShowConfirm(true)
       setAttemptingTxn(true)
       const assetContract = getAssetContract(chainId, tokenAddress, library, account)
@@ -403,7 +403,7 @@ export default function Pool() {
       const tokenAddress =
         token.symbol === 'DAI' ? ASSET_DAI_ADDRESS :
           token.symbol === 'USDC' ? ASSET_USDC_ADDRESS :
-            token.symbol === 'fUSDT' ? ASSET_USDT_ADDRESS : '0x'
+            token.symbol === 'USDT' ? ASSET_USDT_ADDRESS : '0x'
       setShowConfirm(true)
       setAttemptingTxn(true)
       const assetContract = getAssetContract(chainId, tokenAddress, library, account)
@@ -467,7 +467,7 @@ export default function Pool() {
       const lpID =
         token.symbol === 'DAI' ? DAI_LP_ID :
           token.symbol === 'USDC' ? USDC_LP_ID :
-            token.symbol === 'fUSDT' ? USDT_LP_ID : '0'
+            token.symbol === 'USDT' ? USDT_LP_ID : '0'
 
       await masterPlatypusContract.stakingLP(lpID, amount)
         .then((response) => {
@@ -527,7 +527,7 @@ export default function Pool() {
       const lpID =
         token.symbol === 'DAI' ? DAI_LP_ID :
           token.symbol === 'USDC' ? USDC_LP_ID :
-            token.symbol === 'fUSDT' ? USDT_LP_ID : '0'
+            token.symbol === 'USDT' ? USDT_LP_ID : '0'
 
       console.log('Unstake LP Amount: ', amount)
       await masterPlatypusContract.unStakingLP(lpID, amount)
@@ -588,7 +588,7 @@ export default function Pool() {
       const lpID =
         token.symbol === 'DAI' ? DAI_LP_ID :
           token.symbol === 'USDC' ? USDC_LP_ID :
-            token.symbol === 'fUSDT' ? USDT_LP_ID : '0'
+            token.symbol === 'USDT' ? USDT_LP_ID : '0'
 
       await masterPlatypusContract.claimPTP(lpID)
         .then((response) => {
@@ -702,26 +702,6 @@ export default function Pool() {
     setIsNeedRefresh(true)
   }, [account, library, chainId])
 
-  // /////
-  // const [toasts, setToasts] = useState([]);
-
-  // const handleClick = (description = "") => {
-  //   const now = Date.now();
-  //   const randomToast = {
-  //     id: `id-${now}`,
-  //     title: `Title: ${now}`,
-  //     description,
-  //     type: alertVariants[sample(Object.keys(alertVariants))],
-  //   };
-
-  //   setToasts((prevToasts) => [randomToast, ...prevToasts]);
-  // };
-
-  // const handleRemove = (id: string) => {
-  //   setToasts((prevToasts) => prevToasts.filter((prevToast) => prevToast.id !== id));
-  // };
-  // //////////////
-
   useEffect(() => {
     // if (!isNeedRefresh) return undefined
     const getBaseData = async () => {
@@ -730,12 +710,12 @@ export default function Pool() {
         const tokenAddress =
           token.symbol === 'DAI' ? ASSET_DAI_ADDRESS :
             token.symbol === 'USDC' ? ASSET_USDC_ADDRESS :
-              token.symbol === 'fUSDT' ? ASSET_USDT_ADDRESS : '0x'
+              token.symbol === 'USDT' ? ASSET_USDT_ADDRESS : '0x'
 
         const lpID =
           token.symbol === 'DAI' ? DAI_LP_ID :
             token.symbol === 'USDC' ? USDC_LP_ID :
-              token.symbol === 'fUSDT' ? USDT_LP_ID : '0'
+              token.symbol === 'USDT' ? USDT_LP_ID : '0'
 
         const assetContract = getAssetContract(chainId, tokenAddress, library, account)
         const priceProviderContract = getPriceProviderContract(chainId, library, account)

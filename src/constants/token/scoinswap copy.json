@@ -11,8 +11,8 @@
   "keywords": ["pancake", "default"],
   "tokens": [      
     {
-      "name": "Frapped USDT",
-      "symbol": "fUSDT",
+      "name": "USDT",
+      "symbol": "USDT",
       "address": "0x2690F22B6535F3680E2F9c3042d1af1396924B11",
       "chainId": 4002,
       "decimals": 18,

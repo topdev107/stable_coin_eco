@@ -11,27 +11,27 @@
   "keywords": ["pancake", "default"],
   "tokens": [      
     {
-      "name": "Frapped USDT",
-      "symbol": "fUSDT",
-      "address": "0x5D81337908b232800E4099CFc3F6251E5EE21a12",
-      "chainId": 4002,
-      "decimals": 18,
+      "name": "USDT",
+      "symbol": "USDT",
+      "address": "0x0aCBd07e458F228d4869066b998a0F55F36537B2",
+      "chainId": 97,
+      "decimals": 6,
       "logoURI": "/images/coins/USDT-icon.png"
     },
     {
       "name": "Dai Token",
       "symbol": "DAI",
-      "address": "0xC0f48e24e3e6bd3DD407C44f8573252940e10453",
-      "chainId": 4002,
+      "address": "0x332C7aC34580dfEF553B7726549cEc7015C4B39b",
+      "chainId": 97,
       "decimals": 18,
       "logoURI": "/images/coins/DAI-icon.png"
     },
     {
       "name": "USDC Token",
       "symbol": "USDC",
-      "address": "0x9eC1189B78b0fEB7C6F70bCF777a26f4CBB537D4",
-      "chainId": 4002,
-      "decimals": 18,
+      "address": "0x3861e9F29fcAFF738906c7a3a495583eE7Ca4C18",
+      "chainId": 97,
+      "decimals": 6,
       "logoURI": "/images/coins/USDC-icon.png"
     }    
   ]
