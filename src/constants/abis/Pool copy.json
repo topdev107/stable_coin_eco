@@ -855,7 +855,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract MasterPlatypusV3",
+        "internalType": "contract IMasterPlatypusV3",
         "name": "mv",
         "type": "address"
       }
@@ -881,7 +881,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract MARKET",
+        "internalType": "contract IMARKET",
         "name": "newP",
         "type": "address"
       }

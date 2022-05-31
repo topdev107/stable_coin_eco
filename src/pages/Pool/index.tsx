@@ -702,26 +702,6 @@ export default function Pool() {
     setIsNeedRefresh(true)
   }, [account, library, chainId])
 
-  // /////
-  // const [toasts, setToasts] = useState([]);
-
-  // const handleClick = (description = "") => {
-  //   const now = Date.now();
-  //   const randomToast = {
-  //     id: `id-${now}`,
-  //     title: `Title: ${now}`,
-  //     description,
-  //     type: alertVariants[sample(Object.keys(alertVariants))],
-  //   };
-
-  //   setToasts((prevToasts) => [randomToast, ...prevToasts]);
-  // };
-
-  // const handleRemove = (id: string) => {
-  //   setToasts((prevToasts) => prevToasts.filter((prevToast) => prevToast.id !== id));
-  // };
-  // //////////////
-
   useEffect(() => {
     // if (!isNeedRefresh) return undefined
     const getBaseData = async () => {

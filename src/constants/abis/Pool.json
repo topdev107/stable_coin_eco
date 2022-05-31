@@ -509,11 +509,6 @@
         "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
         "internalType": "bool",
         "name": "isAutoAllocation",
         "type": "bool"
@@ -521,6 +516,11 @@
       {
         "internalType": "uint256",
         "name": "investPercent",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "autoBalancePeriod",
         "type": "uint256"
       }
     ],

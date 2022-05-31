@@ -505,11 +505,11 @@ export default function AutoProModal({
       let amount3 = BigNumber.from(0)
 
       if (+inputedValue1 > 0)
-        amount1 = ethers.utils.parseUnits(inputedValue1, Object.values(allTokens)[0].decimals)
+        amount1 = ethers.utils.parseUnits(inputedValue1, token1.decimals)
       if (+inputedValue2 > 0)
-        amount2 = ethers.utils.parseUnits(inputedValue2, Object.values(allTokens)[1].decimals)
+        amount2 = ethers.utils.parseUnits(inputedValue2, token2.decimals)
       if (+inputedValue3 > 0)
-        amount3 = ethers.utils.parseUnits(inputedValue3, Object.values(allTokens)[2].decimals)
+        amount3 = ethers.utils.parseUnits(inputedValue3, token3.decimals)
 
       const volume24_url = 'https://stable-coin-eco-api.vercel.app/api/v1/tnxs/'
 
@@ -521,9 +521,9 @@ export default function AutoProModal({
         amount1,
         amount2,
         amount3,
-        account,
         isCheckAutoAllocation,
-        isCheckInvest ? +investPercent * 100 : 0
+        isCheckInvest ? +investPercent * 100 : 0,
+        300 // 5min        
       )
         .then((response) => {
           setAttemptingTxn(false)
@@ -573,7 +573,7 @@ export default function AutoProModal({
           // we only care if the error is something _other_ than the user rejected the tx          
           if (e?.code !== 4001) {
             console.error(e)
-            setErrMessage(e.data.message)
+            setErrMessage(e.data?.message?? e.message)
           } else {
             setShowConfirm(false)
           }
