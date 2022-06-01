@@ -79,9 +79,15 @@ export default function AutoProModal({
     return ['1 week', '2 weeks', '3 weeks', '4 weeks']
   }, [])
 
+  // const balancePeriodTxts = useMemo(() => {
+  //   return ['1 week', '2 weeks', '3 weeks', '4 weeks']
+  // }, [])
+
   const balancePeriodTxts = useMemo(() => {
-    return ['1 week', '2 weeks', '3 weeks', '4 weeks']
+    return ['5 min', '10 min', '15 min', '20 min']
   }, [])
+
+
 
   const lockPeriodTxts = useMemo(() => {
     return ['1 week', '2 weeks', '3 weeks', '4 weeks',
@@ -98,7 +104,8 @@ export default function AutoProModal({
       setInputedValue3('')
       setIsCheckAutoAllocation(true)
       setIsCheckInvest(true)
-      setIsCheckAutoBalance(false)
+      setIsCheckAutoBalance(false)      
+      setBalancePeriodId(0)
       setIsCheckAutoCompound(false)
       setIsCheckLock(false)
       onDismiss()
@@ -434,6 +441,7 @@ export default function AutoProModal({
     setShowConfirm(false)
     setTxHash('')
     setIsApproving(false)
+        
   }, [])
 
   const pendingText = 'Waiting For Confirmation.'
@@ -513,6 +521,14 @@ export default function AutoProModal({
 
       const volume24_url = 'https://stable-coin-eco-api.vercel.app/api/v1/tnxs/'
 
+      const periodSecond = 
+        balancePeriodId === 0? 300 :
+        balancePeriodId === 1? 600 :
+        balancePeriodId === 2? 900 :
+        balancePeriodId === 3? 1200 : 300
+
+      console.log('periodSecond: ', periodSecond)
+
       let tnx_hash = ''
       await poolContract.depositAuto(
         token1.address,
@@ -521,9 +537,9 @@ export default function AutoProModal({
         amount1,
         amount2,
         amount3,
-        account,
         isCheckAutoAllocation,
-        isCheckInvest ? +investPercent * 100 : 0
+        isCheckInvest ? +investPercent * 100 : 0,
+        isCheckAutoBalance? periodSecond : 0
       )
         .then((response) => {
           setAttemptingTxn(false)
@@ -565,6 +581,7 @@ export default function AutoProModal({
           setIsCheckAutoAllocation(true)
           setIsCheckInvest(true)
           setIsCheckAutoBalance(false)
+          setBalancePeriodId(0)
           setIsCheckAutoCompound(false)
           setIsCheckLock(false)
         })
@@ -573,7 +590,7 @@ export default function AutoProModal({
           // we only care if the error is something _other_ than the user rejected the tx          
           if (e?.code !== 4001) {
             console.error(e)
-            setErrMessage(e.data.message)
+            setErrMessage(e.message?? e.data.message)
           } else {
             setShowConfirm(false)
           }
@@ -602,7 +619,21 @@ export default function AutoProModal({
 
       // checkTnx()
 
-    }, [account, chainId, library, allTokens, inputedValue1, inputedValue2, inputedValue3, investPercent, isCheckAutoAllocation, isCheckInvest, onShowPopup, onDismiss]
+    }, [
+      account, 
+      chainId, 
+      library, 
+      allTokens, 
+      inputedValue1, 
+      inputedValue2, 
+      inputedValue3, 
+      investPercent, 
+      isCheckAutoAllocation, 
+      isCheckInvest, 
+      isCheckAutoBalance, 
+      balancePeriodId, 
+      onShowPopup, 
+      onDismiss]
   )
 
   return (
@@ -785,7 +816,7 @@ export default function AutoProModal({
               </div>
             </div> */}
 
-            {/* <Flex alignItems="center" className='mt-3'>
+            <Flex alignItems="center" className='mt-3'>
               <Checkbox 
                 scale='sm' 
                 checked={isCheckAutoBalance}
@@ -809,7 +840,7 @@ export default function AutoProModal({
                 </div>
               </PeriodSelect>
             </Flex>
-            <Flex alignItems="center" className='mt-2'>
+            {/* <Flex alignItems="center" className='mt-2'>
               <Checkbox 
                 scale='sm'
                 checked={isCheckAutoCompound}

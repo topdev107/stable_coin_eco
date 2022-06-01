@@ -37,25 +37,6 @@
         "internalType": "address",
         "name": "lptoken",
         "type": "address"
-      }
-    ],
-    "name": "LPDeleted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "lptoken",
-        "type": "address"
       },
       {
         "indexed": false,
@@ -389,19 +370,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "autoBalance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "autoBalancedUserCount",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -541,19 +509,6 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "lpToken",
-        "type": "address"
-      }
-    ],
-    "name": "deleteLPToken",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "uint256",
         "name": "pid",
         "type": "uint256"
@@ -647,21 +602,6 @@
       {
         "internalType": "uint256",
         "name": "rewardAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "rewardLastTimestamp",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "autoBalancePeriod",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "autoBalanceLastTimestamp",
         "type": "uint256"
       }
     ],
@@ -833,11 +773,6 @@
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "autoBalancePeriod",
-        "type": "uint256"
       }
     ],
     "name": "stakingLPFromOther",
@@ -874,30 +809,6 @@
     "name": "stakingPTPFromOther",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "pid",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "totalAPR",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
