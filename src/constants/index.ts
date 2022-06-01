@@ -4,41 +4,7 @@ import { BigNumber } from 'ethers'
 // export const ROUTER_ADDRESS = '0x24f7C33ae5f77e2A9ECeed7EA858B4ca2fa1B7eC' // mainnet
 export const ROUTER_ADDRESS = '0x8C2CaBc62Cd026f39B816C10134035D41E5878b6' // bsc testnet
 
-// bsc testnet ===============
-// export const POOL_ADDRESS = '0x17c4985c8d4Cd08129944a118b872916C6D52256' // bsc testnet
-// export const CHAIN_LINK_PRICE_PROVIDER_ADDRESS = "0x9ACbd36d580074f2F828eAdb0038720c84214572" // bsc testnet
-// export const ASSET_USDT_ADDRESS = '0xA6eeA000AE43D8D9930d6D687c3D9a2Dac913B3D' // bsc testnet
-// export const ASSET_DAI_ADDRESS = '0x8d2e6a6B6c82BebDc4E47C955B7f56c99976C82B' // bsc testnet
-// export const ASSET_USDC_ADDRESS = '0x5Cf76a9D4Ad8fEeEf70eF9235632B79166AC2663' // bsc testnet
-
-// export const PTP_ADDRESS = '0xC5d6fF52236B46276bc1050a0f6022Fc2d4c62cB'        // bsc testnet
-// export const VEPTP_ADDRESS = '0x02d20aC850942AB283D0C577826304E4F6e66B2b'      // bsc testnet
-// export const MASTER_PLATYPUS_ADDRESS = '0x12272Bddd47221985065FdcEB60BE7740f06D94E'   // bsc testnet
-// ===================
-
-// fantom testnet =========
-// export const POOL_ADDRESS = '0x01B96825D19df4370664d47443945264e2510cCE' // fantom testnet
-// export const CHAIN_LINK_PRICE_PROVIDER_ADDRESS = "0x35138B073dbb954950ec2d9B98f1aa1e57a22222" // fantom testnet
-// export const ASSET_USDT_ADDRESS = '0x3b2E43D2e525178c2ea7c688A5707957b97dD78A' // fantom testnet
-// export const ASSET_DAI_ADDRESS = '0x134fC1Cf0a2966B0431b79EA371741042E56e023' // fantom testnet
-// export const ASSET_USDC_ADDRESS = '0x0e4866F1858C366903efca829dBD95FbAd630248' // fantom testnet
-
-// export const PTP_ADDRESS = '0x90Da020FAE2afEA1D97cb4AF9cAe6fb963bBB5e8'        // fantom testnet
-// export const VEPTP_ADDRESS = '0x60FA10712054C8408540055030Db5B92aC373996'      // fantom testnet
-// export const MASTER_PLATYPUS_ADDRESS = '0x849B8f61878747B436782652a272c3D699c4F849'   // fantom testnet
-// ====================
-
-
 export const CHAIN_LINK_PRICE_PROVIDER_ADDRESS = "0x934B5B9Aaa1D4699d9d561ac0030a7639c31ABaC" // fantom testnet
-
-// export const ASSET_USDT_ADDRESS = '0xED3b35c97Ea491E18237a74376DCe1754f9A6dA6' // fantom testnet
-// export const ASSET_DAI_ADDRESS = '0x31949BFC1Be22e1411Ff8fEbDA7f6262BDfE4f44' // fantom testnet
-// export const ASSET_USDC_ADDRESS = '0x8969A004EA0129969f7Fe9154d970865Cc295944' // fantom testnet
-
-// export const PTP_ADDRESS = '0x34eCAc0e3335D432Cdc2a92E7F33D3dAcFc9D646'        // fantom testnet
-// export const VEPTP_ADDRESS = '0xFE89d83BbBDcb0A507A96B3D83F3E9373cb1edf2'      // fantom testnet
-// export const POOL_ADDRESS = '0xcD4074A959EB8Bd5FCBAdA65104c83C2B7d103BA' // fantom testnet
-// export const MASTER_PLATYPUS_ADDRESS = '0xe7943486e24B44c8E4a9333DA20709A253f460E0'   // fantom testnet
 
 // Alter
 export const ASSET_USDT_ADDRESS = '0x384828EDcC9Dbae8450b0feF742e747E87204031' // fantom testnet
