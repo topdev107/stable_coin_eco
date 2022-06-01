@@ -13,7 +13,7 @@ export const ASSET_USDC_ADDRESS = '0x6A44422A90fA4c062E2979C928280D697A8Da4C1' /
 
 export const PTP_ADDRESS = '0xC31fdFC511Cc076bb938171a283F6a7c777ee587'        // bsc testnet
 export const VEPTP_ADDRESS = '0x3508Aa45A0b0611c7B1c2cCc2961140B826eA3FC'      // bsc testnet
-export const MASTER_PLATYPUS_ADDRESS = '0x8A2945687120a2D3F70364aA2c0ADC7722f3fE88'   // bsc testnet
+export const MASTER_PLATYPUS_ADDRESS = '0xdfBa255f29ef8A2f0d9ac72f80A179eB648c2053'   // bsc testnet
 // ===================
 
 
