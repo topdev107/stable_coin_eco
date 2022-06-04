@@ -14,9 +14,9 @@ import { Col, Row } from 'react-bootstrap'
 import styled from 'styled-components'
 import { getAssetContract, getMasterPlatypusContract, getPTPContract, nDecimals, norValue } from 'utils'
 import lock_icon from '../../assets/lock.png'
-import PTP_logo from '../../assets/PTP_logo.png'
+import MARKET_logo from '../../assets/MARKET_logo.png'
 import timer_icon from '../../assets/timer.png'
-import vePTP_logo from '../../assets/vePTP_logo.png'
+import veMARKET_logo from '../../assets/veMARKET_logo.png'
 import { ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_ADDRESS, DAI_LP_ID, USDC_LP_ID, USDT_LP_ID, VEPTP, PTP } from '../../constants'
 import CurrencyLogo from '../CurrencyLogo'
 import { RowBetween } from '../Row'
@@ -451,7 +451,7 @@ export default function CalcModal({
             <div style={{ width: '100%', height: '1px', backgroundColor: '#ff720d', position: 'relative', top: '12px' }} />
             <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
               <div style={{ display: 'flex', justifyContent: 'center', backgroundColor: '#121827', paddingLeft: '15px', paddingRight: '0px' }}>
-                <img src={PTP_logo} alt='logo' style={{ width: '23px', height: '23px', marginRight: '3px' }} />
+                <img src={MARKET_logo} alt='logo' style={{ width: '23px', height: '23px', marginRight: '3px' }} />
                 <Text className="mr-3">My Staked Deposit</Text>
               </div>
             </div>
@@ -548,7 +548,7 @@ export default function CalcModal({
                   <div style={{ width: '100%', height: '1px', backgroundColor: '#ff720d', position: 'relative', top: '12px' }} />
                   <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
                     <div style={{ display: 'flex', justifyContent: 'center', backgroundColor: '#121827', paddingLeft: '15px', paddingRight: '0px' }}>
-                      <img src={vePTP_logo} alt='logo' style={{ width: '23px', height: '23px', marginRight: '3px' }} />
+                      <img src={veMARKET_logo} alt='logo' style={{ width: '23px', height: '23px', marginRight: '3px' }} />
                       <Text className="mr-3">My veMARKET</Text>
                     </div>
                   </div>
@@ -570,9 +570,8 @@ export default function CalcModal({
 
                 <div className='mt-2'>
                   <GreyCard>
-                    <div style={{ display: 'flex', justifyContent: 'center' }}>
-                      {/* <CurrencyLogo currency={VEPTP} size="24px" style={{ marginRight: '8px' }} /> */}
-                      <img src={vePTP_logo} alt='logo' style={{ width: '23px', height: '23px', marginRight: '3px' }} />
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>                      
+                      <img src={veMARKET_logo} alt='logo' style={{ width: '23px', height: '23px', marginRight: '3px' }} />
                       <Text>Total veMARKET Supply</Text>
                     </div>
                     <Row className='mt-1'>
@@ -667,7 +666,7 @@ export default function CalcModal({
                   <div style={{ width: '100%', height: '1px', backgroundColor: '#ff720d', position: 'relative', top: '12px' }} />
                   <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
                     <div style={{ display: 'flex', justifyContent: 'center', backgroundColor: '#121827', paddingLeft: '15px', paddingRight: '0px' }}>
-                      <img src={PTP_logo} alt='logo' style={{ width: '23px', height: '23px', marginRight: '3px' }} />
+                      <img src={MARKET_logo} alt='logo' style={{ width: '23px', height: '23px', marginRight: '3px' }} />
                       <Text className="mr-3">My Staked MARKET</Text>
                     </div>
                   </div>

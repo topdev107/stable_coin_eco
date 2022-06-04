@@ -1,5 +1,5 @@
 import { Token } from '@pantherswap-libs/sdk'
-import { Button, Text } from '@pantherswap-libs/uikit'
+import { Button, Checkbox, ChevronDownIcon, Text } from '@pantherswap-libs/uikit'
 import { LightCard } from 'components/Card'
 import CardNav from 'components/CardNav'
 import PoolItem from 'components/PoolItem'
@@ -7,10 +7,13 @@ import { RowBetween } from 'components/Row'
 import { BigNumber } from 'ethers'
 import { useActiveWeb3React } from 'hooks'
 import { isAbsolute } from 'path'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useMemo } from 'react'
 import { useTnxHandler } from 'state/tnxs/hooks'
 import styled from 'styled-components'
 import MyMenu from 'components/MyMenu'
+import AutoPeriodSelectModal from 'components/AutoPeriodSelectModal'
+import { Flex } from 'rebass'
+import { darken } from 'polished'
 import AutoProModal from 'components/AutoProModal'
 import { useAddPopup, useRemovePopup } from 'state/application/hooks'
 import { float2int, formatCurrency, getAssetContract, getERC20Contract, getMasterPlatypusContract, getPoolContract, getPriceProviderContract, getPTPContract, getVePTPContract, nDecimals, norValue, PoolItemBaseData } from 'utils'
@@ -25,6 +28,7 @@ import { ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_ADDRESS, DAI_LP_ID, D
 import { useAllTokens } from '../../hooks/Tokens'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
 import Question from '../../components/QuestionHelper'
+
 
 
 
@@ -63,6 +67,34 @@ export default function Pool() {
   const [isAutoProModalOpen, setIsAutoProModalOpen] = useState<boolean>(false);
   const [isNeedRefresh, setIsNeedRefresh] = useState<boolean>(true)
   const [totalRewardablePTPAmount, setTotalRewardablePTPAmount] = useState<number>(0)
+
+  const [isCheckAutoBalance, setIsCheckAutoBalance] = useState<boolean>(false)
+  const [balancePeriodId, setBalancePeriodId] = useState<number>(0)
+  const [isBalancePeriodModalOpen, setIsBalancePeriodModalOpen] = useState(false)
+
+  const balancePeriodTxts = useMemo(() => {
+    return ['5 min', '10 min', '15 min', '20 min']
+  }, [])
+
+  const handleChangeAutoBalance = useCallback(
+    (event) => {
+      setIsCheckAutoBalance(event.target.checked)
+    }, []
+  )
+
+  const balancePeriodTxt = useMemo(() => {
+    return balancePeriodTxts[balancePeriodId]
+  }, [balancePeriodTxts, balancePeriodId])
+
+  const handleBalancePeriodSelect = useCallback(
+    (selectedId) => {
+      setBalancePeriodId(selectedId)
+    }, [setBalancePeriodId]
+  )
+
+  const handleBalancePeriodDismiss = useCallback(() => {
+    setIsBalancePeriodModalOpen(false)
+  }, [setIsBalancePeriodModalOpen])
 
   // modal and loading
   const [showConfirm, setShowConfirm] = useState<boolean>(false)
@@ -702,25 +734,6 @@ export default function Pool() {
     setIsNeedRefresh(true)
   }, [account, library, chainId])
 
-  // /////
-  // const [toasts, setToasts] = useState([]);
-
-  // const handleClick = (description = "") => {
-  //   const now = Date.now();
-  //   const randomToast = {
-  //     id: `id-${now}`,
-  //     title: `Title: ${now}`,
-  //     description,
-  //     type: alertVariants[sample(Object.keys(alertVariants))],
-  //   };
-
-  //   setToasts((prevToasts) => [randomToast, ...prevToasts]);
-  // };
-
-  // const handleRemove = (id: string) => {
-  //   setToasts((prevToasts) => prevToasts.filter((prevToast) => prevToast.id !== id));
-  // };
-  // //////////////
 
   useEffect(() => {
     // if (!isNeedRefresh) return undefined
@@ -945,6 +958,27 @@ export default function Pool() {
     alignItems: 'center'
   }
 
+  const PeriodSelect = styled.div<{ selected: boolean }>`
+  align-items: center;
+  height: 34px;
+  font-size: 16px;
+  font-weight: 500;
+  background-color: transparent;
+  color: ${({ selected, theme }) => (selected ? theme.colors.text : '#FFFFFF')};
+  border-radius: 7px;
+  outline: none;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid white;
+  padding: 0 0.5rem;
+  width: 30%;
+
+  :focus,
+  :hover {    
+    background-color: ${({ theme }) => darken(0.05, theme.colors.input)};
+  }
+`
+
   return (
     <>
       {/* <MyMenu/> */}
@@ -1007,6 +1041,14 @@ export default function Pool() {
         onRemovePopup={removePop}
       />
 
+      <AutoPeriodSelectModal
+        isOpen={isBalancePeriodModalOpen}
+        title='Auto Balance Period Select'
+        items={balancePeriodTxts}
+        onDismiss={handleBalancePeriodDismiss}
+        onSelected={handleBalancePeriodSelect}
+      />
+
       <TransactionConfirmationModal
         isOpen={showConfirm}
         onDismiss={handleDismissConfirmation}
@@ -1024,7 +1066,7 @@ export default function Pool() {
       <CardNav activeIndex={2} />
       <MaxWidthDiv>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Button size='sm' onClick={openAutoProModal}>Get Started Investing In MARKET</Button>          
+          <Button size='sm' onClick={openAutoProModal}>Get Started Investing In MARKET</Button>
         </div>
         <LightCard className="mt-4 ml-1">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -1051,7 +1093,11 @@ export default function Pool() {
                 )
               }
             </div>
-            <Button variant='secondary' size='sm' style={borderRadius7} onClick={handleMultiClaimPTP}>Claim MARKET</Button>
+
+            <div>
+              <Button variant='secondary' size='sm' disabled style={borderRadius7} onClick={handleMultiClaimPTP}>Auto Balance</Button>
+              <Button className='ml-2' variant='secondary' size='sm' style={borderRadius7} onClick={handleMultiClaimPTP}>Claim MARKET</Button>
+            </div>
           </div>
         </LightCard>
 
@@ -1071,6 +1117,31 @@ export default function Pool() {
             )
           })
         }
+
+        <Flex alignItems="center" justifyContent='center' className='mt-3'>
+          <Checkbox
+            scale='sm'
+            checked={isCheckAutoBalance}
+            onChange={handleChangeAutoBalance}
+          />
+          <Text style={{ marginLeft: '10px', marginRight: '10px' }}>Auto Balance Per</Text>
+          <PeriodSelect
+            selected={!!balancePeriodId}
+            className="open-currency-select-button"
+            onClick={() => {
+              setIsBalancePeriodModalOpen(true)
+            }}
+          >
+            <div style={{ marginTop: '4px' }}>
+              <Flex alignItems="center">
+                <Text>{balancePeriodTxt}</Text>
+              </Flex>
+              <Flex justifyContent="end" style={{ marginTop: '-22px' }}>
+                <ChevronDownIcon />
+              </Flex>
+            </div>
+          </PeriodSelect>
+        </Flex>
       </MaxWidthDiv>
     </>
   )

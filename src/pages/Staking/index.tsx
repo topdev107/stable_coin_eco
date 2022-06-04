@@ -15,9 +15,9 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import styled from 'styled-components'
 import { formatCurrency, getMasterPlatypusContract, getPTPContract, getVePTPContract, nDecimals, norValue, PTPStakedInfo } from 'utils'
-import PTP_logo from '../../assets/PTP_logo.png'
-import PTP_logo_blank from '../../assets/PTP_logo_blank.png'
-import PTP_logo_disabled from '../../assets/PTP_logo_disabled.png'
+import MARKET_logo from '../../assets/MARKET_logo.png'
+import MARKET_logo_blank from '../../assets/MARKET_logo_blank.png'
+import MARKET_logo_disabled from '../../assets/MARKET_logo_disabled.png'
 import { MASTER_PLATYPUS_ADDRESS, PTP, VEPTP } from '../../constants'
 
 
@@ -69,7 +69,7 @@ export default function Staking() {
   const handleApprovePTPStaking = useCallback(
     async (amount: BigNumber) => {
       if (!chainId || !library || !account) return
-
+      
       setShowConfirm(true)
       setAttemptingTxn(true)
       const ptpContract = getPTPContract(chainId, library, account)
@@ -436,9 +436,9 @@ export default function Staking() {
           <div style={{ display: 'flex', justifyContent: 'center' }} className='mt-4'>
             {
               account ? (
-                <img src={PTP_logo} alt='logo' style={{ width: '120px', height: '120px' }} />
+                <img src={MARKET_logo} alt='logo' style={{ width: '120px', height: '120px' }} />
               ) : (
-                <img src={PTP_logo_disabled} alt='logo' style={{ width: '120px', height: '120px' }} />
+                <img src={MARKET_logo_disabled} alt='logo' style={{ width: '120px', height: '120px' }} />
               )
             }
           </div>
@@ -476,7 +476,7 @@ export default function Staking() {
                 <Row>
                   <Col style={{ display: 'flex', justifyContent: 'center' }}>
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                      <img src={PTP_logo_blank} alt='logo' style={{ width: '40px', height: '40px' }} />
+                      <img src={MARKET_logo_blank} alt='logo' style={{ width: '40px', height: '40px' }} />
                       <div className='ml-2'>
                         <Text color='#888'>0.00</Text>
                         <Text color='#888'>Staked MARKET</Text>
@@ -521,7 +521,7 @@ export default function Staking() {
             <div style={{ width: '100%', height: '1px', backgroundColor: '#ff720d', position: 'relative', top: '13px' }} />
             <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
               <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', backgroundColor: '#0a0e17', paddingLeft: '10px', paddingRight: '10px' }}>
-                <img src={PTP_logo} alt='logo' style={{ width: '25px', height: '25px' }} />
+                <img src={MARKET_logo} alt='logo' style={{ width: '25px', height: '25px' }} />
                 <Text className='ml-1'>veMARKET boosts MARKET APR (</Text>
                 {
                   account ?
@@ -563,7 +563,7 @@ export default function Staking() {
                   <Row>
                     <Col style={{ display: 'flex', justifyContent: 'center' }}>
                       <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                        <img src={PTP_logo_blank} alt='logo' style={{ width: '40px', height: '40px' }} />
+                        <img src={MARKET_logo_blank} alt='logo' style={{ width: '40px', height: '40px' }} />
                         <div className='ml-2'>
                           <Text>{formatCurrency(nDecimals(2, norValue(baseData.ptpStakedAmount)), 2)}</Text>
                           <Text color='#888'>Staked MARKET</Text>

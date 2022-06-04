@@ -4,8 +4,8 @@ import { Col, Row } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import CardNav from 'components/CardNav'
 import styled from 'styled-components'
-import PTP_logo from '../../assets/PTP_logo.png'
-import PTP_logo_edge3 from '../../assets/PTP_logo_edge3.png'
+import MARKET_logo from '../../assets/MARKET_logo.png'
+import MARKET_logo_edge from '../../assets/MARKET_logo_edge.png'
 import Roadmap from '../../assets/roadmap.png'
 import graphicProblemSlippage from '../../assets/graphic-problem-slippage.png'
 
@@ -55,7 +55,7 @@ export default function Home() {
       <CardNav/>      
       <div>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <img src={PTP_logo_edge3} alt='logo' style={{ width: '500px', height: '500px', marginTop: '120px' }} />
+          <img src={MARKET_logo_edge} alt='logo' style={{ width: '500px', height: '500px', marginTop: '120px' }} />
         </div>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <Text style={{ transitionDelay: '2s, 4ms', fontSize: '60px' }}>This Changes Everything</Text>
