@@ -16,8 +16,8 @@ import { Flex } from 'rebass'
 import { darken } from 'polished'
 import AutoProModal from 'components/AutoProModal'
 import { useAddPopup, useRemovePopup } from 'state/application/hooks'
+import AutoBalanceConfirmModal from 'components/AutoBalanceConfrimModal'
 import { float2int, formatCurrency, getAssetContract, getERC20Contract, getMasterPlatypusContract, getPoolContract, getPriceProviderContract, getPTPContract, getVePTPContract, nDecimals, norValue, PoolItemBaseData } from 'utils'
-import CurrencyLogo from '../../components/CurrencyLogo'
 import DepositModal from '../../components/DepositConfirmModal'
 import LPStakeModal from '../../components/LPStakeConfirmModal'
 import LPUnStakeModal from '../../components/LPUnStakeConfirmModal'
@@ -28,6 +28,7 @@ import { ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_ADDRESS, DAI_LP_ID, D
 import { useAllTokens } from '../../hooks/Tokens'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
 import Question from '../../components/QuestionHelper'
+import CurrencyLogo from '../../components/CurrencyLogo'
 
 
 
@@ -70,15 +71,42 @@ export default function Pool() {
 
   const [isCheckAutoBalance, setIsCheckAutoBalance] = useState<boolean>(false)
   const [balancePeriodId, setBalancePeriodId] = useState<number>(0)
+  const [pendingBalancePeriodId, setPendingBalancePeriodId] = useState<number>(0)
   const [isBalancePeriodModalOpen, setIsBalancePeriodModalOpen] = useState(false)
+  const [isAutoBalanceConfirmModalOpen, setIsAutoBalanceConfirmModalOpen] = useState(false)
+  const [isUpdateEnableDisablePeriod, setIsUpdateEnableDisablePeriod] = useState(true) // 0- checkbox changed, 1- selected period 
+
+  const handleAutoBalanceConfirmDismiss = useCallback(
+    () => {
+      setIsAutoBalanceConfirmModalOpen(false)
+    }, []
+  )
 
   const balancePeriodTxts = useMemo(() => {
     return ['5 min', '10 min', '15 min', '20 min']
   }, [])
 
+  const balancePeriod = useMemo(() => {
+    if (balancePeriodId === 0) return 300
+    if (balancePeriodId === 1) return 600
+    if (balancePeriodId === 2) return 900
+    if (balancePeriodId === 3) return 1200
+    return 0
+  }, [balancePeriodId])
+
+  const pendingBalancePeriod = useMemo(() => {
+    if (pendingBalancePeriodId === 0) return 300
+    if (pendingBalancePeriodId === 1) return 600
+    if (pendingBalancePeriodId === 2) return 900
+    if (pendingBalancePeriodId === 3) return 1200
+    return 0
+  }, [pendingBalancePeriodId])
+
   const handleChangeAutoBalance = useCallback(
     (event) => {
-      setIsCheckAutoBalance(event.target.checked)
+      // setIsCheckAutoBalance(event.target.checked)
+      setIsUpdateEnableDisablePeriod(true)
+      setIsAutoBalanceConfirmModalOpen(true)
     }, []
   )
 
@@ -88,8 +116,13 @@ export default function Pool() {
 
   const handleBalancePeriodSelect = useCallback(
     (selectedId) => {
-      setBalancePeriodId(selectedId)
-    }, [setBalancePeriodId]
+      // setBalancePeriodId(selectedId)
+      if (isCheckAutoBalance && balancePeriodId !== selectedId) {
+        setPendingBalancePeriodId(selectedId)
+        setIsUpdateEnableDisablePeriod(false)
+        setIsAutoBalanceConfirmModalOpen(true)
+      }
+    }, [isCheckAutoBalance, balancePeriodId, setPendingBalancePeriodId]
   )
 
   const handleBalancePeriodDismiss = useCallback(() => {
@@ -668,6 +701,120 @@ export default function Pool() {
     }, [account, chainId, library]
   )
 
+  const handleForceBalance = useCallback(
+    async () => {
+      if (!chainId || !library || !account) return
+      setShowConfirm(true)
+      setAttemptingTxn(true)
+      const masterPlatypusContract = getMasterPlatypusContract(chainId, library, account)
+      let tnx_hash = ''
+
+      await masterPlatypusContract.autoBalanceForLPStaker(account)
+        .then((response) => {
+          console.log('autoBalanceForLPStaker: ', response)
+          // setAttemptingTxn(false)          
+          setTxHash(response.hash)
+          tnx_hash = response.hash
+        })
+        .catch((e) => {
+          setAttemptingTxn(false)
+          // we only care if the error is something _other_ than the user rejected the tx          
+          if (e?.code !== 4001) {
+            console.error(e)
+            setErrMessage(e.message)
+          } else {
+            setShowConfirm(false)
+          }
+        })
+
+      const checkTnx = async () => {
+        if (tnx_hash === '') return
+        masterPlatypusContract
+          .once('AutoBalancedUser', (user, oldamt1, newamt1, oldamt2, newamt2, oldamt3, newamt3) => {
+            console.log('== AutoBalancedUser ==')
+            console.log('user: ', user)
+            console.log('oldamt1: ', parseInt(oldamt1._hex, 16) / (10 ** 18))
+            console.log('newamt1: ', parseInt(newamt1._hex, 16) / (10 ** 18))
+            console.log('oldamt2: ', parseInt(oldamt2._hex, 16) / (10 ** 18))
+            console.log('newamt2: ', parseInt(newamt2._hex, 16) / (10 ** 18))
+            console.log('oldamt3: ', parseInt(oldamt3._hex, 16) / (10 ** 18))
+            console.log('newamt3: ', parseInt(newamt3._hex, 16) / (10 ** 18))
+
+            masterPlatypusContract.provider
+              .getTransactionReceipt(tnx_hash)
+              .then((res) => {
+                console.log('getTransactionReceipt: ', res)
+              })
+              .catch(e => {
+                console.log('tnx_receipt_exception: ', e)
+              })
+              .finally(() => {
+                console.log('finally called')
+                setIsNeedRefresh(true)
+                setAttemptingTxn(false)
+              })
+          })
+      }
+
+      checkTnx()
+    }, [account, chainId, library]
+  )
+
+  const handleUpdateAutoBalance = useCallback(
+    async () => {
+      if (!chainId || !library || !account) return
+      setShowConfirm(true)
+      setAttemptingTxn(true)
+      setIsAutoBalanceConfirmModalOpen(false)
+      const masterPlatypusContract = getMasterPlatypusContract(chainId, library, account)
+      let tnx_hash = ''
+
+      await masterPlatypusContract.setAutoBalanceForLPStaker(account, pendingBalancePeriod)
+        .then((response) => {
+          console.log('setAutoBalanceForLPStaker: ', response)            
+          setTxHash(response.hash)
+          tnx_hash = response.hash
+        })
+        .catch((e) => {
+          setAttemptingTxn(false)
+          // we only care if the error is something _other_ than the user rejected the tx          
+          if (e?.code !== 4001) {
+            console.error(e)
+            setErrMessage(e.message)
+          } else {
+            setShowConfirm(false)
+          }
+        })
+
+      const checkTnx = async () => {
+        if (tnx_hash === '') return
+        masterPlatypusContract
+          .once('SetAutoBalanceUser', (user, isAutoBalance, autoBalancePeriod) => {
+            console.log('== SetAutoBalanceUser ==')
+            console.log('user: ', user)
+            console.log('isAutoBalance: ', isAutoBalance)
+            console.log('period: ', parseInt(autoBalancePeriod._hex, 16))
+
+            masterPlatypusContract.provider
+              .getTransactionReceipt(tnx_hash)
+              .then((res) => {
+                console.log('getTransactionReceipt: ', res)
+              })
+              .catch(e => {
+                console.log('tnx_receipt_exception: ', e)
+              })
+              .finally(() => {
+                console.log('finally called')
+                setIsNeedRefresh(true)
+                setAttemptingTxn(false)
+              })
+          })
+      }
+
+      checkTnx()
+    }, [account, chainId, library, pendingBalancePeriod]
+  )
+
   const handleMultiClaimPTP = useCallback(
     async () => {
       if (!chainId || !library || !account) return
@@ -729,11 +876,30 @@ export default function Pool() {
     }, []
   )
 
+  const autoBalancePeriodSeconds = useMemo(() => {
+    if (baseData !== null && baseData !== undefined) {
+      if (baseData[0]?.autoBalancePeriod?.gt(BigNumber.from(0))) return baseData[0].autoBalancePeriod
+      if (baseData[1]?.autoBalancePeriod?.gt(BigNumber.from(0))) return baseData[1].autoBalancePeriod
+      if (baseData[2]?.autoBalancePeriod?.gt(BigNumber.from(0))) return baseData[2].autoBalancePeriod
+      return BigNumber.from(300) // 300s, because default is 5min, : 5min,10min etc
+    }
+    return BigNumber.from(300)
+  }, [baseData])
+
   useEffect(() => {
     if (!chainId || !library || !account) return
     setIsNeedRefresh(true)
-  }, [account, library, chainId])
 
+    if (baseData !== null && baseData !== undefined) {
+      if (baseData[0]?.isAutoBalanced) setIsCheckAutoBalance(true)
+      else setIsCheckAutoBalance(false)
+
+      if (autoBalancePeriodSeconds.eq(BigNumber.from(300))) setBalancePeriodId(0)
+      if (autoBalancePeriodSeconds.eq(BigNumber.from(600))) setBalancePeriodId(1)
+      if (autoBalancePeriodSeconds.eq(BigNumber.from(900))) setBalancePeriodId(2)
+      if (autoBalancePeriodSeconds.eq(BigNumber.from(1200))) setBalancePeriodId(3)
+    }
+  }, [account, library, chainId, baseData, autoBalancePeriodSeconds, setBalancePeriodId])
 
   useEffect(() => {
     // if (!isNeedRefresh) return undefined
@@ -781,7 +947,8 @@ export default function Pool() {
           masterPlatypusContract.boostedAPR(lpID, account),
           masterPlatypusContract.medianBoostedAPR(lpID),
           masterPlatypusContract.coverageRatio(lpID),
-          PTPContract.allowance(account, MASTER_PLATYPUS_ADDRESS)
+          PTPContract.allowance(account, MASTER_PLATYPUS_ADDRESS),
+          masterPlatypusContract.isAutoBalance(account)
         ])
           .then(response => {
             const totalSupply = BigNumber.from(response[0]._hex)
@@ -794,6 +961,7 @@ export default function Pool() {
             const allowance_lp_pool = BigNumber.from(response[6]._hex)
             const allowance_lp_master = BigNumber.from(response[7]._hex)
             const stakedLPAmount = BigNumber.from(response[8].lpAmount._hex)
+            const autoBalancePeriod = BigNumber.from(response[8].autoBalancePeriod._hex)
             const rewardablePTPAmount = BigNumber.from(response[8].rewardAmount._hex)
             const volume24h = response[9].status === 'success' ? response[9].volume24 : 0
             const multiRewardablePTPAmount = BigNumber.from(response[10][0]._hex)
@@ -805,6 +973,8 @@ export default function Pool() {
             const medianBoostedAPR = BigNumber.from(response[16]._hex)
             const coverageRatio = BigNumber.from(response[17]._hex)
             const allowance_ptp_master = BigNumber.from(response[18]._hex)
+            const isAutoBalanced = response[19]
+
 
             setTotalRewardablePTPAmount(norValue(multiRewardablePTPAmount) * 10 ** PTP.decimals)
 
@@ -822,6 +992,7 @@ export default function Pool() {
               'allowance_lp_master': allowance_lp_master,
               'volume24': volume24h,
               'stakedLPAmount': stakedLPAmount,
+              'autoBalancePeriod': autoBalancePeriod,
               'rewardablePTPAmount': rewardablePTPAmount,
               'multiRewardablePTPAmount': multiRewardablePTPAmount,
               'rewardFactorVePTP': rewardFactorVePTP,
@@ -831,7 +1002,8 @@ export default function Pool() {
               'boostAPR': boostAPR,
               'medianBoostedAPR': medianBoostedAPR,
               'coverageRatio': coverageRatio,
-              'allowance_ptp_master': allowance_ptp_master
+              'allowance_ptp_master': allowance_ptp_master,
+              'isAutoBalanced': isAutoBalanced
             }
             return bData
           })
@@ -851,6 +1023,7 @@ export default function Pool() {
               'allowance_lp_pool': BigNumber.from(0),
               'volume24': 0,
               'stakedLPAmount': BigNumber.from(0),
+              'autoBalancePeriod': BigNumber.from(0),
               'rewardablePTPAmount': BigNumber.from(0),
               'multiRewardablePTPAmount': BigNumber.from(0),
               'rewardFactorVePTP': BigNumber.from(0),
@@ -860,7 +1033,8 @@ export default function Pool() {
               'boostAPR': BigNumber.from(0),
               'medianBoostedAPR': BigNumber.from(0),
               'coverageRatio': BigNumber.from(0),
-              'allowance_ptp_master': BigNumber.from(0)
+              'allowance_ptp_master': BigNumber.from(0),
+              'isAutoBalanced': false
             }
             return bData
           })
@@ -892,6 +1066,7 @@ export default function Pool() {
           if (!(bd.allowance_lp_pool.eq(bds.allowance_lp_pool))) isSameData = false
           if (bd.volume24 !== bds.volume24) isSameData = false
           if (!(bd.stakedLPAmount.eq(bds.stakedLPAmount))) isSameData = false
+          if (!(bd.autoBalancePeriod.eq(bds.autoBalancePeriod))) isSameData = false
           if (!(bd.rewardablePTPAmount.eq(bds.rewardablePTPAmount))) isSameData = false
           if (!(bd.multiRewardablePTPAmount.eq(bds.multiRewardablePTPAmount))) isSameData = false
           if (!(bd.rewardFactorVePTP.eq(bds.rewardFactorVePTP))) isSameData = false
@@ -901,6 +1076,7 @@ export default function Pool() {
           if (!(bd.boostAPR.eq(bds.boostAPR))) isSameData = false
           if (!(bd.medianBoostedAPR.eq(bds.medianBoostedAPR))) isSameData = false
           if (!(bd.coverageRatio.eq(bds.coverageRatio))) isSameData = false
+          if (bd.isAutoBalanced !== bds.isAutoBalanced) isSameData = false
         }
 
         if (!isSameData) {
@@ -927,6 +1103,17 @@ export default function Pool() {
 
     return () => window.clearInterval(interval);
   }, [account, chainId, library, allTokens, isNeedRefresh, baseData, selectedToken])
+
+  const isLPStaker = useMemo(() => {
+    if (baseData !== null && baseData !== undefined) {
+      if (baseData[0]?.stakedLPAmount?.gt(BigNumber.from(0))) return true;
+      if (baseData[1]?.stakedLPAmount?.gt(BigNumber.from(0))) return true;
+      if (baseData[2]?.stakedLPAmount?.gt(BigNumber.from(0))) return true;
+      return false;
+    }
+    return false;
+  }, [baseData])
+
 
   const handleDismissConfirmation = useCallback(() => {
     setShowConfirm(false)
@@ -1031,6 +1218,17 @@ export default function Pool() {
         onRefresh={handleRefresh}
       />
 
+      <AutoBalanceConfirmModal
+        isOpen={isAutoBalanceConfirmModalOpen}
+        isAutoBalance={isCheckAutoBalance}
+        isUpdateEnableDisablePeriod={isUpdateEnableDisablePeriod}
+        period={balancePeriod}
+        pendingPeriod={pendingBalancePeriod}
+        onSetAutoBalance={handleUpdateAutoBalance}
+        onDismiss={handleAutoBalanceConfirmDismiss}
+        onRefresh={handleRefresh}
+      />
+
       <AutoProModal
         isOpen={isAutoProModalOpen}
         baseData={baseData}
@@ -1095,7 +1293,12 @@ export default function Pool() {
             </div>
 
             <div>
-              <Button variant='secondary' size='sm' disabled style={borderRadius7} onClick={handleMultiClaimPTP}>Auto Balance</Button>
+              {
+                !isLPStaker ? <></> :
+                  isCheckAutoBalance ?
+                    <Button variant='secondary' size='sm' style={borderRadius7} onClick={handleForceBalance}>Auto Balance</Button> :
+                    <Button variant='secondary' size='sm' disabled style={borderRadius7}>Auto Balance</Button>
+              }
               <Button className='ml-2' variant='secondary' size='sm' style={borderRadius7} onClick={handleMultiClaimPTP}>Claim MARKET</Button>
             </div>
           </div>
@@ -1118,30 +1321,52 @@ export default function Pool() {
           })
         }
 
-        <Flex alignItems="center" justifyContent='center' className='mt-3'>
-          <Checkbox
-            scale='sm'
-            checked={isCheckAutoBalance}
-            onChange={handleChangeAutoBalance}
-          />
-          <Text style={{ marginLeft: '10px', marginRight: '10px' }}>Auto Balance Per</Text>
-          <PeriodSelect
-            selected={!!balancePeriodId}
-            className="open-currency-select-button"
-            onClick={() => {
-              setIsBalancePeriodModalOpen(true)
-            }}
-          >
-            <div style={{ marginTop: '4px' }}>
-              <Flex alignItems="center">
-                <Text>{balancePeriodTxt}</Text>
-              </Flex>
-              <Flex justifyContent="end" style={{ marginTop: '-22px' }}>
-                <ChevronDownIcon />
-              </Flex>
-            </div>
-          </PeriodSelect>
-        </Flex>
+        {
+          isLPStaker ? (
+            <Flex alignItems="center" justifyContent='center' className='mt-3'>
+              <Checkbox
+                scale='sm'
+                checked={isCheckAutoBalance}
+                onChange={handleChangeAutoBalance}
+              />
+              <Text style={{ marginLeft: '10px', marginRight: '10px' }}>Auto Balance Per</Text>
+              {
+                isCheckAutoBalance ? (
+                  <PeriodSelect
+                    selected={!!balancePeriodId}
+                    className="open-currency-select-button"
+                    onClick={() => {
+                      setIsBalancePeriodModalOpen(true)
+                    }}
+                  >
+                    <div style={{ marginTop: '4px' }}>
+                      <Flex alignItems="center">
+                        <Text>{balancePeriodTxt}</Text>
+                      </Flex>
+                      <Flex justifyContent="end" style={{ marginTop: '-22px' }}>
+                        <ChevronDownIcon />
+                      </Flex>
+                    </div>
+                  </PeriodSelect>
+                ) : (
+                  <PeriodSelect
+                    selected={!!balancePeriodId}
+                    className="open-currency-select-button"                    
+                  >
+                    <div style={{ marginTop: '4px' }}>
+                      <Flex alignItems="center">
+                        <Text>{balancePeriodTxt}</Text>
+                      </Flex>
+                      <Flex justifyContent="end" style={{ marginTop: '-22px' }}>
+                        <ChevronDownIcon />
+                      </Flex>
+                    </div>
+                  </PeriodSelect>
+                )
+              }
+            </Flex>
+          ) : <></>
+        }
       </MaxWidthDiv>
     </>
   )

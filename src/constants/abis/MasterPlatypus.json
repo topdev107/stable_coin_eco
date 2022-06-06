@@ -8,6 +8,68 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "balancedUserCount",
+        "type": "uint256"
+      }
+    ],
+    "name": "AutoBalanced",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "oldLPAmount1",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newLPAmount1",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "oldLPAmount2",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newLPAmount2",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "oldLPAmount3",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newLPAmount3",
+        "type": "uint256"
+      }
+    ],
+    "name": "AutoBalancedUser",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "address",
         "name": "user",
@@ -259,6 +321,31 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isAutoBalance",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "autoBalancePeriod",
+        "type": "uint256"
+      }
+    ],
+    "name": "SetAutoBalanceUser",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "address",
         "name": "user",
@@ -389,15 +476,22 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "autoBalance",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "uint256",
-        "name": "autoBalancedUserCount",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
       }
     ],
+    "name": "autoBalanceForLPStaker",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "autoBalanceForLPStakers",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -627,6 +721,25 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "isAutoBalance",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "pid",
         "type": "uint256"
@@ -797,6 +910,24 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "autoBalancePeriod",
+        "type": "uint256"
+      }
+    ],
+    "name": "setAutoBalanceForLPStaker",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

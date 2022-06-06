@@ -219,6 +219,7 @@ export interface PoolItemBaseData {
   allowance_lp_master: BigNumber
   volume24: number
   stakedLPAmount: BigNumber
+  autoBalancePeriod: BigNumber
   rewardablePTPAmount: BigNumber
   multiRewardablePTPAmount: BigNumber
   rewardFactorVePTP: BigNumber
@@ -229,6 +230,7 @@ export interface PoolItemBaseData {
   medianBoostedAPR: BigNumber
   coverageRatio: BigNumber
   allowance_ptp_master: BigNumber
+  isAutoBalanced: boolean  
 }
 
 export interface PTPStakedInfo {

@@ -14,6 +14,7 @@ import AutoDepositModal from 'components/AutoDepositConfirmModal'
 import { useActiveWeb3React } from 'hooks'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useCurrencyBalances } from 'state/wallet/hooks'
+import AutoBalanceConfirmModal from 'components/AutoBalanceConfrimModal'
 import CurrencyLogo from '../CurrencyLogo'
 import Modal from '../Modal'
 import Question, { QuestionColorHelper } from '../QuestionHelper'
@@ -87,8 +88,6 @@ export default function AutoProModal({
     return ['5 min', '10 min', '15 min', '20 min']
   }, [])
 
-
-
   const lockPeriodTxts = useMemo(() => {
     return ['1 week', '2 weeks', '3 weeks', '4 weeks',
       '5 weeks', '6 weeks', '7 weeks', '8 weeks',
@@ -104,7 +103,7 @@ export default function AutoProModal({
       setInputedValue3('')
       setIsCheckAutoAllocation(true)
       setIsCheckInvest(true)
-      setIsCheckAutoBalance(false)      
+      setIsCheckAutoBalance(true)      
       setBalancePeriodId(0)
       setIsCheckAutoCompound(false)
       setIsCheckLock(false)
@@ -233,7 +232,6 @@ export default function AutoProModal({
         return (inAmount1.gt(baseData[0].allowance) || inAmount2.gt(baseData[1].allowance) || inAmount3.gt(baseData[2].allowance)) || allowance_master
       }
 
-
       return undefined
     }
 
@@ -244,7 +242,7 @@ export default function AutoProModal({
 
   const [isCheckAutoAllocation, setIsCheckAutoAllocation] = useState<boolean>(true)
   const [isCheckInvest, setIsCheckInvest] = useState<boolean>(true)
-  const [isCheckAutoBalance, setIsCheckAutoBalance] = useState<boolean>(false)
+  const [isCheckAutoBalance, setIsCheckAutoBalance] = useState<boolean>(true)
   const [isCheckAutoCompound, setIsCheckAutoCompound] = useState<boolean>(false)
   const [isCheckLock, setIsCheckLock] = useState<boolean>(false)
 
@@ -262,7 +260,7 @@ export default function AutoProModal({
 
   const handleChangeAutoBalance = useCallback(
     (event) => {
-      setIsCheckAutoBalance(event.target.checked)
+      setIsCheckAutoBalance(event.target.checked)      
     }, []
   )
 
@@ -473,10 +471,6 @@ export default function AutoProModal({
       await Promise.all(promises)
         .then((response) => {
           console.log('multi_approve: ', response)
-          // response.forEach(hash => {
-          //   tnx_hashes.push(hash.hash)
-          // })
-          // console.log('tnx_hashes:', tnx_hashes)
         })
         .catch((e) => {
           console.log(e)
@@ -580,7 +574,7 @@ export default function AutoProModal({
           setInputedValue3('')
           setIsCheckAutoAllocation(true)
           setIsCheckInvest(true)
-          setIsCheckAutoBalance(false)
+          setIsCheckAutoBalance(true)
           setBalancePeriodId(0)
           setIsCheckAutoCompound(false)
           setIsCheckLock(false)
@@ -645,7 +639,7 @@ export default function AutoProModal({
         onDismiss={closeDepositModal}
         onApprove={handleApprove}
         onDeposit={handleDeposit}
-      /> */}
+      /> */}     
 
       <AutoPeriodSelectModal
         isOpen={isBalancePeriodModalOpen}
