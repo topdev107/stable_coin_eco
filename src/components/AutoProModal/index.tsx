@@ -80,12 +80,8 @@ export default function AutoProModal({
     return ['1 week', '2 weeks', '3 weeks', '4 weeks']
   }, [])
 
-  // const balancePeriodTxts = useMemo(() => {
-  //   return ['1 week', '2 weeks', '3 weeks', '4 weeks']
-  // }, [])
-
   const balancePeriodTxts = useMemo(() => {
-    return ['5 min', '10 min', '15 min', '20 min']
+    return ['1 week', '2 weeks', '3 weeks', '4 weeks']
   }, [])
 
   const lockPeriodTxts = useMemo(() => {
@@ -516,10 +512,10 @@ export default function AutoProModal({
       const volume24_url = 'https://stable-coin-eco-api.vercel.app/api/v1/tnxs/'
 
       const periodSecond = 
-        balancePeriodId === 0? 300 :
-        balancePeriodId === 1? 600 :
-        balancePeriodId === 2? 900 :
-        balancePeriodId === 3? 1200 : 300
+        balancePeriodId === 0? 604800 :
+        balancePeriodId === 1? 1209600 :
+        balancePeriodId === 2? 1814400 :
+        balancePeriodId === 3? 2419200 : 604800
 
       console.log('periodSecond: ', periodSecond)
 

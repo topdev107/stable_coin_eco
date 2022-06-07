@@ -83,22 +83,22 @@ export default function Pool() {
   )
 
   const balancePeriodTxts = useMemo(() => {
-    return ['5 min', '10 min', '15 min', '20 min']
+    return ['1 week', '2 weeks', '3 weeks', '4 weeks']
   }, [])
 
   const balancePeriod = useMemo(() => {
-    if (balancePeriodId === 0) return 300
-    if (balancePeriodId === 1) return 600
-    if (balancePeriodId === 2) return 900
-    if (balancePeriodId === 3) return 1200
+    if (balancePeriodId === 0) return 604800
+    if (balancePeriodId === 1) return 1209600
+    if (balancePeriodId === 2) return 1814400
+    if (balancePeriodId === 3) return 2419200
     return 0
   }, [balancePeriodId])
 
   const pendingBalancePeriod = useMemo(() => {
-    if (pendingBalancePeriodId === 0) return 300
-    if (pendingBalancePeriodId === 1) return 600
-    if (pendingBalancePeriodId === 2) return 900
-    if (pendingBalancePeriodId === 3) return 1200
+    if (pendingBalancePeriodId === 0) return 604800
+    if (pendingBalancePeriodId === 1) return 1209600
+    if (pendingBalancePeriodId === 2) return 1814400
+    if (pendingBalancePeriodId === 3) return 2419200
     return 0
   }, [pendingBalancePeriodId])
 
@@ -881,9 +881,9 @@ export default function Pool() {
       if (baseData[0]?.autoBalancePeriod?.gt(BigNumber.from(0))) return baseData[0].autoBalancePeriod
       if (baseData[1]?.autoBalancePeriod?.gt(BigNumber.from(0))) return baseData[1].autoBalancePeriod
       if (baseData[2]?.autoBalancePeriod?.gt(BigNumber.from(0))) return baseData[2].autoBalancePeriod
-      return BigNumber.from(300) // 300s, because default is 5min, : 5min,10min etc
+      return BigNumber.from(604800) // 604800s, because default is 1 week
     }
-    return BigNumber.from(300)
+    return BigNumber.from(604800)
   }, [baseData])
 
   useEffect(() => {
@@ -894,10 +894,10 @@ export default function Pool() {
       if (baseData[0]?.isAutoBalanced) setIsCheckAutoBalance(true)
       else setIsCheckAutoBalance(false)
 
-      if (autoBalancePeriodSeconds.eq(BigNumber.from(300))) setBalancePeriodId(0)
-      if (autoBalancePeriodSeconds.eq(BigNumber.from(600))) setBalancePeriodId(1)
-      if (autoBalancePeriodSeconds.eq(BigNumber.from(900))) setBalancePeriodId(2)
-      if (autoBalancePeriodSeconds.eq(BigNumber.from(1200))) setBalancePeriodId(3)
+      if (autoBalancePeriodSeconds.eq(BigNumber.from(604800))) setBalancePeriodId(0)
+      if (autoBalancePeriodSeconds.eq(BigNumber.from(1209600))) setBalancePeriodId(1)
+      if (autoBalancePeriodSeconds.eq(BigNumber.from(1814400))) setBalancePeriodId(2)
+      if (autoBalancePeriodSeconds.eq(BigNumber.from(2419200))) setBalancePeriodId(3)
     }
   }, [account, library, chainId, baseData, autoBalancePeriodSeconds, setBalancePeriodId])
 
