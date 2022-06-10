@@ -515,32 +515,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "baseRewardFactorPTP",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "boostRewardFactorPTP",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -719,6 +693,34 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "factors",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "rfBasePTP",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "rfBoostPTP",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "rfVePTP",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "rfVePTPMultiple",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -884,32 +886,6 @@
     "name": "renounceOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "rewardFactorVePTP",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "rewardFactorVePTPMultiple",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {

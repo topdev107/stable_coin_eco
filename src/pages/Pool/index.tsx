@@ -769,7 +769,9 @@ export default function Pool() {
       const masterPlatypusContract = getMasterPlatypusContract(chainId, library, account)
       let tnx_hash = ''
 
-      await masterPlatypusContract.setAutoBalanceForLPStaker(account, pendingBalancePeriod)
+      let pbPeriod = pendingBalancePeriod
+      if(isCheckAutoBalance) pbPeriod = 0
+      await masterPlatypusContract.setAutoBalanceForLPStaker(account, pbPeriod)
         .then((response) => {
           console.log('setAutoBalanceForLPStaker: ', response)            
           setTxHash(response.hash)
@@ -812,7 +814,7 @@ export default function Pool() {
       }
 
       checkTnx()
-    }, [account, chainId, library, pendingBalancePeriod]
+    }, [account, chainId, library, pendingBalancePeriod, isCheckAutoBalance]
   )
 
   const handleMultiClaimPTP = useCallback(
@@ -940,7 +942,7 @@ export default function Pool() {
           masterPlatypusContract.lpStakedInfo(lpID, account),
           getVolume24h(),
           masterPlatypusContract.multiLpStakedInfo(account),
-          masterPlatypusContract.rewardFactorVePTP(),
+          masterPlatypusContract.factors(),
           vePTPContract.balanceOf(account),
           masterPlatypusContract.ptpStakedInfo(account),
           masterPlatypusContract.baseAPR(lpID),
@@ -965,7 +967,7 @@ export default function Pool() {
             const rewardablePTPAmount = BigNumber.from(response[8].rewardAmount._hex)
             const volume24h = response[9].status === 'success' ? response[9].volume24 : 0
             const multiRewardablePTPAmount = BigNumber.from(response[10][0]._hex)
-            const rewardFactorVePTP = BigNumber.from(response[11]._hex)
+            const rewardFactorVePTP = BigNumber.from(response[11].rfVePTP._hex)
             const vePTPBalance = BigNumber.from(response[12]._hex)
             const stakedPTPAmount = BigNumber.from(response[13].ptpAmount._hex)
             const baseAPR = BigNumber.from(response[14]._hex)
