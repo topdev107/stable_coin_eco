@@ -4,6 +4,7 @@ import { GreyCard } from 'components/Card'
 import { BigNumber } from 'ethers'
 import React, { useCallback } from 'react'
 import { Col, Row } from 'react-bootstrap'
+import { Flex } from 'rebass'
 import { formatCurrency, nDecimals, norValue, PoolItemBaseData } from 'utils'
 import CurrencyLogo from '../CurrencyLogo'
 import Modal from '../Modal'
@@ -66,6 +67,13 @@ export default function LPUnStakeConfirmModal({
           <CurrencyLogo currency={token} size="25px" />
           <Text className="ml-1" fontSize='20px'>{token?.symbol}</Text>
         </div>
+        
+        <Flex justifyContent="center" className='mt-2'>
+          <Text style={{ color: 'red' }}>Warning</Text>
+        </Flex>
+        <Flex justifyContent="center">
+          <Text style={{ color: 'red', fontSize: '13px', textAlign: 'center' }}>Auto balancing will be completed</Text>
+        </Flex>
         <Text className='mt-4' fontSize="13px" color='#888888'>{`Unstakable: ${formatCurrency(nDecimals(2, norValue(baseData?.stakedLPAmount, token?.decimals)), 2)} ${token?.symbol}`}</Text>
         <Row className='mt-1'>
           <Col>
