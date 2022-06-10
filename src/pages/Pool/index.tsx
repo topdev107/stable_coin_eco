@@ -769,8 +769,9 @@ export default function Pool() {
       const masterPlatypusContract = getMasterPlatypusContract(chainId, library, account)
       let tnx_hash = ''
 
-      let pbPeriod = pendingBalancePeriod
-      if(isCheckAutoBalance && isUpdateEnableDisablePeriod) pbPeriod = 0
+      // let pbPeriod = pendingBalancePeriod
+      // if(isCheckAutoBalance && isUpdateEnableDisablePeriod) pbPeriod = 0
+      const pbPeriod = isCheckAutoBalance ? isUpdateEnableDisablePeriod ? 0 : pendingBalancePeriod : balancePeriod;
       await masterPlatypusContract.setAutoBalanceForLPStaker(account, pbPeriod)
         .then((response) => {
           console.log('setAutoBalanceForLPStaker: ', response)            
@@ -814,7 +815,7 @@ export default function Pool() {
       }
 
       checkTnx()
-    }, [account, chainId, library, pendingBalancePeriod, isCheckAutoBalance, isUpdateEnableDisablePeriod]
+    }, [account, chainId, library, pendingBalancePeriod, isCheckAutoBalance, isUpdateEnableDisablePeriod, balancePeriod]
   )
 
   const handleMultiClaimPTP = useCallback(
