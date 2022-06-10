@@ -769,8 +769,6 @@ export default function Pool() {
       const masterPlatypusContract = getMasterPlatypusContract(chainId, library, account)
       let tnx_hash = ''
 
-      // let pbPeriod = pendingBalancePeriod
-      // if(isCheckAutoBalance && isUpdateEnableDisablePeriod) pbPeriod = 0
       const pbPeriod = isCheckAutoBalance ? isUpdateEnableDisablePeriod ? 0 : pendingBalancePeriod : balancePeriod;
       await masterPlatypusContract.setAutoBalanceForLPStaker(account, pbPeriod)
         .then((response) => {
