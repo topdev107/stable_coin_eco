@@ -41,7 +41,7 @@ const PeriodSelect = styled.div<{ selected: boolean }>`
   user-select: none;
   border: 1px solid white;
   padding: 0 0.5rem;
-  width: 30%;
+  width: 105px;
 
   :focus,
   :hover {    
@@ -73,8 +73,11 @@ export default function AutoProModal({
   const { account, chainId, library } = useActiveWeb3React()
   const selectedCurrencyBalances = useCurrencyBalances(account ?? undefined, Object.values(allTokens) ?? undefined)
 
-  const MIN = 1
-  const MAX = 50
+  const MIN_PERCENT = 1
+  const MAX_PERCENT = 50
+
+  const MIN_COUNT = 1
+  const MAX_COUNT = 50
 
   const compoundPeriodTxts = useMemo(() => {
     return ['1 week', '2 weeks', '3 weeks', '4 weeks']
@@ -84,28 +87,18 @@ export default function AutoProModal({
     return ['1 week', '2 weeks', '3 weeks', '4 weeks']
   }, [])
 
+  const purchaseDeadlineTxts = useMemo(() => {
+    return ['1 week', '2 weeks', '3 weeks', '4 weeks',
+      '5 weeks', '6 weeks', '7 weeks', '8 weeks',
+      '9 weeks', '10 weeks', '11 weeks', '12 weeks']
+  }, [])
+
   const lockPeriodTxts = useMemo(() => {
     return ['1 week', '2 weeks', '3 weeks', '4 weeks',
       '5 weeks', '6 weeks', '7 weeks', '8 weeks',
       '9 weeks', '10 weeks', '11 weeks', '12 weeks',
       '13 weeks', '14 weeks', '15 weeks', '16 weeks']
   }, [])
-
-  const handleClose = useCallback(
-    () => {
-      setSelectedPoolId(undefined)
-      setInputedValue1('')
-      setInputedValue2('')
-      setInputedValue3('')
-      setIsCheckAutoAllocation(true)
-      setIsCheckInvest(true)
-      setIsCheckAutoBalance(true)      
-      setBalancePeriodId(0)
-      setIsCheckAutoCompound(false)
-      setIsCheckLock(false)
-      onDismiss()
-    }, [onDismiss]
-  )
 
   const handleConfirm = useCallback(
     () => {
@@ -115,6 +108,28 @@ export default function AutoProModal({
 
   const [investPercent, setInvestPercent] = useState<string>('10')
   const [error, setError] = useState<string | null>(null)
+
+  const [purchaseCount, setPurchaseCount] = useState<string>('1')
+  const [pError, setPError] = useState<string | null>(null)
+
+  const handleClose = useCallback(
+    () => {
+      setSelectedPoolId(undefined)
+      setInputedValue1('')
+      setInputedValue2('')
+      setInputedValue3('')
+      setIsCheckAutoAllocation(true)
+      setIsCheckInvest(true)
+      setIsCheckAutoBalance(true)
+      setInvestPercent('10')
+      setPurchaseCount('1')
+      setBalancePeriodId(0)
+      setPurchaseDeadlineId(0)
+      setIsCheckAutoCompound(false)
+      setIsCheckLock(false)
+      onDismiss()
+    }, [onDismiss]
+  )
 
   // modal and loading
   const [showConfirm, setShowConfirm] = useState<boolean>(false)
@@ -256,7 +271,7 @@ export default function AutoProModal({
 
   const handleChangeAutoBalance = useCallback(
     (event) => {
-      setIsCheckAutoBalance(event.target.checked)      
+      setIsCheckAutoBalance(event.target.checked)
     }, []
   )
 
@@ -350,6 +365,14 @@ export default function AutoProModal({
     return balancePeriodTxts[balancePeriodId]
   }, [balancePeriodTxts, balancePeriodId])
 
+  //
+  const [purchaseDeadlineId, setPurchaseDeadlineId] = useState<number>(0)
+  const [isPurchaseDeadlineModalOpen, setIsPurchaseDeadlineModalOpen] = useState(false)
+  const purchaseDeadlineTxt = useMemo(() => {
+    return purchaseDeadlineTxts[purchaseDeadlineId]
+  }, [purchaseDeadlineTxts, purchaseDeadlineId])
+  //
+
   const [lockPeriodId, setLockPeriodId] = useState<number>(0)
   const [isLockPeriodModalOpen, setIsLockPeriodModalOpen] = useState(false)
   const lockPeriodTxt = useMemo(() => {
@@ -376,6 +399,16 @@ export default function AutoProModal({
     setIsBalancePeriodModalOpen(false)
   }, [setIsBalancePeriodModalOpen])
 
+  const handlePurchaseDeadlineSelect = useCallback(
+    (selectedId) => {
+      setPurchaseDeadlineId(selectedId)
+    }, [setPurchaseDeadlineId]
+  )
+
+  const handlePurchaseDeadlineDismiss = useCallback(() => {
+    setIsPurchaseDeadlineModalOpen(false)
+  }, [setIsPurchaseDeadlineModalOpen])
+
   const handleLockPeriodSelect = useCallback(
     (selectedId) => {
       setLockPeriodId(selectedId)
@@ -391,6 +424,11 @@ export default function AutoProModal({
     setInvestPercent(inputValue)
   }
 
+  const handlePurchaseCountChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+    const { value: inputValue } = evt.target
+    setPurchaseCount(inputValue)
+  }
+
   const isLpStakedAmountChanged = useMemo(() => {
     let isUpdated = false
     if (preBaseData !== undefined && preBaseData.length === 3) {
@@ -401,18 +439,30 @@ export default function AutoProModal({
     setPreBaseData(baseData)
     return isUpdated
   }, [baseData, preBaseData, setPreBaseData])
-  
+
   useEffect(() => {
     try {
 
       const rawValue = +investPercent
-      if (!Number.isNaN(rawValue) && rawValue >= MIN && rawValue <= MAX) {
+      if (!Number.isNaN(rawValue) && rawValue >= MIN_PERCENT && rawValue <= MAX_PERCENT) {
         setError(null)
       } else {
         setError('Enter a valid percentage')
       }
     } catch {
       setError('Enter a valid percentage')
+    }
+
+    try {
+
+      const rawValue1 = +purchaseCount
+      if (!Number.isNaN(rawValue1) && rawValue1 >= MIN_COUNT && rawValue1 <= MAX_COUNT) {
+        setPError(null)
+      } else {
+        setPError('Enter a valid count')
+      }
+    } catch {
+      setPError('Enter a valid count')
     }
 
     let sum = 0
@@ -427,15 +477,15 @@ export default function AutoProModal({
       setIsApproving(false)
     }
 
-    if(isLpStakedAmountChanged) onRemovePopup()
+    if (isLpStakedAmountChanged) onRemovePopup()
 
-  }, [investPercent, setError, allTokens, baseData, isApproving, isNeedApprove, isLpStakedAmountChanged, onRemovePopup])
+  }, [investPercent, purchaseCount, setError, allTokens, baseData, isApproving, isNeedApprove, isLpStakedAmountChanged, onRemovePopup])
 
   const handleDismissConfirmation = useCallback(() => {
     setShowConfirm(false)
     setTxHash('')
     setIsApproving(false)
-        
+
   }, [])
 
   const pendingText = 'Waiting For Confirmation.'
@@ -484,7 +534,7 @@ export default function AutoProModal({
     }, [account, chainId, library, allTokens]
   )
 
-  const popupDesc = 'Your deposited tokens will appear in the Pool as soon as Pool has had a chance to read the updated blockchain.'    
+  const popupDesc = 'Your deposited tokens will appear in the Pool as soon as Pool has had a chance to read the updated blockchain.'
 
   const handleDeposit = useCallback(
     async () => {
@@ -511,11 +561,7 @@ export default function AutoProModal({
 
       const volume24_url = 'https://stable-coin-eco-api.vercel.app/api/v1/tnxs/'
 
-      const periodSecond = 
-        balancePeriodId === 0? 604800 :
-        balancePeriodId === 1? 1209600 :
-        balancePeriodId === 2? 1814400 :
-        balancePeriodId === 3? 2419200 : 604800
+      const periodSecond = (+balancePeriodId+1) * 604800
 
       console.log('periodSecond: ', periodSecond)
 
@@ -529,7 +575,7 @@ export default function AutoProModal({
         amount3,
         isCheckAutoAllocation,
         isCheckInvest ? +investPercent * 100 : 0,
-        isCheckAutoBalance? periodSecond : 0
+        isCheckAutoBalance ? periodSecond : 0
       )
         .then((response) => {
           setAttemptingTxn(false)
@@ -571,7 +617,10 @@ export default function AutoProModal({
           setIsCheckAutoAllocation(true)
           setIsCheckInvest(true)
           setIsCheckAutoBalance(true)
+          setInvestPercent('10')
+          setPurchaseCount('1')
           setBalancePeriodId(0)
+          setPurchaseDeadlineId(0)
           setIsCheckAutoCompound(false)
           setIsCheckLock(false)
         })
@@ -580,7 +629,7 @@ export default function AutoProModal({
           // we only care if the error is something _other_ than the user rejected the tx          
           if (e?.code !== 4001) {
             console.error(e)
-            setErrMessage(e.message?? e.data.message)
+            setErrMessage(e.message ?? e.data.message)
           } else {
             setShowConfirm(false)
           }
@@ -610,20 +659,20 @@ export default function AutoProModal({
       // checkTnx()
 
     }, [
-      account, 
-      chainId, 
-      library, 
-      allTokens, 
-      inputedValue1, 
-      inputedValue2, 
-      inputedValue3, 
-      investPercent, 
-      isCheckAutoAllocation, 
-      isCheckInvest, 
-      isCheckAutoBalance, 
-      balancePeriodId, 
-      onShowPopup, 
-      onDismiss]
+    account,
+    chainId,
+    library,
+    allTokens,
+    inputedValue1,
+    inputedValue2,
+    inputedValue3,
+    investPercent,
+    isCheckAutoAllocation,
+    isCheckInvest,
+    isCheckAutoBalance,
+    balancePeriodId,
+    onShowPopup,
+    onDismiss]
   )
 
   return (
@@ -635,7 +684,15 @@ export default function AutoProModal({
         onDismiss={closeDepositModal}
         onApprove={handleApprove}
         onDeposit={handleDeposit}
-      /> */}     
+      /> */}
+
+      <AutoPeriodSelectModal
+        isOpen={isPurchaseDeadlineModalOpen}
+        title='Purchase Deadline Select'
+        items={purchaseDeadlineTxts}
+        onDismiss={handlePurchaseDeadlineDismiss}
+        onSelected={handlePurchaseDeadlineSelect}
+      />
 
       <AutoPeriodSelectModal
         isOpen={isBalancePeriodModalOpen}
@@ -766,8 +823,8 @@ export default function AutoProModal({
                     type="number"
                     scale="sm"
                     step={1}
-                    min={MIN}
-                    max={MAX}
+                    min={MIN_PERCENT}
+                    max={MAX_PERCENT}
                     placeholder="10%"
                     value={investPercent}
                     onChange={handleChange}
@@ -778,12 +835,63 @@ export default function AutoProModal({
                 <Option>
                   {
                     error === null ?
-                      <Text >{`(${MIN}% - ${MAX}%)`}</Text> :
-                      <Text color='#f00'>{`(${MIN}% - ${MAX}%)`}</Text>
+                      <Text >{`(${MIN_PERCENT}% - ${MAX_PERCENT}%)`}</Text> :
+                      <Text color='#f00'>{`(${MIN_PERCENT}% - ${MAX_PERCENT}%)`}</Text>
                   }
                 </Option>
               </Flex>
             </Flex>
+
+            {
+              isCheckInvest ? (
+                <Flex alignItems="center" className='mt-2'>
+                  <Flex alignItems="center" className='ml-5'>
+                    <Option>
+                      <Input
+                        type="number"
+                        scale="sm"
+                        step={1}
+                        min={MIN_COUNT}
+                        max={MAX_COUNT}
+                        placeholder="1"
+                        value={purchaseCount}
+                        onChange={handlePurchaseCountChange}
+                        isWarning={pError !== null}
+                        style={{ width: '70px' }}
+                      />
+                    </Option>
+                    <Option>
+                      {
+                        pError === null ?
+                          <Text >purchases over</Text> :
+                          <Text color='#f00'>purchases over</Text>
+                      }
+                    </Option>
+                    <Option>
+                      <PeriodSelect
+                        selected={!!purchaseDeadlineId}
+                        className="open-currency-select-button"
+                        onClick={() => {
+                          setIsPurchaseDeadlineModalOpen(true)
+                        }}
+                      >
+                        <div style={{ marginTop: '4px' }}>
+                          <Flex alignItems="center">
+                            <Text>{purchaseDeadlineTxt}</Text>
+                          </Flex>
+                          <Flex justifyContent="end" style={{ marginTop: '-22px' }}>
+                            <ChevronDownIcon />
+                          </Flex>
+                        </div>
+                      </PeriodSelect>
+                    </Option>
+                  </Flex>
+                </Flex>
+              ) : (
+                <></>
+              )
+            }
+
             {/* <div className='mt-4'>
               {
                 isInputedValue === false ?
@@ -807,8 +915,8 @@ export default function AutoProModal({
             </div> */}
 
             <Flex alignItems="center" className='mt-3'>
-              <Checkbox 
-                scale='sm' 
+              <Checkbox
+                scale='sm'
                 checked={isCheckAutoBalance}
                 onChange={handleChangeAutoBalance}
               />
@@ -830,6 +938,7 @@ export default function AutoProModal({
                 </div>
               </PeriodSelect>
             </Flex>
+
             {/* <Flex alignItems="center" className='mt-2'>
               <Checkbox 
                 scale='sm'
@@ -883,31 +992,33 @@ export default function AutoProModal({
             </div> */}
             <div className='mt-4'>
               {
-                isInputedValue === false ?
-                  <Button fullWidth disabled style={{ borderRadius: '5px' }}>Please input amounts</Button> :
-                  isInputOver ?
-                    <Button fullWidth disabled style={{ borderRadius: '5px' }}>Please input correct amount</Button> :
-                    isNeedApprove === undefined ? (
-                      <Button fullWidth style={{ borderRadius: '5px' }} disabled>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <Text className='ml-2'>Approve</Text>
-                        </div>
-                      </Button>
-                    ) : (
-                      isNeedApprove ? (
-                        <Button fullWidth style={{ borderRadius: '5px' }} onClick={handleApprove}>
+                error === null && pError === null ?
+                  isInputedValue === false ?
+                    <Button fullWidth disabled style={{ borderRadius: '5px' }}>Please input amounts</Button> :
+                    isInputOver ?
+                      <Button fullWidth disabled style={{ borderRadius: '5px' }}>Please input correct amount</Button> :
+                      isNeedApprove === undefined ? (
+                        <Button fullWidth style={{ borderRadius: '5px' }} disabled>
                           <div style={{ display: 'flex', alignItems: 'center' }}>
                             <Text className='ml-2'>Approve</Text>
                           </div>
                         </Button>
                       ) : (
-                        <Button fullWidth style={{ borderRadius: '5px' }} onClick={handleDeposit}>
-                          <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <Text className='ml-2'>Deposit</Text>
-                          </div>
-                        </Button>
-                      )
-                    )
+                        isNeedApprove ? (
+                          <Button fullWidth style={{ borderRadius: '5px' }} onClick={handleApprove}>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                              <Text className='ml-2'>Approve</Text>
+                            </div>
+                          </Button>
+                        ) : (
+                          <Button fullWidth style={{ borderRadius: '5px' }} onClick={handleDeposit}>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                              <Text className='ml-2'>Deposit</Text>
+                            </div>
+                          </Button>
+                        )
+                      ) :
+                  <Button fullWidth disabled style={{ borderRadius: '5px' }}>Deposit</Button>
               }
             </div>
           </div>

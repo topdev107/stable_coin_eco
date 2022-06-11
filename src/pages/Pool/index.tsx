@@ -86,20 +86,12 @@ export default function Pool() {
     return ['1 week', '2 weeks', '3 weeks', '4 weeks']
   }, [])
 
-  const balancePeriod = useMemo(() => {
-    if (balancePeriodId === 0) return 604800
-    if (balancePeriodId === 1) return 1209600
-    if (balancePeriodId === 2) return 1814400
-    if (balancePeriodId === 3) return 2419200
-    return 0
+  const balancePeriod = useMemo(() => {    
+    return (+balancePeriodId+1) * 604800
   }, [balancePeriodId])
 
-  const pendingBalancePeriod = useMemo(() => {
-    if (pendingBalancePeriodId === 0) return 604800
-    if (pendingBalancePeriodId === 1) return 1209600
-    if (pendingBalancePeriodId === 2) return 1814400
-    if (pendingBalancePeriodId === 3) return 2419200
-    return 0
+  const pendingBalancePeriod = useMemo(() => {    
+    return (+pendingBalancePeriodId+1) * 604800    
   }, [pendingBalancePeriodId])
 
   const handleChangeAutoBalance = useCallback(
