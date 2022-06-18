@@ -565,16 +565,32 @@ export default function AutoProModal({
 
       console.log('periodSecond: ', periodSecond)
 
+      const tok = {
+        'token1': token1.address,
+        'token2': token2.address,
+        'token3': token3.address
+      }
+      const amt = {
+        'amount1': amount1,
+        'amount2': amount2,
+        'amount3': amount3
+      } 
+
       let tnx_hash = ''
       await poolContract.depositAuto(
-        token1.address,
-        token2.address,
-        token3.address,
-        amount1,
-        amount2,
-        amount3,
+        // token1.address,
+        // token2.address,
+        // token3.address,
+        // amount1,
+        // amount2,
+        // amount3,
+        tok,
+        amt,
         isCheckAutoAllocation,
         isCheckInvest ? +investPercent * 100 : 0,
+        purchaseCount,
+        (+purchaseDeadlineId+1)*300, // 5min
+        // (+purchaseDeadlineId+1)*604800, // 1 week
         isCheckAutoBalance ? periodSecond : 0
       )
         .then((response) => {
@@ -671,6 +687,8 @@ export default function AutoProModal({
     isCheckInvest,
     isCheckAutoBalance,
     balancePeriodId,
+    purchaseCount,
+    purchaseDeadlineId,
     onShowPopup,
     onDismiss]
   )

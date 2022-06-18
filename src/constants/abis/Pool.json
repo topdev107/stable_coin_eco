@@ -28,6 +28,31 @@
         "type": "address"
       },
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "pap",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newap",
+        "type": "address"
+      }
+    ],
+    "name": "AutoProcUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
         "indexed": false,
         "internalType": "address",
         "name": "token",
@@ -103,7 +128,7 @@
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "prevM",
         "type": "address"
@@ -443,6 +468,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "autoProc",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -479,34 +517,48 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "token1",
-        "type": "address"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "token1",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "token2",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "token3",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct Pool.TokensParam",
+        "name": "inTokens",
+        "type": "tuple"
       },
       {
-        "internalType": "address",
-        "name": "token2",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "token3",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount1",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount2",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount3",
-        "type": "uint256"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "amount1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount2",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount3",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct Pool.AmountsParam",
+        "name": "inAmounts",
+        "type": "tuple"
       },
       {
         "internalType": "bool",
@@ -516,6 +568,16 @@
       {
         "internalType": "uint256",
         "name": "investPercent",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "investCount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "investDeadline",
         "type": "uint256"
       },
       {
@@ -776,40 +838,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "liquidity",
-        "type": "uint256"
-      }
-    ],
-    "name": "quotePotentialWithdraw",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "fee",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "enoughCash",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "key",
         "type": "address"
       }
@@ -822,6 +850,19 @@
   {
     "inputs": [],
     "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IAutoProc",
+        "name": "ap",
+        "type": "address"
+      }
+    ],
+    "name": "setAutoProc",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
