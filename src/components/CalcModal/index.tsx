@@ -344,7 +344,7 @@ export default function CalcModal({
         masterPlatypusContract.lpStakedInfo(lpID, account),
         assetContract.cash(),
         assetContract.liability(),
-        masterPlatypusContract.rewardFactorVePTP(),
+        masterPlatypusContract.factors(),
         masterPlatypusContract.baseAPR(lpID),
         masterPlatypusContract.boostedAPR(lpID, account),
         masterPlatypusContract.estimatedBoostedAPRFromVePTP(lpID, account, ethers.utils.parseUnits(inTokenValue, selectedToken.decimals), ethers.utils.parseUnits(inVePTPValue, VEPTP.decimals)),
@@ -355,7 +355,7 @@ export default function CalcModal({
         const stakedLPAmount = BigNumber.from(response[2].lpAmount._hex)
         const cash = BigNumber.from(response[3]._hex)
         const liability = BigNumber.from(response[4]._hex)
-        const rewardFactorVePTP = BigNumber.from(response[5]._hex)
+        const rewardFactorVePTP = BigNumber.from(response[5].rfVePTP._hex)
         const baseAPR = BigNumber.from(response[6]._hex)
         const boostedAPR = BigNumber.from(response[7]._hex)
         const estimatedBoostedAPRFromVePTP = BigNumber.from(response[8]._hex)        
