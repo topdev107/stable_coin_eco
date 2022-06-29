@@ -261,31 +261,6 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "prevRate",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newRate",
-        "type": "uint256"
-      }
-    ],
-    "name": "ScoinPerMARKETUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": false,
         "internalType": "uint256",
         "name": "previousK",
@@ -697,19 +672,6 @@
   },
   {
     "inputs": [],
-    "name": "getScoinPerMARKET",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "getSlippageParamK",
     "outputs": [
       {
@@ -954,19 +916,6 @@
       }
     ],
     "name": "setRetentionRatio",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "rate",
-        "type": "uint256"
-      }
-    ],
-    "name": "setScoinPerMARKET",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

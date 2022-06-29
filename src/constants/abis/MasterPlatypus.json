@@ -880,6 +880,11 @@
       },
       {
         "internalType": "uint256",
+        "name": "totalPtpAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
         "name": "rewardAmount",
         "type": "uint256"
       }
@@ -1092,6 +1097,62 @@
       }
     ],
     "name": "updatePTPStakedUserInfoForStaking",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "updatePTPStakedUserInfoForStakingFirstInvest",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "unitAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "prevUnitAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "investCount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "investedCount",
+        "type": "uint256"
+      }
+    ],
+    "name": "updatePTPStakedUserInfoForStakingStepInvest",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

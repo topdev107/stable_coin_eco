@@ -235,6 +235,7 @@ export interface PoolItemBaseData {
 
 export interface PTPStakedInfo {
   ptpStakedAmount: BigNumber
+  totalPtpStakedAmount: BigNumber
   vePTPrewardableAmount: BigNumber
   vePTPBalanceOf: BigNumber
   veTotalSupply: BigNumber

@@ -33,6 +33,7 @@ export default function Staking() {
   `
   const initialBaseData = {
     'ptpStakedAmount': BigNumber.from(0),
+    'totalPtpStakedAmount': BigNumber.from(0),
     'vePTPrewardableAmount': BigNumber.from(0),
     'vePTPBalanceOf': BigNumber.from(0),
     'veTotalSupply': BigNumber.from(0),
@@ -300,12 +301,13 @@ export default function Staking() {
         masterPlatypusContract.ptpStakedInfo(account),
         vePTPContract.balanceOf(account),
         vePTPContract.totalSupply(),
-        masterPlatypusContract.calcVePTPReward(account, baseData.ptpStakedAmount, 3600), // 3600s
+        masterPlatypusContract.calcVePTPReward(account, baseData.totalPtpStakedAmount, 3600), // 3600s
         ptpContract.allowance(account, MASTER_PLATYPUS_ADDRESS),
         ptpContract.balanceOf(account),
         
-      ]).then(response => {
+      ]).then(response => {        
         const ptpAmount = BigNumber.from(response[0].ptpAmount._hex)
+        const totalPtpAmount = BigNumber.from(response[0].totalPtpAmount._hex)
         const rewardAmount = BigNumber.from(response[0].rewardAmount._hex)
         const vePTPBalanceOf = BigNumber.from(response[1]._hex)
         const veTotalSupply = BigNumber.from(response[2]._hex)
@@ -315,6 +317,7 @@ export default function Staking() {
 
         const bData: PTPStakedInfo = {
           'ptpStakedAmount': ptpAmount,
+          'totalPtpStakedAmount': totalPtpAmount,
           'vePTPrewardableAmount': rewardAmount,
           'vePTPBalanceOf': vePTPBalanceOf,
           'veTotalSupply': veTotalSupply,
@@ -327,6 +330,7 @@ export default function Staking() {
         console.error(e)
         const bData: PTPStakedInfo = {
           'ptpStakedAmount': BigNumber.from(0),
+          'totalPtpStakedAmount': BigNumber.from(0),
           'vePTPrewardableAmount': BigNumber.from(0),
           'vePTPBalanceOf': BigNumber.from(0),
           'veTotalSupply': BigNumber.from(0),
@@ -338,6 +342,7 @@ export default function Staking() {
       })
 
       if (!(baseData.ptpStakedAmount.eq(baseDatas.ptpStakedAmount)) ||
+        !(baseData.totalPtpStakedAmount.eq(baseDatas.totalPtpStakedAmount)) ||
         !(baseData.vePTPrewardableAmount.eq(baseDatas.vePTPrewardableAmount)) ||
         !(baseData.vePTPBalanceOf.eq(baseDatas.vePTPBalanceOf)) ||
         !(baseData.veTotalSupply.eq(baseDatas.veTotalSupply)) ||
@@ -542,7 +547,7 @@ export default function Staking() {
                         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                           <Text>Claimable veMARKET</Text>
                           <QuestionColorHelper
-                            text={`Each staked MARKET generates ${nDecimals(8, norValue(baseData.calcVePTPAmount) / norValue(baseData.ptpStakedAmount) / 3600)} veMARKET per second`}
+                            text={`Each staked MARKET generates ${nDecimals(8, norValue(baseData.calcVePTPAmount) / norValue(baseData.totalPtpStakedAmount) / 3600)} veMARKET per second`}
                             color='white'
                           />
                         </div>
@@ -578,7 +583,7 @@ export default function Staking() {
                         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                           <Text color='#888'>veMARKET Mine Rate</Text>
                           <QuestionColorHelper
-                            text={`Each staked MARKET generates ${nDecimals(8, norValue(baseData.calcVePTPAmount) / norValue(baseData.ptpStakedAmount) / 3600)} veMARKET per second`}
+                            text={`Each staked MARKET generates ${nDecimals(8, norValue(baseData.calcVePTPAmount) / norValue(baseData.totalPtpStakedAmount) / 3600)} veMARKET per second`}
                             color='white'
                           />
                         </div>
