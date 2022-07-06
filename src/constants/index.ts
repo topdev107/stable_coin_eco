@@ -26,15 +26,14 @@ export const ASSET_USDC_ADDRESS = '0x4daF18138E7B1620f141B6BAa76A60cDcBD02b41' /
 export const PTP_ADDRESS = '0x7217Cf666440C46620B701DA7eCA7AfB585d0e27'        // fantom testnet
 export const VEPTP_ADDRESS = '0xB6aFDae669BFB47805e260DF0503100B15375f9B'      // fantom testnet
 
-export const POOL_ADDRESS = '0x7805507f4209c9Fb6d4CaA2ABAdf6b322BfAFF1E' // fantom testnet
-export const MASTER_PLATYPUS_ADDRESS = '0x774faDEe8E66bB5a1F493e9CdE751F071c3b5a9f'   // fantom testnet
+export const POOL_ADDRESS = '0xFf617DfB2F047B822587EA5267041b1dA3f3870A' // fantom testnet
+export const MASTER_PLATYPUS_ADDRESS = '0x3563C5B0ABE71FED17ccce09B49071FB54BB3D52'   // fantom testnet
 
 export const USDT_LP_ID = 0
 export const DAI_LP_ID = 1
 export const USDC_LP_ID = 2
 
 export const T_FEE = 0.0001 // 0.01%
-
 
 // a list of tokens by chain
 type ChainTokenList = {

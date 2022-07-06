@@ -125,7 +125,8 @@ export default function AutoProModal({
       setPurchaseCount('1')
       setBalancePeriodId(0)
       setPurchaseDeadlineId(0)
-      setIsCheckAutoCompound(false)
+      setCompoundPeriodId(0)
+      setIsCheckAutoCompound(true)
       setIsCheckLock(false)
       onDismiss()
     }, [onDismiss]
@@ -254,7 +255,7 @@ export default function AutoProModal({
   const [isCheckAutoAllocation, setIsCheckAutoAllocation] = useState<boolean>(true)
   const [isCheckInvest, setIsCheckInvest] = useState<boolean>(true)
   const [isCheckAutoBalance, setIsCheckAutoBalance] = useState<boolean>(true)
-  const [isCheckAutoCompound, setIsCheckAutoCompound] = useState<boolean>(false)
+  const [isCheckAutoCompound, setIsCheckAutoCompound] = useState<boolean>(true)
   const [isCheckLock, setIsCheckLock] = useState<boolean>(false)
 
   const handleChangeAutoAllocation = useCallback(
@@ -559,11 +560,7 @@ export default function AutoProModal({
       if (+inputedValue3 > 0)
         amount3 = ethers.utils.parseUnits(inputedValue3, Object.values(allTokens)[2].decimals)
 
-      const volume24_url = 'https://stable-coin-eco-api.vercel.app/api/v1/tnxs/'
-
-      const periodSecond = (+balancePeriodId+1) * 604800
-
-      console.log('periodSecond: ', periodSecond)
+      const volume24_url = 'https://stable-coin-eco-api.vercel.app/api/v1/tnxs/'      
 
       const tok = {
         'token1': token1.address,
@@ -574,24 +571,24 @@ export default function AutoProModal({
         'amount1': amount1,
         'amount2': amount2,
         'amount3': amount3
-      } 
+      }
+      const investInfo = {
+        'amount1': isCheckInvest ? +investPercent * 100 : 0,
+        'amount2': purchaseCount,
+        'amount3': (+purchaseDeadlineId+1)*300 // 5min (604800 - 1 week)
+      }
 
       let tnx_hash = ''
       await poolContract.depositAuto(
-        // token1.address,
-        // token2.address,
-        // token3.address,
-        // amount1,
-        // amount2,
-        // amount3,
         tok,
         amt,
         isCheckAutoAllocation,
-        isCheckInvest ? +investPercent * 100 : 0,
-        purchaseCount,
-        (+purchaseDeadlineId+1)*300, // 5min
-        // (+purchaseDeadlineId+1)*604800, // 1 week
-        isCheckAutoBalance ? periodSecond : 0
+        // isCheckInvest ? +investPercent * 100 : 0,
+        // purchaseCount,
+        // (+purchaseDeadlineId+1)*300, // 5min
+        investInfo,
+        isCheckAutoBalance ? (+balancePeriodId+1) * 604800 : 0,
+        isCheckAutoCompound ? (+compoundPeriodId+1) * 300 : 0
       )
         .then((response) => {
           setAttemptingTxn(false)
@@ -637,7 +634,8 @@ export default function AutoProModal({
           setPurchaseCount('1')
           setBalancePeriodId(0)
           setPurchaseDeadlineId(0)
-          setIsCheckAutoCompound(false)
+          setCompoundPeriodId(0)
+          setIsCheckAutoCompound(true)
           setIsCheckLock(false)
         })
         .catch((e) => {
@@ -686,9 +684,11 @@ export default function AutoProModal({
     isCheckAutoAllocation,
     isCheckInvest,
     isCheckAutoBalance,
+    isCheckAutoCompound,
     balancePeriodId,
     purchaseCount,
     purchaseDeadlineId,
+    compoundPeriodId,
     onShowPopup,
     onDismiss]
   )
@@ -957,7 +957,7 @@ export default function AutoProModal({
               </PeriodSelect>
             </Flex>
 
-            {/* <Flex alignItems="center" className='mt-2'>
+            <Flex alignItems="center" className='mt-2'>
               <Checkbox 
                 scale='sm'
                 checked={isCheckAutoCompound}
@@ -981,7 +981,7 @@ export default function AutoProModal({
                 </div>
               </PeriodSelect>
             </Flex>
-            <Flex alignItems="center" className='mt-2'>
+            {/* <Flex alignItems="center" className='mt-2'>
               <Checkbox 
                 scale='sm' 
                 checked={isCheckLock}

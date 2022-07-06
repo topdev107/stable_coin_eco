@@ -541,23 +541,35 @@
         "type": "bool"
       },
       {
-        "internalType": "uint256",
-        "name": "investPercent",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "investCount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "investDeadline",
-        "type": "uint256"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "amount1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount2",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount3",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct Pool.AmountsParam",
+        "name": "investInfo",
+        "type": "tuple"
       },
       {
         "internalType": "uint256",
         "name": "autoBalancePeriod",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "autoCompoundPeriod",
         "type": "uint256"
       }
     ],
