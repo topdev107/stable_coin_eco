@@ -570,7 +570,7 @@ export default function Staking() {
                       <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                         <img src={MARKET_logo_blank} alt='logo' style={{ width: '40px', height: '40px' }} />
                         <div className='ml-2'>
-                          <Text>{formatCurrency(nDecimals(3, norValue(baseData.ptpStakedAmount)), 5)}</Text>
+                          <Text>{formatCurrency(nDecimals(5, norValue(baseData.ptpStakedAmount)), 5)}</Text>
                           <Text color='#888'>Staked MARKET</Text>
                         </div>
                       </div>
