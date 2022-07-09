@@ -12,6 +12,7 @@ import PriceProviderABI from '../constants/abis/ChainlinkProxyPriceProvider.json
 import PTPABI from '../constants/abis/PTP.json'
 import VePTPABI from '../constants/abis/VePTP.json'
 import MasterPlatypusABI from '../constants/abis/MasterPlatypus.json'
+import AutoProcABI from '../constants/abis/AutoProc.json'
 import {
   ROUTER_ADDRESS,
   POOL_ADDRESS,
@@ -19,6 +20,7 @@ import {
   PTP_ADDRESS,
   VEPTP_ADDRESS,
   MASTER_PLATYPUS_ADDRESS,
+  AUTO_PROC_ADDRESS,
 } from '../constants'
 import { TokenAddressMap } from '../state/lists/hooks'
 
@@ -132,6 +134,10 @@ export function getMasterPlatypusContract(_: number, library: Web3Provider, acco
   return getContract(MASTER_PLATYPUS_ADDRESS, MasterPlatypusABI, library, account)
 }
 
+export function getAutoProcContract(_: number, library: Web3Provider, account?: string): Contract {
+  return getContract(AUTO_PROC_ADDRESS, AutoProcABI, library, account)
+}
+
 // account is optional
 export function getRouterContract(_: number, library: Web3Provider, account?: string): Contract {
   return getContract(ROUTER_ADDRESS, IUniswapV2Router02ABI, library, account)
@@ -230,7 +236,9 @@ export interface PoolItemBaseData {
   medianBoostedAPR: BigNumber
   coverageRatio: BigNumber
   allowance_ptp_master: BigNumber
-  isAutoBalanced: boolean  
+  isAutoBalanced: boolean
+  isAutoCompound: boolean
+  autoCompoundPeriod: BigNumber
 }
 
 export interface PTPStakedInfo {

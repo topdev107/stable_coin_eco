@@ -3,7 +3,7 @@ import { Button, Checkbox, ChevronDownIcon, Text } from '@pantherswap-libs/uikit
 import { LightCard } from 'components/Card'
 import CardNav from 'components/CardNav'
 import PoolItem from 'components/PoolItem'
-import { RowBetween } from 'components/Row'
+import Row, { RowBetween, RowFixed } from 'components/Row'
 import { BigNumber } from 'ethers'
 import { useActiveWeb3React } from 'hooks'
 import { isAbsolute } from 'path'
@@ -17,7 +17,9 @@ import { darken } from 'polished'
 import AutoProModal from 'components/AutoProModal'
 import { useAddPopup, useRemovePopup } from 'state/application/hooks'
 import AutoBalanceConfirmModal from 'components/AutoBalanceConfrimModal'
-import { float2int, formatCurrency, getAssetContract, getERC20Contract, getMasterPlatypusContract, getPoolContract, getPriceProviderContract, getPTPContract, getVePTPContract, nDecimals, norValue, PoolItemBaseData } from 'utils'
+import { Col } from 'react-bootstrap'
+import { float2int, formatCurrency, getAssetContract, getAutoProcContract, getERC20Contract, getMasterPlatypusContract, getPoolContract, getPriceProviderContract, getPTPContract, getVePTPContract, nDecimals, norValue, PoolItemBaseData } from 'utils'
+import AutoCompoundConfirmModal from 'components/AutoCompoundConfrimModal'
 import DepositModal from '../../components/DepositConfirmModal'
 import LPStakeModal from '../../components/LPStakeConfirmModal'
 import LPUnStakeModal from '../../components/LPUnStakeConfirmModal'
@@ -29,6 +31,7 @@ import { useAllTokens } from '../../hooks/Tokens'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
 import Question from '../../components/QuestionHelper'
 import CurrencyLogo from '../../components/CurrencyLogo'
+
 
 
 
@@ -70,11 +73,18 @@ export default function Pool() {
   const [totalRewardablePTPAmount, setTotalRewardablePTPAmount] = useState<number>(0)
 
   const [isCheckAutoBalance, setIsCheckAutoBalance] = useState<boolean>(false)
+  const [isCheckAutoCompound, setIsCheckAutoCompound] = useState<boolean>(false)
   const [balancePeriodId, setBalancePeriodId] = useState<number>(0)
+  const [compoundPeriodId, setCompoundPeriodId] = useState<number>(0)
   const [pendingBalancePeriodId, setPendingBalancePeriodId] = useState<number>(0)
+  const [pendingCompoundPeriodId, setPendingCompoundPeriodId] = useState<number>(0)
   const [isBalancePeriodModalOpen, setIsBalancePeriodModalOpen] = useState(false)
+  const [isCompoundPeriodModalOpen, setIsCompoundPeriodModalOpen] = useState(false)
   const [isAutoBalanceConfirmModalOpen, setIsAutoBalanceConfirmModalOpen] = useState(false)
-  const [isUpdateEnableDisablePeriod, setIsUpdateEnableDisablePeriod] = useState(true) // 0- checkbox changed, 1- selected period 
+  const [isAutoCompoundConfirmModalOpen, setIsAutoCompoundConfirmModalOpen] = useState(false)
+  const [isUpdateEnableDisablePeriodAutoBalance, setIsUpdateEnableDisableAutoBalancePeriod] = useState(true) // 0- checkbox changed, 1- selected period 
+  const [isUpdateEnableDisablePeriodAutoCompound, setIsUpdateEnableDisableAutoCompoundPeriod] = useState(true) // 0- checkbox changed, 1- selected period 
+  const [isCompoundPeriodUpdating, setIsCompoundPeriodUpdating] = useState(false)
 
   const handleAutoBalanceConfirmDismiss = useCallback(
     () => {
@@ -82,23 +92,49 @@ export default function Pool() {
     }, []
   )
 
+  const handleAutoCompoundConfirmDismiss = useCallback(
+    () => {
+      setIsAutoCompoundConfirmModalOpen(false)
+    }, []
+  )
+
   const balancePeriodTxts = useMemo(() => {
     return ['1 week', '2 weeks', '3 weeks', '4 weeks']
   }, [])
 
-  const balancePeriod = useMemo(() => {    
-    return (+balancePeriodId+1) * 604800
+  const compoundPeriodTxts = useMemo(() => {
+    return ['1 week', '2 weeks', '3 weeks', '4 weeks']
+  }, [])
+
+  const balancePeriod = useMemo(() => {
+    return (+balancePeriodId + 1) * 604800
   }, [balancePeriodId])
 
-  const pendingBalancePeriod = useMemo(() => {    
-    return (+pendingBalancePeriodId+1) * 604800    
+  const compoundPeriod = useMemo(() => {
+    return (+compoundPeriodId + 1) * 604800
+  }, [compoundPeriodId])
+
+  const pendingBalancePeriod = useMemo(() => {
+    return (+pendingBalancePeriodId + 1) * 604800
   }, [pendingBalancePeriodId])
+
+  const pendingCompoundPeriod = useMemo(() => {
+    return (+pendingCompoundPeriodId + 1) * 604800
+  }, [pendingCompoundPeriodId])
 
   const handleChangeAutoBalance = useCallback(
     (event) => {
       // setIsCheckAutoBalance(event.target.checked)
-      setIsUpdateEnableDisablePeriod(true)
+      setIsUpdateEnableDisableAutoBalancePeriod(true)
       setIsAutoBalanceConfirmModalOpen(true)
+    }, []
+  )
+
+  const handleChangeAutoCompound = useCallback(
+    (event) => {
+      setIsUpdateEnableDisableAutoCompoundPeriod(true)
+      // setIsCheckAutoCompound(event.target.checked)
+      setIsAutoCompoundConfirmModalOpen(true)
     }, []
   )
 
@@ -106,12 +142,16 @@ export default function Pool() {
     return balancePeriodTxts[balancePeriodId]
   }, [balancePeriodTxts, balancePeriodId])
 
+  const compoundPeriodTxt = useMemo(() => {
+    return compoundPeriodTxts[compoundPeriodId]
+  }, [compoundPeriodTxts, compoundPeriodId])
+
   const handleBalancePeriodSelect = useCallback(
     (selectedId) => {
       // setBalancePeriodId(selectedId)
       if (isCheckAutoBalance && balancePeriodId !== selectedId) {
         setPendingBalancePeriodId(selectedId)
-        setIsUpdateEnableDisablePeriod(false)
+        setIsUpdateEnableDisableAutoBalancePeriod(false)
         setIsAutoBalanceConfirmModalOpen(true)
       }
     }, [isCheckAutoBalance, balancePeriodId, setPendingBalancePeriodId]
@@ -120,6 +160,21 @@ export default function Pool() {
   const handleBalancePeriodDismiss = useCallback(() => {
     setIsBalancePeriodModalOpen(false)
   }, [setIsBalancePeriodModalOpen])
+
+  const handleCompoundPeriodSelect = useCallback(
+    (selectedId) => {
+      // setBalancePeriodId(selectedId)
+      if (isCheckAutoCompound && compoundPeriodId !== selectedId) {
+        setPendingCompoundPeriodId(selectedId)
+        setIsUpdateEnableDisableAutoCompoundPeriod(false)
+        setIsAutoCompoundConfirmModalOpen(true)
+      }
+    }, [isCheckAutoCompound, compoundPeriodId, setPendingCompoundPeriodId]
+  )
+
+  const handleCompoundPeriodDismiss = useCallback(() => {
+    setIsCompoundPeriodModalOpen(false)
+  }, [setIsCompoundPeriodModalOpen])
 
   // modal and loading
   const [showConfirm, setShowConfirm] = useState<boolean>(false)
@@ -761,10 +816,10 @@ export default function Pool() {
       const masterPlatypusContract = getMasterPlatypusContract(chainId, library, account)
       let tnx_hash = ''
 
-      const pbPeriod = isCheckAutoBalance ? isUpdateEnableDisablePeriod ? 0 : pendingBalancePeriod : balancePeriod;
+      const pbPeriod = isCheckAutoBalance ? isUpdateEnableDisablePeriodAutoBalance ? 0 : pendingBalancePeriod : balancePeriod;
       await masterPlatypusContract.setAutoBalanceForLPStaker(account, pbPeriod)
         .then((response) => {
-          console.log('setAutoBalanceForLPStaker: ', response)            
+          console.log('setAutoBalanceForLPStaker: ', response)
           setTxHash(response.hash)
           tnx_hash = response.hash
         })
@@ -805,7 +860,69 @@ export default function Pool() {
       }
 
       checkTnx()
-    }, [account, chainId, library, pendingBalancePeriod, isCheckAutoBalance, isUpdateEnableDisablePeriod, balancePeriod]
+    }, [account, chainId, library, pendingBalancePeriod, isCheckAutoBalance, isUpdateEnableDisablePeriodAutoBalance, balancePeriod]
+  )
+
+  const handleUpdateAutoCompound = useCallback(
+    async () => {
+      if (!chainId || !library || !account) return
+      setShowConfirm(true)
+      setAttemptingTxn(true)
+      setIsAutoCompoundConfirmModalOpen(false)
+      const autoProcContract = getAutoProcContract(chainId, library, account)
+      let tnx_hash = ''
+
+      const pcPeriod = isCheckAutoCompound ? isUpdateEnableDisablePeriodAutoCompound ? 0 : pendingCompoundPeriod : compoundPeriod;
+      const isEnable = isCheckAutoCompound && isUpdateEnableDisablePeriodAutoCompound ? 0 : 1
+      setIsCompoundPeriodUpdating(true)
+      await autoProcContract.setAutoCompoundInfo(account, pcPeriod, isEnable)
+        .then((response) => {
+          console.log('setAutoCompoundInfo: ', response)
+          setTxHash(response.hash)
+          tnx_hash = response.hash
+          
+          // should remove after update contract
+          // setIsNeedRefresh(true)
+          // setAttemptingTxn(false)
+        })
+        .catch((e) => {
+          setAttemptingTxn(false)
+          // we only care if the error is something _other_ than the user rejected the tx          
+          if (e?.code !== 4001) {
+            console.error(e)
+            setErrMessage(e.message)
+          } else {
+            setShowConfirm(false)
+          }
+        })
+
+      // const checkTnx = async () => {
+      //   if (tnx_hash === '') return
+      //   autoProcContract
+      //     .once('AutoCompoundInfoUpdated', (user, period, enable) => {
+      //       console.log('== AutoCompoundInfoUpdated ==')
+      //       console.log('user: ', user)            
+      //       console.log('period: ', parseInt(period._hex, 16))
+      //       console.log('enable: ', parseInt(enable._hex, 16))
+
+      //       autoProcContract.provider
+      //         .getTransactionReceipt(tnx_hash)
+      //         .then((res) => {
+      //           console.log('getTransactionReceipt: ', res)
+      //         })
+      //         .catch(e => {
+      //           console.log('tnx_receipt_exception: ', e)
+      //         })
+      //         .finally(() => {
+      //           console.log('finally called')
+      //           setIsNeedRefresh(true)
+      //           setAttemptingTxn(false)
+      //         })
+      //     })
+      // }
+
+      // checkTnx()
+    }, [account, chainId, library, pendingCompoundPeriod, isCheckAutoCompound, isUpdateEnableDisablePeriodAutoCompound, compoundPeriod]
   )
 
   const handleMultiClaimPTP = useCallback(
@@ -879,6 +996,24 @@ export default function Pool() {
     return BigNumber.from(604800)
   }, [baseData])
 
+  const autoCompoundPeriodSeconds = useMemo(() => {
+    if (baseData !== null && baseData !== undefined) {
+      if (baseData[0]?.autoCompoundPeriod?.gt(BigNumber.from(0))) return baseData[0].autoCompoundPeriod
+      if (baseData[1]?.autoCompoundPeriod?.gt(BigNumber.from(0))) return baseData[1].autoCompoundPeriod
+      if (baseData[2]?.autoCompoundPeriod?.gt(BigNumber.from(0))) return baseData[2].autoCompoundPeriod
+      return BigNumber.from(604800) // 604800s, because default is 1 week
+    }
+    return BigNumber.from(604800)
+  }, [baseData])
+
+  const isCompoundTnxConfirmed = useMemo(() => {
+    if (baseData !== null && baseData !== undefined) {
+      if (compoundPeriodId === pendingCompoundPeriodId) return true
+      return false
+    }
+    return false
+  }, [baseData, compoundPeriodId, pendingCompoundPeriodId])
+
   useEffect(() => {
     if (!chainId || !library || !account) return
     setIsNeedRefresh(true)
@@ -891,8 +1026,62 @@ export default function Pool() {
       if (autoBalancePeriodSeconds.eq(BigNumber.from(1209600))) setBalancePeriodId(1)
       if (autoBalancePeriodSeconds.eq(BigNumber.from(1814400))) setBalancePeriodId(2)
       if (autoBalancePeriodSeconds.eq(BigNumber.from(2419200))) setBalancePeriodId(3)
+
+
+      if (baseData[0]?.isAutoCompound) {
+        if (!isCheckAutoCompound) {
+          setAttemptingTxn(false)
+          setIsCompoundPeriodUpdating(false)
+        }
+        setIsCheckAutoCompound(true)
+      }
+      else {
+        if (isCheckAutoCompound) {
+          setAttemptingTxn(false)
+          setIsCompoundPeriodUpdating(false)
+        }
+        setIsCheckAutoCompound(false)
+      }
+
+      if (autoCompoundPeriodSeconds.eq(BigNumber.from(604800))) {
+        if (compoundPeriodId !== 0) {
+          setAttemptingTxn(false)
+          setIsCompoundPeriodUpdating(false)
+        }
+        setCompoundPeriodId(0)
+      }
+      if (autoCompoundPeriodSeconds.eq(BigNumber.from(1209600))) {
+        if (compoundPeriodId !== 1) {
+          setAttemptingTxn(false)
+          setIsCompoundPeriodUpdating(false)
+        }
+        setCompoundPeriodId(1)
+      }
+      if (autoCompoundPeriodSeconds.eq(BigNumber.from(1814400))) {
+        if (compoundPeriodId !== 2) {
+          setAttemptingTxn(false)
+          setIsCompoundPeriodUpdating(false)
+        }
+        setCompoundPeriodId(2)
+      }
+      if (autoCompoundPeriodSeconds.eq(BigNumber.from(2419200))) {
+        if (compoundPeriodId !== 3) {
+          setAttemptingTxn(false)
+          setIsCompoundPeriodUpdating(false)
+        }
+        setCompoundPeriodId(3)
+      }
     }
-  }, [account, library, chainId, baseData, autoBalancePeriodSeconds, setBalancePeriodId])
+
+    // if (isCompoundPeriodUpdating && isCompoundTnxConfirmed) {  
+    //   if(isUpdateEnableDisablePeriodAutoCompound) {
+
+    //   } else {
+    //     setAttemptingTxn(false)
+    //     setIsCompoundPeriodUpdating(false)
+    //   }         
+    // }
+  }, [account, library, chainId, baseData, autoBalancePeriodSeconds, setBalancePeriodId, autoCompoundPeriodSeconds, compoundPeriodId, setCompoundPeriodId, isCheckAutoCompound])
 
   useEffect(() => {
     // if (!isNeedRefresh) return undefined
@@ -915,6 +1104,7 @@ export default function Pool() {
         const masterPlatypusContract = getMasterPlatypusContract(chainId, library, account)
         const vePTPContract = getVePTPContract(chainId, library, account)
         const PTPContract = getPTPContract(chainId, library, account)
+        const AutoProcContract = getAutoProcContract(chainId, library, account)
 
         const getVolume24h = async () => {
           const res = await fetch(volume24_url.concat('get_tnx_amount_24h/').concat(token.address))
@@ -941,7 +1131,8 @@ export default function Pool() {
           masterPlatypusContract.medianBoostedAPR(lpID),
           masterPlatypusContract.coverageRatio(lpID),
           PTPContract.allowance(account, MASTER_PLATYPUS_ADDRESS),
-          masterPlatypusContract.isAutoBalance(account)
+          masterPlatypusContract.isAutoBalance(account),
+          AutoProcContract.autoCompoundPeriod(account)
         ])
           .then(response => {
             const totalSupply = BigNumber.from(response[0]._hex)
@@ -967,6 +1158,8 @@ export default function Pool() {
             const coverageRatio = BigNumber.from(response[17]._hex)
             const allowance_ptp_master = BigNumber.from(response[18]._hex)
             const isAutoBalanced = response[19]
+            const isAutoCompound = BigNumber.from(response[20].period._hex).gt(BigNumber.from(0))
+            const autoCompoundPeriod = BigNumber.from(response[20].period._hex)
 
 
             setTotalRewardablePTPAmount(norValue(multiRewardablePTPAmount) * 10 ** PTP.decimals)
@@ -996,7 +1189,9 @@ export default function Pool() {
               'medianBoostedAPR': medianBoostedAPR,
               'coverageRatio': coverageRatio,
               'allowance_ptp_master': allowance_ptp_master,
-              'isAutoBalanced': isAutoBalanced
+              'isAutoBalanced': isAutoBalanced,
+              'isAutoCompound': isAutoCompound,
+              'autoCompoundPeriod': autoCompoundPeriod
             }
             return bData
           })
@@ -1027,7 +1222,9 @@ export default function Pool() {
               'medianBoostedAPR': BigNumber.from(0),
               'coverageRatio': BigNumber.from(0),
               'allowance_ptp_master': BigNumber.from(0),
-              'isAutoBalanced': false
+              'isAutoBalanced': false,
+              'isAutoCompound': false,
+              'autoCompoundPeriod': BigNumber.from(0)
             }
             return bData
           })
@@ -1070,6 +1267,8 @@ export default function Pool() {
           if (!(bd.medianBoostedAPR.eq(bds.medianBoostedAPR))) isSameData = false
           if (!(bd.coverageRatio.eq(bds.coverageRatio))) isSameData = false
           if (bd.isAutoBalanced !== bds.isAutoBalanced) isSameData = false
+          if (bd.isAutoCompound !== bds.isAutoCompound) isSameData = false
+          if (!(bd.autoCompoundPeriod.eq(bds.autoCompoundPeriod))) isSameData = false
         }
 
         if (!isSameData) {
@@ -1214,12 +1413,20 @@ export default function Pool() {
       <AutoBalanceConfirmModal
         isOpen={isAutoBalanceConfirmModalOpen}
         isAutoBalance={isCheckAutoBalance}
-        isUpdateEnableDisablePeriod={isUpdateEnableDisablePeriod}
+        isUpdateEnableDisablePeriod={isUpdateEnableDisablePeriodAutoBalance}
         period={balancePeriod}
         pendingPeriod={pendingBalancePeriod}
         onSetAutoBalance={handleUpdateAutoBalance}
         onDismiss={handleAutoBalanceConfirmDismiss}
         onRefresh={handleRefresh}
+      />
+
+      <AutoCompoundConfirmModal
+        isOpen={isAutoCompoundConfirmModalOpen}
+        isAutoCompound={isCheckAutoCompound}
+        isUpdateEnableDisablePeriod={isUpdateEnableDisablePeriodAutoCompound}
+        onSetAutoCompound={handleUpdateAutoCompound}
+        onDismiss={handleAutoCompoundConfirmDismiss}
       />
 
       <AutoProModal
@@ -1238,6 +1445,14 @@ export default function Pool() {
         items={balancePeriodTxts}
         onDismiss={handleBalancePeriodDismiss}
         onSelected={handleBalancePeriodSelect}
+      />
+
+      <AutoPeriodSelectModal
+        isOpen={isCompoundPeriodModalOpen}
+        title='Auto Compound Period Select'
+        items={compoundPeriodTxts}
+        onDismiss={handleCompoundPeriodDismiss}
+        onSelected={handleCompoundPeriodSelect}
       />
 
       <TransactionConfirmationModal
@@ -1314,52 +1529,104 @@ export default function Pool() {
           })
         }
 
-        {
-          isLPStaker ? (
-            <Flex alignItems="center" justifyContent='center' className='mt-3'>
-              <Checkbox
-                scale='sm'
-                checked={isCheckAutoBalance}
-                onChange={handleChangeAutoBalance}
-              />
-              <Text style={{ marginLeft: '10px', marginRight: '10px' }}>Auto Balance Per</Text>
-              {
-                isCheckAutoBalance ? (
-                  <PeriodSelect
-                    selected={!!balancePeriodId}
-                    className="open-currency-select-button"
-                    onClick={() => {
-                      setIsBalancePeriodModalOpen(true)
-                    }}
-                  >
-                    <div style={{ marginTop: '4px' }}>
-                      <Flex alignItems="center">
-                        <Text>{balancePeriodTxt}</Text>
-                      </Flex>
-                      <Flex justifyContent="end" style={{ marginTop: '-22px' }}>
-                        <ChevronDownIcon />
-                      </Flex>
-                    </div>
-                  </PeriodSelect>
-                ) : (
-                  <PeriodSelect
-                    selected={!!balancePeriodId}
-                    className="open-currency-select-button"                    
-                  >
-                    <div style={{ marginTop: '4px' }}>
-                      <Flex alignItems="center">
-                        <Text>{balancePeriodTxt}</Text>
-                      </Flex>
-                      <Flex justifyContent="end" style={{ marginTop: '-22px' }}>
-                        <ChevronDownIcon />
-                      </Flex>
-                    </div>
-                  </PeriodSelect>
-                )
-              }
-            </Flex>
-          ) : <></>
-        }
+        <Row>
+          <Col>
+            {
+              isLPStaker ? (
+                <Flex alignItems="center" justifyContent='center' className='mt-3'>
+                  <Checkbox
+                    scale='sm'
+                    checked={isCheckAutoBalance}
+                    onChange={handleChangeAutoBalance}
+                  />
+                  <Text style={{ marginLeft: '10px', marginRight: '10px' }}>Auto Balance Per</Text>
+                  {
+                    isCheckAutoBalance ? (
+                      <PeriodSelect
+                        selected={!!balancePeriodId}
+                        className="open-currency-select-button"
+                        onClick={() => {
+                          setIsBalancePeriodModalOpen(true)
+                        }}
+                      >
+                        <div style={{ marginTop: '4px' }}>
+                          <Flex alignItems="center">
+                            <Text>{balancePeriodTxt}</Text>
+                          </Flex>
+                          <Flex justifyContent="end" style={{ marginTop: '-22px' }}>
+                            <ChevronDownIcon />
+                          </Flex>
+                        </div>
+                      </PeriodSelect>
+                    ) : (
+                      <PeriodSelect
+                        selected={!!balancePeriodId}
+                        className="open-currency-select-button"
+                      >
+                        <div style={{ marginTop: '4px' }}>
+                          <Flex alignItems="center">
+                            <Text>{balancePeriodTxt}</Text>
+                          </Flex>
+                          <Flex justifyContent="end" style={{ marginTop: '-22px' }}>
+                            <ChevronDownIcon />
+                          </Flex>
+                        </div>
+                      </PeriodSelect>
+                    )
+                  }
+                </Flex>
+              ) : <></>
+            }
+          </Col>
+          <Col>
+            {
+              isLPStaker ? (
+                <Flex alignItems="center" justifyContent='center' className='mt-3'>
+                  <Checkbox
+                    scale='sm'
+                    checked={isCheckAutoCompound}
+                    onChange={handleChangeAutoCompound}
+                  />
+                  <Text style={{ marginLeft: '10px', marginRight: '10px' }}>Auto Compound Per</Text>
+                  {
+                    isCheckAutoCompound ? (
+                      <PeriodSelect
+                        selected={!!compoundPeriodId}
+                        className="open-currency-select-button"
+                        onClick={() => {
+                          setIsCompoundPeriodModalOpen(true)
+                        }}
+                      >
+                        <div style={{ marginTop: '4px' }}>
+                          <Flex alignItems="center">
+                            <Text>{compoundPeriodTxt}</Text>
+                          </Flex>
+                          <Flex justifyContent="end" style={{ marginTop: '-22px' }}>
+                            <ChevronDownIcon />
+                          </Flex>
+                        </div>
+                      </PeriodSelect>
+                    ) : (
+                      <PeriodSelect
+                        selected={!!compoundPeriodId}
+                        className="open-currency-select-button"
+                      >
+                        <div style={{ marginTop: '4px' }}>
+                          <Flex alignItems="center">
+                            <Text>{compoundPeriodTxt}</Text>
+                          </Flex>
+                          <Flex justifyContent="end" style={{ marginTop: '-22px' }}>
+                            <ChevronDownIcon />
+                          </Flex>
+                        </div>
+                      </PeriodSelect>
+                    )
+                  }
+                </Flex>
+              ) : <></>
+            }
+          </Col>
+        </Row>
       </MaxWidthDiv>
     </>
   )

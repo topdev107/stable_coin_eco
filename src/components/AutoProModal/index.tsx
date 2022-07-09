@@ -1,28 +1,23 @@
 import { Token } from '@pantherswap-libs/sdk'
-import { Button, Checkbox, CloseIcon, ChevronDownIcon, Input, Text } from '@pantherswap-libs/uikit'
-import { DarkblueOutlineRCard, GreyCard, GreyOutlineRCard, GreyRCard, LightRCard, OutlineRCard, PinkRCard } from 'components/Card'
-import PercentInputPanel from 'components/PercentInputPanel'
-import { BigNumber, ethers } from 'ethers'
-import { useAllTokens } from 'hooks/Tokens'
-import React, { useCallback, useState, useEffect, useMemo } from 'react'
-import { Col, Row } from 'react-bootstrap'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
-import { darken } from 'polished'
-import { formatCurrency, getERC20Contract, nDecimals, norValue, PoolItemBaseData, getPoolContract, getAssetContract, getPTPContract } from 'utils'
-import AutoDepositModal from 'components/AutoDepositConfirmModal'
-import { useActiveWeb3React } from 'hooks'
+import { Button, Checkbox, ChevronDownIcon, CloseIcon, Input, Text } from '@pantherswap-libs/uikit'
+import { GreyRCard } from 'components/Card'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
+import { BigNumber, ethers } from 'ethers'
+import { useActiveWeb3React } from 'hooks'
+import { useAllTokens } from 'hooks/Tokens'
+import { darken } from 'polished'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Flex } from 'rebass'
 import { useCurrencyBalances } from 'state/wallet/hooks'
-import AutoBalanceConfirmModal from 'components/AutoBalanceConfrimModal'
+import styled from 'styled-components'
+import { formatCurrency, getAssetContract, getERC20Contract, getPoolContract, getPTPContract, nDecimals, norValue, PoolItemBaseData } from 'utils'
+import { ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_ADDRESS, MASTER_PLATYPUS_ADDRESS, POOL_ADDRESS, PTP } from '../../constants'
+import AutoPeriodSelectModal from '../AutoPeriodSelectModal'
 import CurrencyLogo from '../CurrencyLogo'
-import Modal from '../Modal'
-import Question, { QuestionColorHelper } from '../QuestionHelper'
+import { QuestionColorHelper } from '../QuestionHelper'
+import RightAmountInputPanel from '../RightAmountInputPanel'
 import { RowBetween } from '../Row'
 import WideModal from '../WideModal'
-import AutoPeriodSelectModal from '../AutoPeriodSelectModal'
-import { ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_ADDRESS, MASTER_PLATYPUS_ADDRESS, POOL_ADDRESS, PTP } from '../../constants'
-import RightAmountInputPanel from '../RightAmountInputPanel'
 
 const Option = styled.div`
   padding: 0 4px;
@@ -588,7 +583,7 @@ export default function AutoProModal({
         // (+purchaseDeadlineId+1)*300, // 5min
         investInfo,
         isCheckAutoBalance ? (+balancePeriodId+1) * 604800 : 0,
-        isCheckAutoCompound ? (+compoundPeriodId+1) * 300 : 0
+        isCheckAutoCompound ? (+compoundPeriodId+1) * 604800 : 0
       )
         .then((response) => {
           setAttemptingTxn(false)
