@@ -111,7 +111,7 @@ export default function Pool() {
   }, [balancePeriodId])
 
   const compoundPeriod = useMemo(() => {
-    return (+compoundPeriodId + 1) * 604800
+    return (+compoundPeriodId + 1) * 300
   }, [compoundPeriodId])
 
   const pendingBalancePeriod = useMemo(() => {
@@ -119,7 +119,7 @@ export default function Pool() {
   }, [pendingBalancePeriodId])
 
   const pendingCompoundPeriod = useMemo(() => {
-    return (+pendingCompoundPeriodId + 1) * 604800
+    return (+pendingCompoundPeriodId + 1) * 300
   }, [pendingCompoundPeriodId])
 
   const handleChangeAutoBalance = useCallback(
@@ -1001,9 +1001,9 @@ export default function Pool() {
       if (baseData[0]?.autoCompoundPeriod?.gt(BigNumber.from(0))) return baseData[0].autoCompoundPeriod
       if (baseData[1]?.autoCompoundPeriod?.gt(BigNumber.from(0))) return baseData[1].autoCompoundPeriod
       if (baseData[2]?.autoCompoundPeriod?.gt(BigNumber.from(0))) return baseData[2].autoCompoundPeriod
-      return BigNumber.from(604800) // 604800s, because default is 1 week
+      return BigNumber.from(300) // 604800s, because default is 1 week
     }
-    return BigNumber.from(604800)
+    return BigNumber.from(300)
   }, [baseData])
 
   const isCompoundTnxConfirmed = useMemo(() => {
@@ -1043,28 +1043,28 @@ export default function Pool() {
         setIsCheckAutoCompound(false)
       }
 
-      if (autoCompoundPeriodSeconds.eq(BigNumber.from(604800))) {
+      if (autoCompoundPeriodSeconds.eq(BigNumber.from(300))) {
         if (compoundPeriodId !== 0) {
           setAttemptingTxn(false)
           setIsCompoundPeriodUpdating(false)
         }
         setCompoundPeriodId(0)
       }
-      if (autoCompoundPeriodSeconds.eq(BigNumber.from(1209600))) {
+      if (autoCompoundPeriodSeconds.eq(BigNumber.from(600))) {
         if (compoundPeriodId !== 1) {
           setAttemptingTxn(false)
           setIsCompoundPeriodUpdating(false)
         }
         setCompoundPeriodId(1)
       }
-      if (autoCompoundPeriodSeconds.eq(BigNumber.from(1814400))) {
+      if (autoCompoundPeriodSeconds.eq(BigNumber.from(900))) {
         if (compoundPeriodId !== 2) {
           setAttemptingTxn(false)
           setIsCompoundPeriodUpdating(false)
         }
         setCompoundPeriodId(2)
       }
-      if (autoCompoundPeriodSeconds.eq(BigNumber.from(2419200))) {
+      if (autoCompoundPeriodSeconds.eq(BigNumber.from(1200))) {
         if (compoundPeriodId !== 3) {
           setAttemptingTxn(false)
           setIsCompoundPeriodUpdating(false)

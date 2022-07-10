@@ -583,7 +583,7 @@ export default function AutoProModal({
         // (+purchaseDeadlineId+1)*300, // 5min
         investInfo,
         isCheckAutoBalance ? (+balancePeriodId+1) * 604800 : 0,
-        isCheckAutoCompound ? (+compoundPeriodId+1) * 604800 : 0
+        isCheckAutoCompound ? (+compoundPeriodId+1) * 300 : 0
       )
         .then((response) => {
           setAttemptingTxn(false)
