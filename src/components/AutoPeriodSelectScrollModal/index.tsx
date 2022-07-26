@@ -5,7 +5,7 @@ import { darken } from 'polished'
 import styled from 'styled-components'
 import Modal from '../Modal'
 
-interface AutoPeriodSelectModalProps {
+interface AutoPeriodSelectScrollModalProps {
   isOpen: boolean
   title: string
   items: string[]
@@ -13,13 +13,13 @@ interface AutoPeriodSelectModalProps {
   onSelected: (idx: number) => void
 }
 
-export default function AutoPeriodSelectModal({
+export default function AutoPeriodSelectScrollModal({
   isOpen,
   title,
   items,
   onDismiss,
   onSelected
-}: AutoPeriodSelectModalProps) {
+}: AutoPeriodSelectScrollModalProps) {
 
   const PeriodItem = styled.div`
   display: flex;
@@ -52,6 +52,7 @@ export default function AutoPeriodSelectModal({
           <Text fontSize='20px'>{title}</Text>
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
+        <div style={{height: '470px', overflowY: 'scroll'}}>
         {
           Object.values(items).map((item, index) => {
             return (
@@ -62,7 +63,8 @@ export default function AutoPeriodSelectModal({
               </PeriodItem>
             )
           })
-        }        
+        }
+        </div>        
       </div>
     </Modal>
   )
