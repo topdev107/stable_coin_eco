@@ -17,6 +17,7 @@ import { darken } from 'polished'
 import AutoProModal from 'components/AutoProModal'
 import { useAddPopup, useRemovePopup } from 'state/application/hooks'
 import AutoBalanceConfirmModal from 'components/AutoBalanceConfrimModal'
+import ManualRelockConfirmModal from 'components/ManualRelockConfirmModal'
 import { Col } from 'react-bootstrap'
 import { float2int, formatCurrency, getAssetContract, getAutoProcContract, getERC20Contract, getMasterPlatypusContract, getPoolContract, getPriceProviderContract, getPTPContract, getVePTPContract, nDecimals, norValue, PoolItemBaseData } from 'utils'
 import AutoCompoundConfirmModal from 'components/AutoCompoundConfrimModal'
@@ -31,6 +32,7 @@ import { useAllTokens } from '../../hooks/Tokens'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
 import Question from '../../components/QuestionHelper'
 import CurrencyLogo from '../../components/CurrencyLogo'
+
 
 
 
@@ -74,7 +76,7 @@ export default function Pool() {
 
   const [isCheckAutoBalance, setIsCheckAutoBalance] = useState<boolean>(false)
   const [isCheckAutoCompound, setIsCheckAutoCompound] = useState<boolean>(false)
-  // const [isCheckRelock, setIsCheckRelock] = useState<boolean>(false)
+  const [isCheckRelock, setIsCheckRelock] = useState<boolean>(false)
   const [balancePeriodId, setBalancePeriodId] = useState<number>(0)
   const [compoundPeriodId, setCompoundPeriodId] = useState<number>(0)
   const [pendingBalancePeriodId, setPendingBalancePeriodId] = useState<number>(0)
@@ -83,6 +85,7 @@ export default function Pool() {
   const [isCompoundPeriodModalOpen, setIsCompoundPeriodModalOpen] = useState(false)
   const [isAutoBalanceConfirmModalOpen, setIsAutoBalanceConfirmModalOpen] = useState(false)
   const [isAutoCompoundConfirmModalOpen, setIsAutoCompoundConfirmModalOpen] = useState(false)
+  const [isRelockConfirmModalOpen, setIsRelockConfirmModalOpen] = useState(false)
   const [isUpdateEnableDisablePeriodAutoBalance, setIsUpdateEnableDisableAutoBalancePeriod] = useState(true) // 0- checkbox changed, 1- selected period 
   const [isUpdateEnableDisablePeriodAutoCompound, setIsUpdateEnableDisableAutoCompoundPeriod] = useState(true) // 0- checkbox changed, 1- selected period 
   const [isCompoundPeriodUpdating, setIsCompoundPeriodUpdating] = useState(false)
@@ -96,6 +99,12 @@ export default function Pool() {
   const handleAutoCompoundConfirmDismiss = useCallback(
     () => {
       setIsAutoCompoundConfirmModalOpen(false)
+    }, []
+  )
+
+  const handleRelockConfirmDismiss = useCallback(
+    () => {
+      setIsRelockConfirmModalOpen(false)
     }, []
   )
 
@@ -136,6 +145,12 @@ export default function Pool() {
       setIsUpdateEnableDisableAutoCompoundPeriod(true)
       // setIsCheckAutoCompound(event.target.checked)
       setIsAutoCompoundConfirmModalOpen(true)
+    }, []
+  )
+
+  const handleChangeRelock = useCallback(
+    (event) => {
+      setIsRelockConfirmModalOpen(true)
     }, []
   )
 
@@ -926,6 +941,64 @@ export default function Pool() {
     }, [account, chainId, library, pendingCompoundPeriod, isCheckAutoCompound, isUpdateEnableDisablePeriodAutoCompound, compoundPeriod]
   )
 
+  const handleUpdateRelock = useCallback(
+    async () => {
+      if (!chainId || !library || !account) return
+      setShowConfirm(true)
+      setAttemptingTxn(true)
+      setIsRelockConfirmModalOpen(false)
+      const ptpContract = getPTPContract(chainId, library, account)
+      let tnx_hash = ''
+
+      await ptpContract.setRelock(account, !baseData[0]?.relocked)
+        .then((response) => {
+          console.log('setRelockInfo: ', response)
+          setTxHash(response.hash)
+          tnx_hash = response.hash
+
+          // should remove after update contract
+          // setIsNeedRefresh(true)
+          // setAttemptingTxn(false)
+        })
+        .catch((e) => {
+          setAttemptingTxn(false)
+          // we only care if the error is something _other_ than the user rejected the tx          
+          if (e?.code !== 4001) {
+            console.error(e)
+            setErrMessage(e.message)
+          } else {
+            setShowConfirm(false)
+          }
+        })
+
+      const checkTnx = async () => {
+        if (tnx_hash === '') return
+        ptpContract
+          .once('UpdateRelock', (user, isrelock) => {
+            console.log('== UpdateRelock ==')
+            console.log('user: ', user)
+            console.log('isrelock: ', isrelock)
+
+            ptpContract.provider
+              .getTransactionReceipt(tnx_hash)
+              .then((res) => {
+                console.log('getTransactionReceipt: ', res)
+              })
+              .catch(e => {
+                console.log('tnx_receipt_exception: ', e)
+              })
+              .finally(() => {
+                console.log('finally called')
+                setIsNeedRefresh(true)
+                setAttemptingTxn(false)
+              })
+          })
+      }
+
+      checkTnx()
+    }, [account, chainId, library, baseData]
+  )
+
   const handleMultiClaimPTP = useCallback(
     async () => {
       if (!chainId || !library || !account) return
@@ -1013,7 +1086,7 @@ export default function Pool() {
       return false
     }
     return false
-  }, [baseData, compoundPeriodId, pendingCompoundPeriodId])  
+  }, [baseData, compoundPeriodId, pendingCompoundPeriodId])
 
   useEffect(() => {
     if (!chainId || !library || !account) return
@@ -1023,8 +1096,8 @@ export default function Pool() {
       if (baseData[0]?.isAutoBalanced) setIsCheckAutoBalance(true)
       else setIsCheckAutoBalance(false)
 
-      // if (baseData[0]?.isRelocked) setIsCheckRelock(true)
-      // else setIsCheckRelock(false)
+      if (baseData[0]?.relocked && baseData[0]?.lockedDeadline.gt(BigNumber.from(0))) setIsCheckRelock(true)
+      else setIsCheckRelock(false)
 
       if (autoBalancePeriodSeconds.eq(BigNumber.from(604800))) setBalancePeriodId(0)
       if (autoBalancePeriodSeconds.eq(BigNumber.from(1209600))) setBalancePeriodId(1)
@@ -1138,7 +1211,7 @@ export default function Pool() {
           masterPlatypusContract.isAutoBalance(account),
           AutoProcContract.autoCompoundPeriod(account),
           PTPContract.activeLockedDeadline(account),
-          // PTPContract.lockInfo(account)
+          PTPContract.isRelocked(account)
         ])
           .then(response => {
             const totalSupply = BigNumber.from(response[0]._hex)
@@ -1167,7 +1240,7 @@ export default function Pool() {
             const isAutoCompound = BigNumber.from(response[20].period._hex).gt(BigNumber.from(0))
             const autoCompoundPeriod = BigNumber.from(response[20].period._hex)
             const lockedDeadline = BigNumber.from(response[21]._hex)
-            // const isRelocked = response[22].relock === undefined? false : response[22].relock
+            const relocked = response[22]
 
 
             setTotalRewardablePTPAmount(norValue(multiRewardablePTPAmount) * 10 ** PTP.decimals)
@@ -1201,7 +1274,7 @@ export default function Pool() {
               'isAutoCompound': isAutoCompound,
               'autoCompoundPeriod': autoCompoundPeriod,
               'lockedDeadline': lockedDeadline,
-              // 'isRelocked': false
+              'relocked': relocked
             }
             return bData
           })
@@ -1236,7 +1309,7 @@ export default function Pool() {
               'isAutoCompound': false,
               'autoCompoundPeriod': BigNumber.from(0),
               'lockedDeadline': BigNumber.from(0),
-              // 'isRelocked': false
+              'relocked': false
             }
             return bData
           })
@@ -1282,8 +1355,8 @@ export default function Pool() {
           if (bd.isAutoCompound !== bds.isAutoCompound) isSameData = false
           if (!(bd.autoCompoundPeriod.eq(bds.autoCompoundPeriod))) isSameData = false
           if (!(bd.lockedDeadline.eq(bds.lockedDeadline))) isSameData = false
-          // if (!(bd.isRelocked !== bds.isRelocked)) isSameData = false
-          
+          if (!(bd.relocked !== bds.relocked)) isSameData = false
+
         }
 
         if (!isSameData) {
@@ -1442,6 +1515,13 @@ export default function Pool() {
         isUpdateEnableDisablePeriod={isUpdateEnableDisablePeriodAutoCompound}
         onSetAutoCompound={handleUpdateAutoCompound}
         onDismiss={handleAutoCompoundConfirmDismiss}
+      />
+
+      <ManualRelockConfirmModal
+        isOpen={isRelockConfirmModalOpen}
+        isRelock={isCheckRelock}
+        onSetRelock={handleUpdateRelock}
+        onDismiss={handleRelockConfirmDismiss}
       />
 
       <AutoProModal
@@ -1635,14 +1715,14 @@ export default function Pool() {
                   }
                 </Flex>
               </Col>
-              {/* {
-                isCheckAutoCompound ? (
+              {
+                isCheckAutoCompound && baseData[0]?.lockedDeadline.gt(BigNumber.from(0)) ? (
                   <Col>
                     <Flex alignItems="center" justifyContent='center' >
                       <Checkbox
                         scale='sm'
                         checked={isCheckRelock}
-                        onChange={handleChangeAutoCompound}
+                        onChange={handleChangeRelock}
                       />
                       <Text style={{ marginLeft: '10px', marginRight: '10px' }}>Relock</Text>
                     </Flex>
@@ -1650,7 +1730,7 @@ export default function Pool() {
                 ) : (
                   <></>
                 )
-              } */}
+              }
             </Row>
           ) : (
             <></>

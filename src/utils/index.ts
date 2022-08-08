@@ -240,7 +240,7 @@ export interface PoolItemBaseData {
   isAutoCompound: boolean
   autoCompoundPeriod: BigNumber
   lockedDeadline: BigNumber
-  // isRelocked: boolean | undefined
+  relocked: boolean
 }
 
 export interface PTPStakedInfo {
