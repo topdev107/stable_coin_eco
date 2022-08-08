@@ -74,6 +74,7 @@ export default function Pool() {
 
   const [isCheckAutoBalance, setIsCheckAutoBalance] = useState<boolean>(false)
   const [isCheckAutoCompound, setIsCheckAutoCompound] = useState<boolean>(false)
+  // const [isCheckRelock, setIsCheckRelock] = useState<boolean>(false)
   const [balancePeriodId, setBalancePeriodId] = useState<number>(0)
   const [compoundPeriodId, setCompoundPeriodId] = useState<number>(0)
   const [pendingBalancePeriodId, setPendingBalancePeriodId] = useState<number>(0)
@@ -880,7 +881,7 @@ export default function Pool() {
           console.log('setAutoCompoundInfo: ', response)
           setTxHash(response.hash)
           tnx_hash = response.hash
-          
+
           // should remove after update contract
           // setIsNeedRefresh(true)
           // setAttemptingTxn(false)
@@ -1012,7 +1013,7 @@ export default function Pool() {
       return false
     }
     return false
-  }, [baseData, compoundPeriodId, pendingCompoundPeriodId])
+  }, [baseData, compoundPeriodId, pendingCompoundPeriodId])  
 
   useEffect(() => {
     if (!chainId || !library || !account) return
@@ -1021,6 +1022,9 @@ export default function Pool() {
     if (baseData !== null && baseData !== undefined) {
       if (baseData[0]?.isAutoBalanced) setIsCheckAutoBalance(true)
       else setIsCheckAutoBalance(false)
+
+      // if (baseData[0]?.isRelocked) setIsCheckRelock(true)
+      // else setIsCheckRelock(false)
 
       if (autoBalancePeriodSeconds.eq(BigNumber.from(604800))) setBalancePeriodId(0)
       if (autoBalancePeriodSeconds.eq(BigNumber.from(1209600))) setBalancePeriodId(1)
@@ -1132,7 +1136,9 @@ export default function Pool() {
           masterPlatypusContract.coverageRatio(lpID),
           PTPContract.allowance(account, MASTER_PLATYPUS_ADDRESS),
           masterPlatypusContract.isAutoBalance(account),
-          AutoProcContract.autoCompoundPeriod(account)
+          AutoProcContract.autoCompoundPeriod(account),
+          PTPContract.activeLockedDeadline(account),
+          // PTPContract.lockInfo(account)
         ])
           .then(response => {
             const totalSupply = BigNumber.from(response[0]._hex)
@@ -1160,6 +1166,8 @@ export default function Pool() {
             const isAutoBalanced = response[19]
             const isAutoCompound = BigNumber.from(response[20].period._hex).gt(BigNumber.from(0))
             const autoCompoundPeriod = BigNumber.from(response[20].period._hex)
+            const lockedDeadline = BigNumber.from(response[21]._hex)
+            // const isRelocked = response[22].relock === undefined? false : response[22].relock
 
 
             setTotalRewardablePTPAmount(norValue(multiRewardablePTPAmount) * 10 ** PTP.decimals)
@@ -1191,7 +1199,9 @@ export default function Pool() {
               'allowance_ptp_master': allowance_ptp_master,
               'isAutoBalanced': isAutoBalanced,
               'isAutoCompound': isAutoCompound,
-              'autoCompoundPeriod': autoCompoundPeriod
+              'autoCompoundPeriod': autoCompoundPeriod,
+              'lockedDeadline': lockedDeadline,
+              // 'isRelocked': false
             }
             return bData
           })
@@ -1224,7 +1234,9 @@ export default function Pool() {
               'allowance_ptp_master': BigNumber.from(0),
               'isAutoBalanced': false,
               'isAutoCompound': false,
-              'autoCompoundPeriod': BigNumber.from(0)
+              'autoCompoundPeriod': BigNumber.from(0),
+              'lockedDeadline': BigNumber.from(0),
+              // 'isRelocked': false
             }
             return bData
           })
@@ -1269,6 +1281,9 @@ export default function Pool() {
           if (bd.isAutoBalanced !== bds.isAutoBalanced) isSameData = false
           if (bd.isAutoCompound !== bds.isAutoCompound) isSameData = false
           if (!(bd.autoCompoundPeriod.eq(bds.autoCompoundPeriod))) isSameData = false
+          if (!(bd.lockedDeadline.eq(bds.lockedDeadline))) isSameData = false
+          // if (!(bd.isRelocked !== bds.isRelocked)) isSameData = false
+          
         }
 
         if (!isSameData) {
@@ -1317,7 +1332,7 @@ export default function Pool() {
 
   const MaxWidthDiv = styled.div`
     width: 100%;
-    max-width: 950px;
+    max-width: 1050px;
   `
   const borderRadius7 = {
     borderRadius: '5px',
@@ -1529,11 +1544,11 @@ export default function Pool() {
           })
         }
 
-        <Row>
-          <Col>
-            {
-              isLPStaker ? (
-                <Flex alignItems="center" justifyContent='center' className='mt-3'>
+        {
+          isLPStaker ? (
+            <Row className='mt-3'>
+              <Col>
+                <Flex alignItems="center" justifyContent='center' >
                   <Checkbox
                     scale='sm'
                     checked={isCheckAutoBalance}
@@ -1575,13 +1590,9 @@ export default function Pool() {
                     )
                   }
                 </Flex>
-              ) : <></>
-            }
-          </Col>
-          <Col>
-            {
-              isLPStaker ? (
-                <Flex alignItems="center" justifyContent='center' className='mt-3'>
+              </Col>
+              <Col>
+                <Flex alignItems="center" justifyContent='center' >
                   <Checkbox
                     scale='sm'
                     checked={isCheckAutoCompound}
@@ -1623,10 +1634,28 @@ export default function Pool() {
                     )
                   }
                 </Flex>
-              ) : <></>
-            }
-          </Col>
-        </Row>
+              </Col>
+              {/* {
+                isCheckAutoCompound ? (
+                  <Col>
+                    <Flex alignItems="center" justifyContent='center' >
+                      <Checkbox
+                        scale='sm'
+                        checked={isCheckRelock}
+                        onChange={handleChangeAutoCompound}
+                      />
+                      <Text style={{ marginLeft: '10px', marginRight: '10px' }}>Relock</Text>
+                    </Flex>
+                  </Col>
+                ) : (
+                  <></>
+                )
+              } */}
+            </Row>
+          ) : (
+            <></>
+          )
+        }
       </MaxWidthDiv>
     </>
   )

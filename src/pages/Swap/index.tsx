@@ -374,8 +374,7 @@ const Swap = () => {
       setSwapState((prevState) => ({ showConfirm: true, tradeToConfirm: undefined, attemptingTxn: true, swapErrorMessage: '', txHash: undefined }))
       const poolContract = getPoolContract(chainId, library, account)
 
-      const swapCall = async () => {
-        // await poolContract.swap(fromToken, toToken, fromAmount, minimumToAmount, to, tnxDeadline)
+      const swapCall = async () => {        
         await poolContract.swapBasedPrice(fromToken, toToken, fromAmount, minimumToAmount, to, tnxDeadline)
           .then((response) => {
             console.log('swap: ', response)

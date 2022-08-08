@@ -544,33 +544,43 @@
         "components": [
           {
             "internalType": "uint256",
-            "name": "amount1",
+            "name": "invPercent",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "amount2",
+            "name": "invCount",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "amount3",
+            "name": "invDeadline",
             "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "autoBalancePeriod",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "autoCompoundPeriod",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lockDeadline",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "relock",
+            "type": "bool"
           }
         ],
-        "internalType": "struct Pool.AmountsParam",
-        "name": "investInfo",
+        "internalType": "struct Pool.IBCL",
+        "name": "ibcl",
         "type": "tuple"
-      },
-      {
-        "internalType": "uint256",
-        "name": "autoBalancePeriod",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "autoCompoundPeriod",
-        "type": "uint256"
       }
     ],
     "name": "depositAuto",

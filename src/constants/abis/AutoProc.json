@@ -14,6 +14,31 @@
         "type": "address"
       },
       {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "period",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "enable",
+        "type": "uint256"
+      }
+    ],
+    "name": "AutoCompoundInfoUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
         "indexed": true,
         "internalType": "address",
         "name": "prevM",

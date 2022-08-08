@@ -1,7 +1,7 @@
 import { Token } from '@pantherswap-libs/sdk'
 import { Button, Text } from '@pantherswap-libs/uikit'
 import { BigNumber, ethers } from 'ethers'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useMemo } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import { Flex } from 'rebass'
 import { float2int, formatCurrency, getUnitedValue, nDecimals, norValue, PTPStakedInfo } from 'utils'
@@ -44,6 +44,14 @@ export default function PTPUnStakeConfirmModal({
 
   const [avaliable, setAvailable] = useState(false)
 
+  const lockAmount = useMemo(() => {
+    return baseData?.lockedTimestamp.add(baseData?.lockedDeadline).gte(baseData?.curTimestamp) ? baseData?.lockedAmount : BigNumber.from(0)
+  }, [baseData])
+
+  const unstakableMaxAmount = useMemo(() => {
+    return baseData?.ptpStakedAmount.sub(lockAmount)
+  }, [baseData, lockAmount])
+
   const handleTypeInput = useCallback(
     (val: string) => {
       setInputedValue(val)
@@ -52,8 +60,8 @@ export default function PTPUnStakeConfirmModal({
   )
 
   const handleMaxInput = useCallback(() => {
-    setInputedValue(norValue(baseData?.ptpStakedAmount).toString())
-  }, [setInputedValue, baseData?.ptpStakedAmount])
+    setInputedValue(norValue(unstakableMaxAmount).toString())
+  }, [setInputedValue, unstakableMaxAmount])
 
   const handleClose = useCallback(
     () => {
@@ -69,14 +77,14 @@ export default function PTPUnStakeConfirmModal({
   }, [setInputedValue, isOpen])
 
   useEffect(() => {
-    const max = norValue(baseData?.ptpStakedAmount)
+    const max = norValue(unstakableMaxAmount)
     if (+inputedValue > 0 && +inputedValue <= max) {
       setAvailable(true)
     } else {
       setAvailable(false)
     }
 
-  }, [inputedValue, baseData?.ptpStakedAmount])
+  }, [inputedValue, unstakableMaxAmount])
 
   const handleStake = useCallback(
     (e, value: BigNumber, tk: Token | undefined) => {
@@ -102,7 +110,7 @@ export default function PTPUnStakeConfirmModal({
           <Text style={{ color: 'red', fontSize: '13px', textAlign: 'center' }}>You will lose all of your accumulated veMARKET {`(${formatCurrency(norValue(baseData?.vePTPBalanceOf), 2)})`} and pending veMARKET {`(${formatCurrency(norValue(baseData?.vePTPrewardableAmount), 2)})`} after unstaking MARKET</Text>
         </Flex>
         <RowBetween className="mt-4">
-          <Text fontSize="13px" color='#888888'>{`UnStakable: ${formatCurrency(nDecimals(2, norValue(baseData?.ptpStakedAmount)), 2)} ${token?.symbol}`}</Text>
+          <Text fontSize="13px" color='#888888'>{`UnStakable: ${formatCurrency(nDecimals(2, norValue(unstakableMaxAmount)), 2)} ${token?.symbol}`}</Text>
         </RowBetween>
         <Row className='mt-1'>
           <Col>

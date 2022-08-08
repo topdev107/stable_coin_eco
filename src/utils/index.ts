@@ -239,6 +239,8 @@ export interface PoolItemBaseData {
   isAutoBalanced: boolean
   isAutoCompound: boolean
   autoCompoundPeriod: BigNumber
+  lockedDeadline: BigNumber
+  // isRelocked: boolean | undefined
 }
 
 export interface PTPStakedInfo {
@@ -250,6 +252,11 @@ export interface PTPStakedInfo {
   calcVePTPAmount: BigNumber
   allowancePTP: BigNumber
   ptpBalanceOf: BigNumber
+  lockedTimestamp: BigNumber
+  lockedDeadline: BigNumber
+  lockedAmount: BigNumber
+  lockedTotalAmount: BigNumber
+  curTimestamp: BigNumber
 }
 
 export function calcFee(val: number, t_fee: number, usefulCountFee: number): string {
@@ -273,4 +280,10 @@ export function calcFee(val: number, t_fee: number, usefulCountFee: number): str
 
 export function norValue(bnum: BigNumber | undefined, decimals = 18): number {      
     return bnum === undefined ? 0 : parseInt(bnum.toHexString(), 16) / (10 ** decimals)
+}
+
+export function pad(num: number, size = 2): string {
+  let numstr = num.toString();
+  while (numstr.length < size) numstr = `0${numstr}`;
+  return numstr;
 }

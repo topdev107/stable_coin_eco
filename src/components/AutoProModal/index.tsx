@@ -107,6 +107,11 @@ export default function AutoProModal({
     return weeks
   }, [])
 
+  
+  const lockedDeadlineId = useMemo(() => {
+    return baseData !== undefined && baseData[0] !== undefined ? baseData[0].lockedDeadline.toNumber()/300 : MAX_LOCK_PERIOD    
+  }, [baseData])
+
   const [investPercent, setInvestPercent] = useState<string>(DEFAULT_INVEST_PERCENT)
   const [error, setError] = useState<string | null>(null)
 
@@ -384,7 +389,7 @@ export default function AutoProModal({
   }, [purchaseDeadlineTxts, purchaseDeadlineId])
   //
 
-  const [lockPeriodId, setLockPeriodId] = useState<number>(0)
+  const [lockPeriodId, setLockPeriodId] = useState<number>(MAX_LOCK_PERIOD-1)
   const [isLockPeriodModalOpen, setIsLockPeriodModalOpen] = useState(false)
   const lockPeriodTxt = useMemo(() => {
     return lockPeriodTxts[lockPeriodId]
@@ -463,6 +468,7 @@ export default function AutoProModal({
   }, [baseData, preBaseData, setPreBaseData])
 
   useEffect(() => {
+    
     try {
 
       const rawValue = +investPercent
@@ -546,7 +552,7 @@ export default function AutoProModal({
           // we only care if the error is something _other_ than the user rejected the tx          
           if (e?.code !== 4001) {
             console.error(e)
-            setErrMessage(e.data.message ?? e.message)
+            setErrMessage(e.message)
           } else {
             setShowConfirm(false)
             setIsApproving(false)
@@ -593,10 +599,14 @@ export default function AutoProModal({
         'amount2': amount2,
         'amount3': amount3
       }
-      const investInfo = {
-        'amount1': isCheckInvest ? +investPercent * 100 : 0,
-        'amount2': purchaseCount,
-        'amount3': (+purchaseDeadlineId + 1) * 300 // 5min (604800 - 1 week)
+      const ibcl = {
+        'invPercent': isCheckInvest ? +investPercent * 100 : 0,
+        'invCount': purchaseCount,
+        'invDeadline': (+purchaseDeadlineId + 1) * 604800, // 5min (604800 - 1 week)
+        'autoBalancePeriod': isCheckAutoBalance ? (+balancePeriodId + 1) * 604800 : 0,
+        'autoCompoundPeriod': isCheckAutoCompound ? (+compoundPeriodId + 1) * 300 : 0,
+        'lockDeadline': isCheckLock ? (+lockPeriodId + 1) * 300 : 0,
+        'relock': isCheckRelock
       }
 
       let tnx_hash = ''
@@ -604,9 +614,7 @@ export default function AutoProModal({
         tok,
         amt,
         isCheckAutoAllocation,
-        investInfo,
-        isCheckAutoBalance ? (+balancePeriodId + 1) * 604800 : 0,
-        isCheckAutoCompound ? (+compoundPeriodId + 1) * 300 : 0
+        ibcl
       )
         .then((response) => {
           setAttemptingTxn(false)
@@ -709,6 +717,9 @@ export default function AutoProModal({
     purchaseCount,
     purchaseDeadlineId,
     compoundPeriodId,
+    isCheckLock,
+    isCheckRelock,
+    lockPeriodId,
     onShowPopup,
     onDismiss]
   )
@@ -743,6 +754,7 @@ export default function AutoProModal({
         isOpen={isLockPeriodModalOpen}
         title='Lock Period Select'
         items={lockPeriodTxts}
+        disableMaxId={lockedDeadlineId}
         onDismiss={handleLockPeriodDismiss}
         onSelected={handleLockPeriodSelect}
       />
