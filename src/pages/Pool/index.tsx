@@ -1724,7 +1724,7 @@ export default function Pool() {
                         checked={isCheckRelock}
                         onChange={handleChangeRelock}
                       />
-                      <Text style={{ marginLeft: '10px', marginRight: '10px' }}>Relock</Text>
+                      <Text style={{ marginLeft: '10px', marginRight: '10px' }}>Relock Staking</Text>
                     </Flex>
                   </Col>
                 ) : (
