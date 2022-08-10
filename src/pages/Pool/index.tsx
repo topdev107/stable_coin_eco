@@ -1355,7 +1355,7 @@ export default function Pool() {
           if (bd.isAutoCompound !== bds.isAutoCompound) isSameData = false
           if (!(bd.autoCompoundPeriod.eq(bds.autoCompoundPeriod))) isSameData = false
           if (!(bd.lockedDeadline.eq(bds.lockedDeadline))) isSameData = false
-          if (!(bd.relocked !== bds.relocked)) isSameData = false
+          if (bd.relocked !== bds.relocked) isSameData = false
 
         }
 
