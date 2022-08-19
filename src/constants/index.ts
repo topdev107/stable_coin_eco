@@ -26,8 +26,8 @@ export const ASSET_USDC_ADDRESS = '0x4daF18138E7B1620f141B6BAa76A60cDcBD02b41' /
 export const PTP_ADDRESS = '0x67F1ae3F44591A61236a93CA3aaE1149A00a5325'        // fantom testnet
 export const VEPTP_ADDRESS = '0xB6aFDae669BFB47805e260DF0503100B15375f9B'      // fantom testnet
 
-export const POOL_ADDRESS = '0x74aE9d27F422887C40C655Bcc5FAa2160f1228D9' // fantom testnet
-export const MASTER_PLATYPUS_ADDRESS = '0xdb860164c320Bdc41054c8f48f1E7aCb8b4a9611'   // fantom testnet
+export const POOL_ADDRESS = '0xB6C6f5bEB583F23ce4c406C1acB41AFB686892Ee' // fantom testnet
+export const MASTER_PLATYPUS_ADDRESS = '0xdEf5f700C7dcf18e1de7bba2EAB59755B2783C60'   // fantom testnet
 export const AUTO_PROC_ADDRESS = '0x47a85D9A783973Cbf398410c56490b7925197F67'
 
 export const USDT_LP_ID = 0

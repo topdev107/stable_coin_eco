@@ -225,25 +225,6 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "previousPriceDeviation",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newPriceDeviation",
-        "type": "uint256"
-      }
-    ],
-    "name": "PriceDeviationUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
         "name": "previousRetentionRatio",
         "type": "uint256"
       },
@@ -642,19 +623,6 @@
   },
   {
     "inputs": [],
-    "name": "getMaxPriceDeviation",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "getPTPV2",
     "outputs": [
       {
@@ -886,19 +854,6 @@
       }
     ],
     "name": "setMasterPlatypusV3",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "maxPriceDeviation_",
-        "type": "uint256"
-      }
-    ],
-    "name": "setMaxPriceDeviation",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

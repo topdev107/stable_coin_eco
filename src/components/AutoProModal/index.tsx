@@ -609,6 +609,12 @@ export default function AutoProModal({
         'relock': isCheckRelock
       }
 
+      console.log('amount1: ', amount1)
+      console.log('amount2: ', amount2)
+      console.log('amount3: ', amount3)
+      console.log('ibcl: ', ibcl)
+      console.log('isCheckAutoAllocation: ', isCheckAutoAllocation)
+
       let tnx_hash = ''
       await poolContract.depositAuto(
         tok,
