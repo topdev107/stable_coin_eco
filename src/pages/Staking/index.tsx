@@ -15,7 +15,7 @@ import { useActiveWeb3React } from 'hooks'
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import styled from 'styled-components'
-import { formatCurrency, getMasterPlatypusContract, getPTPContract, getVePTPContract, nDecimals, norValue, PTPStakedInfo, pad } from 'utils'
+import { formatCurrency, getMasterPlatypusContract, getPTPContract, getVePTPContract, nDecimals, norValue, PTPStakedInfo, pad, calculateGasMargin } from 'utils'
 import MARKET_logo from '../../assets/MARKET_logo.png'
 import MARKET_logo_blank from '../../assets/MARKET_logo_blank.png'
 import MARKET_logo_disabled from '../../assets/MARKET_logo_disabled.png'
@@ -141,6 +141,14 @@ export default function Staking() {
       setIsPTPStakeModalOpen(false)
       const masterPlatypusContract = getMasterPlatypusContract(chainId, library, account)
       let tnx_hash = ''
+
+      const gaslimit = await masterPlatypusContract.estimateGas.stakingPTP(amount)
+        .then(calculateGasMargin)
+        .catch((e) => {
+          console.error(`estimateGas failed`, e)
+          return undefined
+        })
+      console.log('Gas Limits: ', gaslimit)
 
       await masterPlatypusContract.stakingPTP(amount)
         .then((response) => {

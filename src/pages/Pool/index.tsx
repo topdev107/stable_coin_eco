@@ -33,11 +33,6 @@ import { useUserSlippageTolerance } from '../../state/user/hooks'
 import Question from '../../components/QuestionHelper'
 import CurrencyLogo from '../../components/CurrencyLogo'
 
-
-
-
-
-
 export default function Pool() {
   const allTokens = useAllTokens()
 

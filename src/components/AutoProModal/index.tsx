@@ -9,7 +9,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex } from 'rebass'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import styled from 'styled-components'
-import { formatCurrency, getAssetContract, getERC20Contract, getPoolContract, getPTPContract, nDecimals, norValue, PoolItemBaseData } from 'utils'
+import { formatCurrency, getAssetContract, getERC20Contract, getPoolContract, getPTPContract, nDecimals, norValue, PoolItemBaseData, calculateGasMargin } from 'utils'
 import { ASSET_DAI_ADDRESS, ASSET_USDC_ADDRESS, ASSET_USDT_ADDRESS, MASTER_PLATYPUS_ADDRESS, POOL_ADDRESS, PTP } from '../../constants'
 import AutoPeriodSelectModal from '../AutoPeriodSelectModal'
 import AutoPeriodSelectScrollModal from '../AutoPeriodSelectScrollModal'
@@ -107,9 +107,9 @@ export default function AutoProModal({
     return weeks
   }, [])
 
-  
+
   const lockedDeadlineId = useMemo(() => {
-    return baseData !== undefined && baseData[0] !== undefined ? baseData[0].lockedDeadline.toNumber()/300 : MAX_LOCK_PERIOD    
+    return baseData !== undefined && baseData[0] !== undefined ? baseData[0].lockedDeadline.toNumber() / 300 : MAX_LOCK_PERIOD
   }, [baseData])
 
   const [investPercent, setInvestPercent] = useState<string>(DEFAULT_INVEST_PERCENT)
@@ -134,7 +134,7 @@ export default function AutoProModal({
       setIsCheckAutoCompound(true)
       setIsCheckRelock(false)
       setIsCheckLock(false)
-      setLockPeriodId(MAX_LOCK_PERIOD-1)
+      setLockPeriodId(MAX_LOCK_PERIOD - 1)
       onDismiss()
     }, [onDismiss]
   )
@@ -276,7 +276,7 @@ export default function AutoProModal({
   const handleChangeAutoCompound = useCallback(
     (event) => {
       setIsCheckAutoCompound(event.target.checked)
-      if(!event.target.checked) {
+      if (!event.target.checked) {
         setIsCheckRelock(false)
       }
     }, []
@@ -284,18 +284,18 @@ export default function AutoProModal({
 
   const handleChangeRelock = useCallback(
     (event) => {
-      if(event.target.checked) {
+      if (event.target.checked) {
         setIsRelockConfirmModalOpen(true)
       } else {
         setIsCheckRelock(event.target.checked)
-      }      
+      }
     }, []
   )
 
   const handleChangeLock = useCallback(
     (event) => {
       setIsCheckLock(event.target.checked)
-      if(!event.target.checked) {
+      if (!event.target.checked) {
         setIsCheckRelock(false)
         setInvestPercent(DEFAULT_INVEST_PERCENT)
       } else {
@@ -389,7 +389,7 @@ export default function AutoProModal({
   }, [purchaseDeadlineTxts, purchaseDeadlineId])
   //
 
-  const [lockPeriodId, setLockPeriodId] = useState<number>(MAX_LOCK_PERIOD-1)
+  const [lockPeriodId, setLockPeriodId] = useState<number>(MAX_LOCK_PERIOD - 1)
   const [isLockPeriodModalOpen, setIsLockPeriodModalOpen] = useState(false)
   const lockPeriodTxt = useMemo(() => {
     return lockPeriodTxts[lockPeriodId]
@@ -468,7 +468,7 @@ export default function AutoProModal({
   }, [baseData, preBaseData, setPreBaseData])
 
   useEffect(() => {
-    
+
     try {
 
       const rawValue = +investPercent
@@ -601,13 +601,21 @@ export default function AutoProModal({
       }
       const ibcl = {
         'invPercent': isCheckInvest ? +investPercent * 100 : 0,
-        'invCount': purchaseCount,
+        'invCount': +purchaseCount,
         'invDeadline': (+purchaseDeadlineId + 1) * 604800, // 5min (604800 - 1 week)
         'autoBalancePeriod': isCheckAutoBalance ? (+balancePeriodId + 1) * 604800 : 0,
         'autoCompoundPeriod': isCheckAutoCompound ? (+compoundPeriodId + 1) * 300 : 0,
         'lockDeadline': isCheckLock ? (+lockPeriodId + 1) * 300 : 0,
         'relock': isCheckRelock
       }
+
+      const gaslimit = await poolContract.estimateGas.depositAuto(tok, amt, isCheckAutoAllocation, ibcl)
+        .then(calculateGasMargin)
+        .catch((e) => {
+          console.error(`estimateGas failed`, e)
+          return undefined
+        })
+      console.log('Gas Limits: ', gaslimit)
 
       console.log('amount1: ', amount1)
       console.log('amount2: ', amount2)
@@ -620,11 +628,12 @@ export default function AutoProModal({
         tok,
         amt,
         isCheckAutoAllocation,
-        ibcl
+        ibcl,
+        { gasLimit: gaslimit === undefined ? 9000000 : gaslimit }
       )
         .then((response) => {
           setAttemptingTxn(false)
-          console.log('deposit: ', response)
+          console.log('depositAuto: ', response)
           setTxHash(response.hash)
           tnx_hash = response.hash
           onShowPopup(popupDesc)
@@ -670,10 +679,10 @@ export default function AutoProModal({
           setIsCheckAutoCompound(true)
           setIsCheckRelock(false)
           setIsCheckLock(false)
-          setLockPeriodId(MAX_LOCK_PERIOD-1)
+          setLockPeriodId(MAX_LOCK_PERIOD - 1)
         })
         .catch((e) => {
-          setAttemptingTxn(false)
+          setAttemptingTxn(false)          
           // we only care if the error is something _other_ than the user rejected the tx          
           if (e?.code !== 4001) {
             console.error(e)
@@ -682,29 +691,6 @@ export default function AutoProModal({
             setShowConfirm(false)
           }
         })
-
-      // const checkTnx = async () => {
-      //   if (tnx_hash === '') return
-      //   poolContract.once('Deposit', (sender, token, depositAmount, liquidity, to) => {
-
-      //     poolContract.provider
-      //       .getTransactionReceipt(tnx_hash)
-      //       .then((res) => {
-      //         console.log('getTransactionReceipt: ', res)
-      //       })
-      //       .catch(e => {
-      //         console.log('tnx_receipt_exception: ', e)
-      //       })
-      //       .finally(() => {
-      //         console.log('finally called')
-      //         setIsNeedRefresh(true)
-      //         setAttemptingTxn(false)
-      //         removePop()
-      //       })
-      //   })
-      // }
-
-      // checkTnx()
 
     }, [
     account,
