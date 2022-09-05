@@ -257,6 +257,8 @@ export interface PTPStakedInfo {
   lockedAmount: BigNumber
   lockedTotalAmount: BigNumber
   curTimestamp: BigNumber
+  relock: boolean
+  activeLockedDeadline: BigNumber
 }
 
 export function calcFee(val: number, t_fee: number, usefulCountFee: number): string {

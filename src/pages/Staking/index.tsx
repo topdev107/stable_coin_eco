@@ -1,8 +1,9 @@
 import { Button, Progress, Text } from '@pantherswap-libs/uikit'
 import CalcModal from 'components/CalcModal'
-import { LightCard, YellowCard } from 'components/Card'
+import { GreyCard, LightCard, YellowCard } from 'components/Card'
 import CardNav from 'components/CardNav'
 import MyMenu from 'components/MyMenu'
+import PTPLockModal from 'components/PTPLockModal'
 import PTPStakeModal from 'components/PTPStakeConfirmModal'
 import PTPUnStakeModal from 'components/PTPUnStakeConfirmModal'
 import { QuestionColorHelper } from 'components/QuestionHelper'
@@ -14,6 +15,8 @@ import { BigNumber } from 'ethers'
 import { useActiveWeb3React } from 'hooks'
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
 import { Col, Row } from 'react-bootstrap'
+import { AlignCenter } from 'react-feather'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 import { formatCurrency, getMasterPlatypusContract, getPTPContract, getVePTPContract, nDecimals, norValue, PTPStakedInfo, pad, calculateGasMargin } from 'utils'
 import MARKET_logo from '../../assets/MARKET_logo.png'
@@ -45,7 +48,9 @@ export default function Staking() {
     'lockedDeadline': BigNumber.from(0),
     'lockedAmount': BigNumber.from(0),
     'lockedTotalAmount': BigNumber.from(0),
-    'curTimestamp': BigNumber.from(0)
+    'curTimestamp': BigNumber.from(0),
+    'relock': false,
+    'activeLockedDeadline': BigNumber.from(0)
   }
 
   const [baseData, setBaseData] = useState<PTPStakedInfo>(initialBaseData)
@@ -54,6 +59,8 @@ export default function Staking() {
   const [isPTPUnStakeModalOpen, setIsPTPUnStakeModalOpen] = useState<boolean>(false);
   const [isVePTPClaimModalOpen, setIsVePTPClaimModalOpen] = useState<boolean>(false);
   const [isCalcModalOpen, setIsCalcModalOpen] = useState<boolean>(false);
+  const [isPTPLockModalOpen, setIsPTPLockModalOpen] = useState<boolean>(false);
+
 
   // modal and loading
   const [showConfirm, setShowConfirm] = useState<boolean>(false)
@@ -72,6 +79,9 @@ export default function Staking() {
 
   const openCalcModal = useCallback(() => setIsCalcModalOpen(true), [setIsCalcModalOpen]);
   const closeCalcModal = useCallback(() => setIsCalcModalOpen(false), [setIsCalcModalOpen]);
+
+  const openPTPLockModal = useCallback(() => setIsPTPLockModalOpen(true), [setIsPTPLockModalOpen]);
+  const closePTPLockModal = useCallback(() => setIsPTPLockModalOpen(false), [setIsPTPLockModalOpen]);
 
   const lockAmount = useMemo(() => {
     return baseData.lockedTimestamp.add(baseData.lockedDeadline).gte(baseData.curTimestamp) ? baseData.lockedAmount : BigNumber.from(0)
@@ -130,6 +140,66 @@ export default function Staking() {
 
       checkTnx()
 
+    }, [account, chainId, library]
+  )
+
+  const handleLockPTP = useCallback(
+    async (amount: BigNumber, deadline: number, relock: boolean) => {
+      if (!chainId || !library || !account) return
+      setShowConfirm(true)
+      setAttemptingTxn(true)
+      setIsPTPLockModalOpen(false)
+      const ptpContract = getPTPContract(chainId, library, account)
+      let tnx_hash = ''
+
+      await ptpContract.setLockInfo(account, amount, deadline, relock)
+        .then((response) => {
+          console.log('setLockInfo: ', response)
+          // setAttemptingTxn(false)          
+          setTxHash(response.hash)
+          tnx_hash = response.hash
+        })
+        .catch((e) => {
+          setAttemptingTxn(false)
+          // we only care if the error is something _other_ than the user rejected the tx          
+          if (e?.code !== 4001) {
+            console.error(e)
+            setErrMessage(e.data.message ?? e.message)
+          } else {
+            setShowConfirm(false)
+          }
+        })
+
+      // event UpdateLockInfo(address indexed user, uint256 addedAmount, uint256 oldDeadline, uint256 newDeadline, bool oldRelock, bool newRelock);
+      const checkTnx = async () => {
+        if (tnx_hash === '') return
+        ptpContract
+          .once('UpdateLockInfo', (owner, addedAmount, oldDeadline, newDeadline, oldRelock, newRelock) => {
+            console.log('== UpdateLockInfo ==')
+            console.log('owner: ', owner)
+            console.log('addedAmount: ', parseInt(addedAmount._hex, 16) / (10 ** 18))
+            console.log('oldDeadline: ', parseInt(oldDeadline._hex, 16))
+            console.log('newDeadline: ', parseInt(newDeadline._hex, 16))
+            console.log('oldRelock: ', oldRelock)
+            console.log('newRelock: ', newRelock)
+
+            ptpContract.provider
+              .getTransactionReceipt(tnx_hash)
+              .then((res) => {
+                console.log('getTransactionReceipt: ', res)
+              })
+              .catch(e => {
+                console.log('tnx_receipt_exception: ', e)
+              })
+              .finally(() => {
+                console.log('finally called')
+                setIsNeedRefresh(true)
+                setAttemptingTxn(false)
+              })
+          })
+      }
+
+      checkTnx()
     }, [account, chainId, library]
   )
 
@@ -322,7 +392,8 @@ export default function Staking() {
         masterPlatypusContract.calcVePTPReward(account, baseData.totalPtpStakedAmount, 1), // 3600s
         ptpContract.allowance(account, MASTER_PLATYPUS_ADDRESS),
         ptpContract.balanceOf(account),
-        ptpContract.lockInfo(account)
+        ptpContract.lockInfo(account),
+        ptpContract.activeLockedDeadline(account),
 
       ]).then(response => {
         const ptpAmount = BigNumber.from(response[0].ptpAmount._hex)
@@ -338,6 +409,8 @@ export default function Staking() {
         const lockedAmount = BigNumber.from(response[6].amount._hex)
         const lockedTotalAmount = BigNumber.from(response[6].totalAmount._hex)
         const curTimestamp = BigNumber.from(response[6].curTimestamp._hex)
+        const relock = response[6].relock
+        const activeLockedDeadline = BigNumber.from(response[7]._hex)
 
         const bData: PTPStakedInfo = {
           'ptpStakedAmount': ptpAmount,
@@ -352,7 +425,9 @@ export default function Staking() {
           'lockedDeadline': lockedDeadline,
           'lockedAmount': lockedAmount,
           'lockedTotalAmount': lockedTotalAmount,
-          'curTimestamp': curTimestamp
+          'curTimestamp': curTimestamp,
+          'relock': relock,
+          'activeLockedDeadline': activeLockedDeadline
         }
         return bData
       }).catch((e) => {
@@ -370,7 +445,9 @@ export default function Staking() {
           'lockedDeadline': BigNumber.from(0),
           'lockedAmount': BigNumber.from(0),
           'lockedTotalAmount': BigNumber.from(0),
-          'curTimestamp': BigNumber.from(0)
+          'curTimestamp': BigNumber.from(0),
+          'relock': false,
+          'activeLockedDeadline': BigNumber.from(0),
         }
         return bData
       })
@@ -386,7 +463,9 @@ export default function Staking() {
         !(baseData.lockedTimestamp.eq(baseDatas.lockedTimestamp)) ||
         !(baseData.lockedDeadline.eq(baseDatas.lockedDeadline)) ||
         !(baseData.lockedAmount.eq(baseDatas.lockedAmount)) ||
-        !(baseData.lockedTotalAmount.eq(baseDatas.lockedTotalAmount))
+        !(baseData.lockedTotalAmount.eq(baseDatas.lockedTotalAmount)) ||
+        (baseData.relock !== baseDatas.relock) ||
+        !(baseData.activeLockedDeadline.eq(baseDatas.activeLockedDeadline))
       ) {
         setBaseData(baseDatas)
       }
@@ -402,7 +481,7 @@ export default function Staking() {
     }, 20000);
 
     return () => window.clearInterval(interval);
-  }, [account, chainId, library, baseData, isNeedRefresh])
+  }, [account, chainId, library, baseData, isNeedRefresh])  
 
   const handleRefresh = useCallback(
     () => {
@@ -445,6 +524,15 @@ export default function Staking() {
         baseData={baseData}
         onDismiss={closeVePTPClaimModal}
         onClaimVePTP={handleClaimVePTP}
+        onRefresh={handleRefresh}
+      />
+
+      <PTPLockModal
+        isOpen={isPTPLockModalOpen}
+        token={PTP}
+        baseData={baseData}
+        onDismiss={closePTPLockModal}
+        onLock={handleLockPTP}
         onRefresh={handleRefresh}
       />
 
@@ -620,7 +708,7 @@ export default function Staking() {
                             lockedTimestamp={baseData.lockedTimestamp}
                             lockedDeadline={baseData.lockedDeadline}
                             curTimestamp={baseData.curTimestamp}
-                          />
+                          />                         
                         </div>
                       </div>
                     </Col>
@@ -647,7 +735,7 @@ export default function Staking() {
                         baseData.ptpStakedAmount.sub(lockAmount).gt(BigNumber.from(0)) ? (
                           <Button variant='secondary' onClick={openPTPUnStakeModal} fullWidth>Unstake</Button>
                         ) : (
-                          <Button variant='secondary' disabled fullWidth>Locked</Button>
+                          <Button variant='secondary' disabled fullWidth>Unstake</Button>
                         )
                       }
                     </Col>
@@ -655,22 +743,49 @@ export default function Staking() {
                       <Button fullWidth onClick={openPTPStakeModal}>Stake</Button>
                     </Col>
                   </Row>
+                  <Row className='p-3'>
+                    <Button fullWidth onClick={openPTPLockModal}>Lock MARKET to Boost your veMARKET yield</Button>
+                  </Row>
                 </div>
               </div>
             ) : (
               account ? (
                 <div className='mt-3'>
                   <Button fullWidth onClick={openPTPStakeModal}>Stake</Button>
+                  <Button className='mt-2' fullWidth disabled>Lock MARKET to Boost your veMARKET yield</Button>
                 </div>
               ) : (
                 <div className='mt-3'>
                   <Button fullWidth disabled>Stake</Button>
+                  <Button className='mt-2' fullWidth disabled>Lock MARKET to Boost your veMARKET yield</Button>
                 </div>
               )
             )
           }
         </LightCard>
       </MaxWidthDiv>
+
+      {/* <MaxWidthDiv>
+        {
+          baseData.ptpStakedAmount.gt(BigNumber.from(0)) ? (
+            <LightCard className="mt-3 p-3">                            
+              <Flex className='mt-2 mb-2' alignItems="center" justifyContent="center">
+                <Text fontSize='30px' style={{textAlign: 'center'}}>Lock MARKET to Boost your veMARKET yield</Text>
+              </Flex>
+
+              <Button fullWidth style={{ borderRadius: '15px' }}>Lock</Button>
+            </LightCard>
+          ) : (
+            <GreyCard className="mt-3 p-3">                            
+              <Flex className='mt-5 mb-5' alignItems="center" justifyContent="center">
+                <Text fontSize='30px' color='#888' style={{textAlign: 'center'}}>Stake MARKET to access MARKET Locking Boost</Text>
+              </Flex>
+
+              <Button fullWidth disabled style={{ borderRadius: '15px' }}>Lock</Button>
+            </GreyCard>
+          )
+        }
+      </MaxWidthDiv> */}
     </>
   )
 }

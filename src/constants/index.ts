@@ -23,7 +23,7 @@ export const ASSET_USDT_ADDRESS = '0xd0E8f96191D3eE2392D7780c85f7103D4E2335D6' /
 export const ASSET_DAI_ADDRESS = '0x248e0900F1e6B0a5e364a103E24bB5C49A717577' // fantom testnet
 export const ASSET_USDC_ADDRESS = '0x4daF18138E7B1620f141B6BAa76A60cDcBD02b41' // fantom testnet
 
-export const PTP_ADDRESS = '0xbE301754C5cB0d55C4845A2E3c855a89D6E06ce3'        // fantom testnet
+export const PTP_ADDRESS = '0xC022F07c3532497199A61e5A137CC05b214122c0'        // fantom testnet
 export const VEPTP_ADDRESS = '0x4fD7d501647C7b0FE851D3e46dfE47508E2a8b83'      // fantom testnet
 
 export const POOL_ADDRESS = '0xfEA56F02977e5d580782D48438e62A5769e4969D' // fantom testnet

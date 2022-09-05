@@ -1,4 +1,4 @@
-import { CloseIcon, Text } from '@pantherswap-libs/uikit'
+import { CloseIcon, Text, WarningIcon } from '@pantherswap-libs/uikit'
 import Row, { RowBetween } from 'components/Row'
 import React, { useCallback } from 'react'
 import { darken } from 'polished'
@@ -69,7 +69,7 @@ export default function AutoPeriodSelectScrollModal({
         <RowBetween>
           <Text fontSize='20px'>{title}</Text>
           <CloseIcon onClick={onDismiss} />
-        </RowBetween>
+        </RowBetween>        
         <div style={{ height: '470px', overflowY: 'scroll' }}>
           {
             Object.values(items).map((item, index) => {
@@ -82,8 +82,8 @@ export default function AutoPeriodSelectScrollModal({
                   </PeriodItem>
                 ) : (
                   <PeriodDisabledItem className='mt-3'>
-                    <div>
-                      <Text style={{color: '#888888'}}>{item}</Text>
+                    <div>                      
+                      <Text style={{color: '#555'}}>{item}</Text>
                     </div>
                   </PeriodDisabledItem>
                 )
@@ -91,6 +91,13 @@ export default function AutoPeriodSelectScrollModal({
             })
           }
         </div>
+        {
+          disableMaxId > 0? (
+            <Text className='mt-3'><WarningIcon/> Disable weeks: Unavailable (Less than existing Lock)</Text>
+          ) : (
+            <></>
+          )
+        }
       </div>
     </Modal>
   )
