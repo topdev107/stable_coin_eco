@@ -4,6 +4,7 @@ import { GreyCard, LightCard, YellowCard } from 'components/Card'
 import CardNav from 'components/CardNav'
 import MyMenu from 'components/MyMenu'
 import PTPLockModal from 'components/PTPLockModal'
+import PTPLockTimeIncreaseModal from 'components/PTPLockTimeIncreaseModal'
 import PTPStakeModal from 'components/PTPStakeConfirmModal'
 import PTPUnStakeModal from 'components/PTPUnStakeConfirmModal'
 import { QuestionColorHelper } from 'components/QuestionHelper'
@@ -15,7 +16,7 @@ import { BigNumber } from 'ethers'
 import { useActiveWeb3React } from 'hooks'
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
 import { Col, Row } from 'react-bootstrap'
-import { AlignCenter } from 'react-feather'
+import { AlignCenter, Edit } from 'react-feather'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 import { formatCurrency, getMasterPlatypusContract, getPTPContract, getVePTPContract, nDecimals, norValue, PTPStakedInfo, pad, calculateGasMargin } from 'utils'
@@ -60,6 +61,7 @@ export default function Staking() {
   const [isVePTPClaimModalOpen, setIsVePTPClaimModalOpen] = useState<boolean>(false);
   const [isCalcModalOpen, setIsCalcModalOpen] = useState<boolean>(false);
   const [isPTPLockModalOpen, setIsPTPLockModalOpen] = useState<boolean>(false);
+  const [isPTPLockTimeIncreaseModalOpen, setIsPTPLockTimeIncreaseModalOpen] = useState<boolean>(false);
 
 
   // modal and loading
@@ -82,6 +84,9 @@ export default function Staking() {
 
   const openPTPLockModal = useCallback(() => setIsPTPLockModalOpen(true), [setIsPTPLockModalOpen]);
   const closePTPLockModal = useCallback(() => setIsPTPLockModalOpen(false), [setIsPTPLockModalOpen]);
+
+  const openPTPLockTimeIncreaseModal = useCallback(() => setIsPTPLockTimeIncreaseModalOpen(true), [setIsPTPLockTimeIncreaseModalOpen]);
+  const closePTPLockTimeIncreaseModal = useCallback(() => setIsPTPLockTimeIncreaseModalOpen(false), [setIsPTPLockTimeIncreaseModalOpen]);
 
   const lockAmount = useMemo(() => {
     return baseData.lockedTimestamp.add(baseData.lockedDeadline).gte(baseData.curTimestamp) ? baseData.lockedAmount : BigNumber.from(0)
@@ -182,6 +187,61 @@ export default function Staking() {
             console.log('newDeadline: ', parseInt(newDeadline._hex, 16))
             console.log('oldRelock: ', oldRelock)
             console.log('newRelock: ', newRelock)
+
+            ptpContract.provider
+              .getTransactionReceipt(tnx_hash)
+              .then((res) => {
+                console.log('getTransactionReceipt: ', res)
+              })
+              .catch(e => {
+                console.log('tnx_receipt_exception: ', e)
+              })
+              .finally(() => {
+                console.log('finally called')
+                setIsNeedRefresh(true)
+                setAttemptingTxn(false)
+              })
+          })
+      }
+
+      checkTnx()
+    }, [account, chainId, library]
+  )
+
+  const handleLockTimeIncreasePTP = useCallback(
+    async (deadline: number) => {
+      if (!chainId || !library || !account) return
+      setShowConfirm(true)
+      setAttemptingTxn(true)
+      setIsPTPLockTimeIncreaseModalOpen(false)
+      const ptpContract = getPTPContract(chainId, library, account)
+      let tnx_hash = ''
+
+      await ptpContract.increaseLockTime(account, deadline)
+        .then((response) => {
+          console.log('increaseLockTime: ', response)
+          // setAttemptingTxn(false)          
+          setTxHash(response.hash)
+          tnx_hash = response.hash
+        })
+        .catch((e) => {
+          setAttemptingTxn(false)
+          // we only care if the error is something _other_ than the user rejected the tx          
+          if (e?.code !== 4001) {
+            console.error(e)
+            setErrMessage(e.data.message ?? e.message)
+          } else {
+            setShowConfirm(false)
+          }
+        })
+
+      const checkTnx = async () => {
+        if (tnx_hash === '') return
+        ptpContract
+          .once('IncreasedLockTime', (owner, newdeadline) => {
+            console.log('== IncreasedLockTime ==')
+            console.log('owner: ', owner)
+            console.log('deadline: ', parseInt(newdeadline._hex, 16))
 
             ptpContract.provider
               .getTransactionReceipt(tnx_hash)
@@ -481,7 +541,7 @@ export default function Staking() {
     }, 20000);
 
     return () => window.clearInterval(interval);
-  }, [account, chainId, library, baseData, isNeedRefresh])  
+  }, [account, chainId, library, baseData, isNeedRefresh])
 
   const handleRefresh = useCallback(
     () => {
@@ -533,6 +593,15 @@ export default function Staking() {
         baseData={baseData}
         onDismiss={closePTPLockModal}
         onLock={handleLockPTP}
+        onRefresh={handleRefresh}
+      />
+
+      <PTPLockTimeIncreaseModal
+        isOpen={isPTPLockTimeIncreaseModalOpen}
+        token={PTP}
+        baseData={baseData}
+        onDismiss={closePTPLockTimeIncreaseModal}
+        onLock={handleLockTimeIncreasePTP}
         onRefresh={handleRefresh}
       />
 
@@ -696,19 +765,28 @@ export default function Staking() {
                       <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                         <img src={MARKET_logo_blank} alt='logo' style={{ width: '40px', height: '40px' }} />
                         <div className='ml-2'>
-                          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                          <Flex alignItems='center'>
                             <Text>{formatCurrency(nDecimals(5, norValue(baseData.ptpStakedAmount)), 5)} Staked MARKET</Text>
                             <QuestionColorHelper
                               text={`UnStakable: ${formatCurrency(nDecimals(5, norValue(baseData.ptpStakedAmount.sub(lockAmount))), 5)} MARKET`}
                               color='white'
                             />
-                          </div>
+                          </Flex>
                           <Text color='#888'>{formatCurrency(nDecimals(5, norValue(lockAmount)), 5)} Locked MARKET</Text>
-                          <TimeDown
-                            lockedTimestamp={baseData.lockedTimestamp}
-                            lockedDeadline={baseData.lockedDeadline}
-                            curTimestamp={baseData.curTimestamp}
-                          />                         
+                          <RowBetween>
+                            <TimeDown
+                              lockedTimestamp={baseData.lockedTimestamp}
+                              lockedDeadline={baseData.lockedDeadline}
+                              curTimestamp={baseData.curTimestamp}
+                            />
+                            {
+                              lockAmount.gt(BigNumber.from(0)) ? (
+                                <Edit color='#fff' size={18} style={{ cursor: 'pointer', marginRight: '3px' }} onClick={openPTPLockTimeIncreaseModal} />
+                              ) : (
+                                <></>
+                              )
+                            }
+                          </RowBetween>
                         </div>
                       </div>
                     </Col>
@@ -744,7 +822,13 @@ export default function Staking() {
                     </Col>
                   </Row>
                   <Row className='p-3'>
-                    <Button fullWidth onClick={openPTPLockModal}>Lock MARKET to Boost your veMARKET yield</Button>
+                    {
+                      baseData.ptpStakedAmount.sub(lockAmount).gt(BigNumber.from(0)) ? (
+                        <Button fullWidth onClick={openPTPLockModal}>Lock MARKET to Boost your veMARKET yield</Button>
+                      ) : (
+                        <Button className='mt-2' fullWidth disabled>Lock MARKET to Boost your veMARKET yield</Button>
+                      )
+                    }
                   </Row>
                 </div>
               </div>
