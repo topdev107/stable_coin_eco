@@ -347,8 +347,10 @@ export default function CalcModal({
         masterPlatypusContract.factors(),
         masterPlatypusContract.baseAPR(lpID),
         masterPlatypusContract.boostedAPR(lpID, account),
-        masterPlatypusContract.estimatedBoostedAPRFromVePTP(lpID, account, ethers.utils.parseUnits(inTokenValue, selectedToken.decimals), ethers.utils.parseUnits(inVePTPValue, VEPTP.decimals)),
-        masterPlatypusContract.estimatedBoostedAPRFromPTP(lpID, account, ethers.utils.parseUnits(inTokenValue, selectedToken.decimals), ethers.utils.parseUnits(inPTPValue, PTP.decimals), stakingTimeSecond)
+        // masterPlatypusContract.estimatedBoostedAPRFromVePTP(lpID, account, ethers.utils.parseUnits(inTokenValue, selectedToken.decimals), ethers.utils.parseUnits(inVePTPValue, VEPTP.decimals)),
+        // masterPlatypusContract.estimatedBoostedAPRFromPTP(lpID, account, ethers.utils.parseUnits(inTokenValue, selectedToken.decimals), ethers.utils.parseUnits(inPTPValue, PTP.decimals), stakingTimeSecond)
+        masterPlatypusContract.estimatedBoostedAPRFromVePTP(lpID, account, BigNumber.from(parseInt(inTokenValue)), ethers.utils.parseUnits(inVePTPValue, VEPTP.decimals)),
+        masterPlatypusContract.estimatedBoostedAPRFromPTP(lpID, account, BigNumber.from(parseInt(inTokenValue)), ethers.utils.parseUnits(inPTPValue, PTP.decimals), stakingTimeSecond)
       ]).then(response => {
         const poolLiquidity = BigNumber.from(response[0]._hex)
         const lpBalanceOf = BigNumber.from(response[1]._hex)
