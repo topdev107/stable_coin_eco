@@ -382,18 +382,21 @@ export default function AutoProModal({
     return lockPeriodTxts[lockPeriodId]
   }, [lockPeriodTxts, lockPeriodId])
 
-  const INVEST_PERCENT = useMemo(() => {    
-    if (!isCheckLock) return DEFAULT_INVEST_PERCENT
-    return (parseFloat(DEFAULT_INVEST_PERCENT) - (lockPeriodId+1) / 52.0 * (parseFloat(DEFAULT_INVEST_PERCENT) - parseFloat(DEFAULT_INVEST_PERCENT_LOCK))).toFixed(2).toString()
-  }, [isCheckLock, lockPeriodId])
+  // const INVEST_PERCENT = useMemo(() => {    
+  //   if (!isCheckLock) return DEFAULT_INVEST_PERCENT
+  //   return (parseFloat(DEFAULT_INVEST_PERCENT) - (lockPeriodId+1) / 52.0 * (parseFloat(DEFAULT_INVEST_PERCENT) - parseFloat(DEFAULT_INVEST_PERCENT_LOCK))).toFixed(2).toString()
+  // }, [isCheckLock, lockPeriodId])
 
   const handleChangeLock = useCallback(
     (event) => {
       setIsCheckLock(event.target.checked)
       if (!event.target.checked) {
         setIsCheckRelock(false)
-      }
-    }, []
+        setInvestPercent(DEFAULT_INVEST_PERCENT)
+      } else {
+        setInvestPercent((parseFloat(DEFAULT_INVEST_PERCENT) - (lockPeriodId+1) / 52.0 * (parseFloat(DEFAULT_INVEST_PERCENT) - parseFloat(DEFAULT_INVEST_PERCENT_LOCK))).toFixed(2).toString())
+      }      
+    }, [lockPeriodId]
   )
 
   const handleCompoundPeriodSelect = useCallback(
@@ -429,7 +432,10 @@ export default function AutoProModal({
   const handleLockPeriodSelect = useCallback(
     (selectedId) => {
       setLockPeriodId(selectedId)
-    }, [setLockPeriodId]
+      if(isCheckLock) {
+        setInvestPercent((parseFloat(DEFAULT_INVEST_PERCENT) - (selectedId+1) / 52.0 * (parseFloat(DEFAULT_INVEST_PERCENT) - parseFloat(DEFAULT_INVEST_PERCENT_LOCK))).toFixed(2).toString())
+      }
+    }, [setLockPeriodId, isCheckLock]
   )
 
   const handleLockPeriodDismiss = useCallback(() => {
@@ -444,7 +450,8 @@ export default function AutoProModal({
     setIsCheckRelock(true)
     setIsCheckLock(true)
     setIsRelockConfirmModalOpen(false)
-  }, [])
+    setInvestPercent((parseFloat(DEFAULT_INVEST_PERCENT) - (lockPeriodId+1) / 52.0 * (parseFloat(DEFAULT_INVEST_PERCENT) - parseFloat(DEFAULT_INVEST_PERCENT_LOCK))).toFixed(2).toString())
+  }, [lockPeriodId])
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     const { value: inputValue } = evt.target
@@ -507,9 +514,9 @@ export default function AutoProModal({
 
     if (isLpStakedAmountChanged) onRemovePopup()
 
-    setInvestPercent(INVEST_PERCENT)
+    // setInvestPercent(INVEST_PERCENT)
 
-  }, [INVEST_PERCENT, investPercent, purchaseCount, setError, allTokens, baseData, isApproving, isNeedApprove, isLpStakedAmountChanged, onRemovePopup])
+  }, [investPercent, purchaseCount, setError, allTokens, baseData, isApproving, isNeedApprove, isLpStakedAmountChanged, onRemovePopup])
 
   const handleDismissConfirmation = useCallback(() => {
     setShowConfirm(false)

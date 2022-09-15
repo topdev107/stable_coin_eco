@@ -766,13 +766,13 @@ export default function Staking() {
                         <img src={MARKET_logo_blank} alt='logo' style={{ width: '40px', height: '40px' }} />
                         <div className='ml-2'>
                           <Flex alignItems='center'>
-                            <Text>{formatCurrency(nDecimals(5, norValue(baseData.ptpStakedAmount)), 5)} Staked MARKET</Text>
+                            <Text>{formatCurrency(nDecimals(2, norValue(baseData.ptpStakedAmount)), 2)} Staked MARKET</Text>
                             <QuestionColorHelper
-                              text={`UnStakable: ${formatCurrency(nDecimals(5, norValue(baseData.ptpStakedAmount.sub(lockAmount))), 5)} MARKET`}
+                              text={`UnStakable: ${formatCurrency(nDecimals(2, norValue(baseData.ptpStakedAmount.sub(lockAmount))), 2)} MARKET`}
                               color='white'
                             />
                           </Flex>
-                          <Text color='#888'>{formatCurrency(nDecimals(5, norValue(lockAmount)), 5)} Locked MARKET</Text>
+                          <Text color='#888'>{formatCurrency(nDecimals(2, norValue(lockAmount)), 2)} Locked MARKET</Text>
                           <RowBetween>
                             <TimeDown
                               lockedTimestamp={baseData.lockedTimestamp}
