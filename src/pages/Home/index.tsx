@@ -146,6 +146,7 @@ export default function Home() {
         </div>
         <div style={{ marginTop: '70px' }}>
           <Row>
+            
             <Col className='col-2' />
             <Col>
               <div style={{ paddingLeft: '60px', paddingRight: '60px' }}>
